@@ -1,0 +1,10 @@
+[
+  {
+    "query": "What is the mitochondria?",
+    "expectedChunkIds": ["chunk1"]
+  },
+  {
+    "query": "How does photosynthesis work?",
+    "expectedChunkIds": ["chunk2"]
+  }
+]

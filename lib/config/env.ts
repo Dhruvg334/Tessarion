@@ -1,6 +1,3 @@
-/**
- * Tessarion - Environment Validation
- */
 import { z } from 'zod';
 
 const clientSchema = z.object({
@@ -20,17 +17,24 @@ export function hasSupabaseClientEnv(): boolean {
   return !!process.env.NEXT_PUBLIC_SUPABASE_URL && !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 }
 
+export function assertSupabaseClientEnv() {
+  if (!hasSupabaseClientEnv()) {
+    throw new Error('Supabase client environment variables are missing');
+  }
+}
+
+export function assertGeminiEnv() {
+  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+    throw new Error('GOOGLE_GENERATIVE_AI_API_KEY is missing');
+  }
+}
+
 export function getClientEnv() {
   const result = clientSchema.safeParse({
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   });
   if (!result.success) {
-    if (typeof window !== 'undefined') {
-      console.warn('Missing Supabase client env variables');
-      return { supabaseUrl: '', supabaseAnonKey: '' };
-    }
-    // We allow empty in build to prevent crash, but throw if requested during runtime flow
     return { supabaseUrl: '', supabaseAnonKey: '' };
   }
   return {
@@ -51,6 +55,5 @@ export function getServerEnv() {
   };
 }
 
-// Fallbacks for safe UI rendering
 export const clientEnv = getClientEnv();
 export const serverEnv = (typeof window === 'undefined' ? getServerEnv() : {}) as ReturnType<typeof getServerEnv>;

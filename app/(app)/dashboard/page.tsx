@@ -29,7 +29,7 @@ export default function DashboardPage() {
     }
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   useEffect(() => { load(); }, []);
 
   const handleCreate = async (e: React.FormEvent) => {

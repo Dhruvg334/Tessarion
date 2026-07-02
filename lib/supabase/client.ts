@@ -3,11 +3,8 @@ import { getClientEnv, hasSupabaseClientEnv } from '@/lib/config/env';
 
 export function createClient() {
   if (!hasSupabaseClientEnv()) {
-    console.warn('Supabase env missing. Client will fail on actual requests.');
+    return createBrowserClient('https://placeholder.supabase.co', 'placeholder_key');
   }
   const env = getClientEnv();
-  return createBrowserClient(
-    env.supabaseUrl || 'https://placeholder.supabase.co',
-    env.supabaseAnonKey || 'placeholder_key'
-  );
+  return createBrowserClient(env.supabaseUrl, env.supabaseAnonKey);
 }

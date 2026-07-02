@@ -1,87 +1,58 @@
-/**
- * Tessarion - Deterministic Text Chunking Utility
- */
-
 export interface ChunkResult {
   content: string;
   chunkIndex: number;
   charStart: number;
   charEnd: number;
   tokenCount: number;
-  sectionHint: string;
+  sectionHint?: string;
 }
 
-export interface ChunkingOptions {
-  maxTokens?: number;
-  overlapTokens?: number;
-}
-
-/**
- * Extremely basic token estimation (approx 4 chars per token for English).
- */
-export function estimateTokens(text: string): number {
-  return Math.ceil(text.length / 4);
-}
-
-/**
- * Splits text into chunks deterministically based on paragraph/sentence boundaries.
- */
-export function chunkText(text: string, options?: ChunkingOptions): ChunkResult[] {
-  const maxTokens = options?.maxTokens || 600;
-  const overlapTokens = options?.overlapTokens || 100;
+export function chunkText(text: string, options: { maxTokens?: number, overlapTokens?: number } = {}): ChunkResult[] {
+  if (!text || text.trim() === '') return [];
+  const maxTokens = options.maxTokens || 600;
   
-  if (!text.trim()) return [];
-
-  // Very naive split by double newline first (paragraphs)
-  const paragraphs = text.split(/\n\s*\n/);
-  
+  const paragraphs = text.split(/\n\n+/);
   const chunks: ChunkResult[] = [];
   let currentContent = '';
-  let currentCharStart = 0;
+  let currentStart = 0;
   let chunkIndex = 0;
+  let currentHint = '';
 
-  for (let i = 0; i < paragraphs.length; i++) {
-    const p = paragraphs[i].trim();
-    if (!p) continue;
-
-    const potentialContent = currentContent ? `${currentContent}\n\n${p}` : p;
-    const tokens = estimateTokens(potentialContent);
-
-    if (tokens > maxTokens && currentContent) {
-      // Push current
-      chunks.push({
-        content: currentContent,
-        chunkIndex,
-        charStart: currentCharStart,
-        charEnd: currentCharStart + currentContent.length,
-        tokenCount: estimateTokens(currentContent),
-        sectionHint: 'Text section',
-      });
-      chunkIndex++;
-      
-      // Calculate overlap (naive: take last N characters based on overlap tokens)
-      const overlapChars = overlapTokens * 4;
-      const overlapText = currentContent.length > overlapChars 
-        ? currentContent.slice(-overlapChars) 
-        : currentContent;
-
-      currentCharStart = currentCharStart + currentContent.length - overlapText.length + 2; // +2 for newlines
-      currentContent = `${overlapText}\n\n${p}`;
-    } else {
-      currentContent = potentialContent;
+  for (const p of paragraphs) {
+    // Detect headings
+    const headingMatch = p.match(/^(#{1,6})\s+(.+)$/m);
+    if (headingMatch) {
+      currentHint = headingMatch[2].trim();
     }
-  }
 
-  if (currentContent) {
+    const approxTokens = p.length / 4;
+    
+    if (currentContent && (currentContent.length / 4) + approxTokens > maxTokens) {
+      chunks.push({
+        content: currentContent.trim(),
+        chunkIndex: chunkIndex++,
+        charStart: currentStart,
+        charEnd: currentStart + currentContent.length,
+        tokenCount: Math.floor(currentContent.length / 4),
+        sectionHint: currentHint || undefined
+      });
+      currentContent = '';
+      currentStart += currentContent.length + 2;
+    }
+    
+    currentContent += (currentContent ? '\n\n' : '') + p;
+  }
+  
+  if (currentContent.trim()) {
     chunks.push({
-      content: currentContent,
-      chunkIndex,
-      charStart: currentCharStart,
-      charEnd: currentCharStart + currentContent.length,
-      tokenCount: estimateTokens(currentContent),
-      sectionHint: 'Text section',
+      content: currentContent.trim(),
+      chunkIndex: chunkIndex++,
+      charStart: currentStart,
+      charEnd: currentStart + currentContent.length,
+      tokenCount: Math.floor(currentContent.length / 4),
+      sectionHint: currentHint || undefined
     });
   }
-
+  
   return chunks;
 }

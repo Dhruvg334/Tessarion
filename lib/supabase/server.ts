@@ -7,25 +7,22 @@ export async function createServerSupabaseClient() {
   const env = getClientEnv();
 
   if (!hasSupabaseClientEnv()) {
-    console.warn('Missing Supabase server env.');
+    return createServerClient('https://placeholder.supabase.co', 'placeholder_key', {
+      cookies: {
+        getAll() { return cookieStore.getAll(); },
+        setAll() {},
+      },
+    });
   }
 
-  return createServerClient(
-    env.supabaseUrl || 'https://placeholder.supabase.co',
-    env.supabaseAnonKey || 'placeholder_key',
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
-          } catch {
-            // Ignored during static generation
-          }
-        },
+  return createServerClient(env.supabaseUrl, env.supabaseAnonKey, {
+    cookies: {
+      getAll() { return cookieStore.getAll(); },
+      setAll(cookiesToSet) {
+        try {
+          cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
+        } catch {}
       },
-    }
-  );
+    },
+  });
 }

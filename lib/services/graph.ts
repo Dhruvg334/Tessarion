@@ -1,9 +1,2 @@
-/**
- * Tessarion Service Placeholder: graph
- * TODO: Implement Supabase integration and real business logic here.
- */
-
-export async function placeholder_graph() {
-  // TODO: Add real logic
-  throw new Error("Not implemented yet");
-}
+import { AppError } from '@/lib/errors/app-error';
+export async function getWorkspaceGraph() { throw new AppError('NOT_IMPLEMENTED', 501, 'NOT_IMPLEMENTED'); }
