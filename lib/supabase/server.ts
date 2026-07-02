@@ -1,17 +1,18 @@
-/**
- * Tessarion — Supabase server client
- * Supports authenticated server-side usage using cookies.
- */
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { clientEnv } from '@/lib/config/env';
+import { getClientEnv, hasSupabaseClientEnv } from '@/lib/config/env';
 
 export async function createServerSupabaseClient() {
   const cookieStore = await cookies();
-  
+  const env = getClientEnv();
+
+  if (!hasSupabaseClientEnv()) {
+    console.warn('Missing Supabase server env.');
+  }
+
   return createServerClient(
-    clientEnv.supabaseUrl,
-    clientEnv.supabaseAnonKey,
+    env.supabaseUrl || 'https://placeholder.supabase.co',
+    env.supabaseAnonKey || 'placeholder_key',
     {
       cookies: {
         getAll() {
@@ -19,11 +20,9 @@ export async function createServerSupabaseClient() {
         },
         setAll(cookiesToSet) {
           try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            );
+            cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
           } catch {
-            // Ignored in Server Components
+            // Ignored during static generation
           }
         },
       },

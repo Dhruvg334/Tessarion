@@ -1,13 +1,13 @@
-/**
- * Tessarion — Supabase browser client
- * Uses ONLY public environment variables.
- */
 import { createBrowserClient } from '@supabase/ssr';
-import { clientEnv } from '@/lib/config/env';
+import { getClientEnv, hasSupabaseClientEnv } from '@/lib/config/env';
 
 export function createClient() {
+  if (!hasSupabaseClientEnv()) {
+    console.warn('Supabase env missing. Client will fail on actual requests.');
+  }
+  const env = getClientEnv();
   return createBrowserClient(
-    clientEnv.supabaseUrl,
-    clientEnv.supabaseAnonKey
+    env.supabaseUrl || 'https://placeholder.supabase.co',
+    env.supabaseAnonKey || 'placeholder_key'
   );
 }

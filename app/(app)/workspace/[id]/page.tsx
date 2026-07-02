@@ -1,6 +1,6 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getWorkspace } from '@/lib/services/workspaces';
-import { listDocuments, deleteDocument } from '@/lib/services/documents';
+import { listDocuments } from '@/lib/services/documents';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 

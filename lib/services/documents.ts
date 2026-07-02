@@ -1,6 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { createServiceClient } from '@/lib/supabase/service';
-import { SourceDocument, SourceChunk } from '@/types/database';
+import { SourceDocument } from '@/types/database';
 import { chunkText } from '@/lib/rag/chunking';
 
 export async function listDocuments(workspaceId: string, _userId: string): Promise<SourceDocument[]> {
@@ -31,7 +31,6 @@ export async function getDocument(documentId: string, workspaceId: string, _user
 export async function createPastedDocument(workspaceId: string, userId: string, input: { file_name: string; content: string }): Promise<SourceDocument> {
   const supabase = await createServerSupabaseClient();
   
-  // 1. Create document record
   const { data: doc, error: docError } = await supabase
     .from('source_documents')
     .insert({
@@ -40,7 +39,7 @@ export async function createPastedDocument(workspaceId: string, userId: string, 
       file_type: 'text/plain',
       file_size: Buffer.byteLength(input.content, 'utf8'),
       input_type: 'paste',
-      processing_status: 'processing', // synchronous for paste in Phase 3
+      processing_status: 'processing',
     })
     .select()
     .single();
@@ -48,18 +47,12 @@ export async function createPastedDocument(workspaceId: string, userId: string, 
   if (docError) throw docError;
 
   try {
-    // 2. Chunk text
     const chunksData = chunkText(input.content);
-    
-    // 3. Insert chunks
     await createSourceChunks(doc.id, workspaceId, chunksData);
-    
-    // 4. Update status
     await updateDocumentProcessingStatus(doc.id, workspaceId, userId, {
       status: 'ready',
       chunk_count: chunksData.length
     });
-    
     return getDocument(doc.id, workspaceId, userId);
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Unknown error during processing';
@@ -72,14 +65,13 @@ export async function createPastedDocument(workspaceId: string, userId: string, 
 }
 
 export async function createUploadedDocumentRecord(_workspaceId: string, _userId: string, _input: unknown): Promise<SourceDocument> {
-  // Safe placeholder returning 501-like error for file uploads
   throw new Error("501: File uploads to Supabase Storage are not implemented in Phase 3. Please use paste text.");
 }
 
 export async function updateDocumentProcessingStatus(
   documentId: string, 
   workspaceId: string, 
-  userId: string, 
+  _userId: string, 
   statusInput: { status: 'pending' | 'processing' | 'ready' | 'failed' | 'partial', chunk_count?: number, error_message?: string }
 ): Promise<void> {
   const supabase = await createServerSupabaseClient();
@@ -111,13 +103,9 @@ export async function deleteDocument(documentId: string, workspaceId: string, _u
   if (error) throw error;
 }
 
-// 5. Source chunk persistence
 export async function createSourceChunks(documentId: string, workspaceId: string, chunks: import("@/lib/rag/chunking").ChunkResult[]): Promise<void> {
-  // Bypassing RLS here by using service_role is safe since the caller validated ownership,
-  // but let's stick to user client if possible. We use service client to ensure bulk insert 
-  // succeeds without massive RLS overhead if safe, but user client is best for safety.
-  // We'll use service client safely wrapped.
-  const serviceClient = createServiceClient();
+  // Using authenticated server client instead of service role
+  const supabase = await createServerSupabaseClient();
   
   const insertRows = chunks.map(c => ({
     source_document_id: documentId,
@@ -130,7 +118,7 @@ export async function createSourceChunks(documentId: string, workspaceId: string
     section_hint: c.sectionHint,
   }));
 
-  const { error } = await serviceClient
+  const { error } = await supabase
     .from('source_chunks')
     .insert(insertRows);
 
