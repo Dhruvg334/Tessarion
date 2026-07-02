@@ -1,0 +1,52 @@
+# dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+build/
+dist/
+
+# local env
+.env
+.env.local
+.env.*.local
+
+# Vercel
+.vercel/
+
+# Supabase
+.supabase/
+supabase/.branches/
+supabase/.temp/
+
+# logs
+logs/
+*.log
+
+# local caches
+.cache/
+.turbo/
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# private docs and planning
+docs/private/
+docs/drafts/
+docs/**/*.private.md
+docs/**/*.local.md
+
+# private skills and drafts
+.skills/private/
+.skills/drafts/
+.skills/**/*.local.md
+
+# local data and dumps
+*.sqlite
+*.db
+*.dump
+*.sql.local
