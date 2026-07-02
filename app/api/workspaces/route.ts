@@ -1,28 +1,36 @@
 import { NextResponse } from 'next/server';
-// import { z } from 'zod';
-// import * as schemas from '@/lib/validation/schemas';
-// import * as services from '@/lib/services/workspaces';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createWorkspaceSchema } from '@/lib/validation/schemas';
+import * as workspaceService from '@/lib/services/workspaces';
 
 export async function GET() {
   try {
-    // 1. TODO: Verify auth session
-    // 2. TODO: Validate params if any
-    // 3. TODO: Call service layer (e.g. services.placeholder())
-    
-    return NextResponse.json({ data: [], message: 'Scaffolded GET endpoint' });
-  } catch {
-    return NextResponse.json({ error: { code: 'INTERNAL_ERROR', message: 'Not implemented' } }, { status: 500 });
+    const supabase = await createServerSupabaseClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 });
+
+    const workspaces = await workspaceService.listWorkspaces(user.id);
+    return NextResponse.json({ data: workspaces });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error instanceof Error ? (error instanceof Error ? error.message : "Unknown error") : "Unknown error") }, { status: 500 });
   }
 }
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
-    // 1. TODO: Verify auth session
-    // 2. TODO: Validate request body via Zod schemas
-    // 3. TODO: Call service layer (e.g. services.placeholder())
-    
-    return NextResponse.json({ data: null, message: 'Scaffolded POST endpoint' });
-  } catch {
-    return NextResponse.json({ error: { code: 'INTERNAL_ERROR', message: 'Not implemented' } }, { status: 500 });
+    const supabase = await createServerSupabaseClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 });
+
+    const body = await request.json();
+    const parsed = createWorkspaceSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Validation failed', details: parsed.error.format() }, { status: 400 });
+    }
+
+    const workspace = await workspaceService.createWorkspace(user.id, parsed.data);
+    return NextResponse.json({ data: workspace }, { status: 201 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error instanceof Error ? (error instanceof Error ? error.message : "Unknown error") : "Unknown error") }, { status: 500 });
   }
 }
