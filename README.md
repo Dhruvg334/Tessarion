@@ -28,3 +28,5 @@ Tessarion is an AI-powered deep learning workspace where students learn by teach
 - `npm run build`: Build for production.
 - `npm run lint`: Run ESLint.
 - `npm run typecheck`: Run TypeScript compilation check.
+- `npm run test:run`: Run Vitest test suite.
+- `npm run eval:rag`: Run deterministic local RAG evaluation.

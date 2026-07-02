@@ -1,10 +1,50 @@
 [
   {
     "query": "What is the mitochondria?",
-    "expectedChunkIds": ["chunk1"]
+    "expectedChunkIds": ["chunk_mito_1", "chunk_mito_2"]
   },
   {
-    "query": "How does photosynthesis work?",
-    "expectedChunkIds": ["chunk2"]
+    "query": "Explain photosynthesis.",
+    "expectedChunkIds": ["chunk_photo_1"]
+  },
+  {
+    "query": "How do plants convert sunlight into energy?",
+    "expectedChunkIds": ["chunk_photo_1", "chunk_photo_2"]
+  },
+  {
+    "query": "What is ATP?",
+    "expectedChunkIds": ["chunk_atp_1"]
+  },
+  {
+    "query": "Describe the nucleus of a cell.",
+    "expectedChunkIds": ["chunk_nuc_1"]
+  },
+  {
+    "query": "What is cellular respiration?",
+    "expectedChunkIds": ["chunk_mito_2", "chunk_atp_1"]
+  },
+  {
+    "query": "Difference between plant and animal cells?",
+    "expectedChunkIds": ["chunk_plant_vs_animal"]
+  },
+  {
+    "query": "What role does chlorophyll play?",
+    "expectedChunkIds": ["chunk_photo_2"]
+  },
+  {
+    "query": "Explain cell membrane function.",
+    "expectedChunkIds": ["chunk_membrane"]
+  },
+  {
+    "query": "What are ribosomes?",
+    "expectedChunkIds": ["chunk_ribosome"]
+  },
+  {
+    "query": "How is energy stored in cells?",
+    "expectedChunkIds": ["chunk_atp_1", "chunk_mito_1"]
+  },
+  {
+    "query": "What produces proteins in a cell?",
+    "expectedChunkIds": ["chunk_ribosome"]
   }
 ]

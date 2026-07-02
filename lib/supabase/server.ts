@@ -7,12 +7,7 @@ export async function createServerSupabaseClient() {
   const env = getClientEnv();
 
   if (!hasSupabaseClientEnv()) {
-    return createServerClient('https://placeholder.supabase.co', 'placeholder_key', {
-      cookies: {
-        getAll() { return cookieStore.getAll(); },
-        setAll() {},
-      },
-    });
+    throw new Error('Supabase client environment variables are missing');
   }
 
   return createServerClient(env.supabaseUrl, env.supabaseAnonKey, {

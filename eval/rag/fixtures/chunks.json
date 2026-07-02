@@ -1,0 +1,13 @@
+[
+  { "id": "chunk_mito_1", "content": "The mitochondria is the powerhouse of the cell, generating most of the chemical energy." },
+  { "id": "chunk_mito_2", "content": "Cellular respiration occurs in the mitochondria, producing ATP for the cell." },
+  { "id": "chunk_photo_1", "content": "Photosynthesis is the process by which plants convert sunlight, water, and CO2 into glucose and oxygen." },
+  { "id": "chunk_photo_2", "content": "Chlorophyll, found in chloroplasts, captures sunlight energy for photosynthesis." },
+  { "id": "chunk_atp_1", "content": "ATP (Adenosine triphosphate) is the primary energy carrier in all living organisms." },
+  { "id": "chunk_nuc_1", "content": "The nucleus is a membrane-bound organelle that contains the cell's genetic material (DNA)." },
+  { "id": "chunk_plant_vs_animal", "content": "Plant cells have a cell wall and chloroplasts, whereas animal cells do not. Both have a nucleus and mitochondria." },
+  { "id": "chunk_membrane", "content": "The cell membrane regulates the transport of materials entering and exiting the cell." },
+  { "id": "chunk_ribosome", "content": "Ribosomes are macromolecular machines that perform biological protein synthesis (translation)." },
+  { "id": "distractor_1", "content": "Gravity is the force by which a planet or other body draws objects toward its center." },
+  { "id": "distractor_2", "content": "The speed of light in a vacuum is exactly 299,792,458 metres per second." }
+]

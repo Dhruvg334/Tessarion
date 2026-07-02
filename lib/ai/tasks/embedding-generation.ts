@@ -1,5 +1,4 @@
-import { getGeminiProvider, GEMINI_EMBEDDING_MODEL } from '@/lib/ai/gemini';
-import { embedMany, embed } from 'ai';
+import { getEmbeddingProvider } from '@/lib/ai/providers/registry';
 import { AppError } from '@/lib/errors/app-error';
 
 function validateInput(text: string) {
@@ -11,24 +10,22 @@ function validateInput(text: string) {
   }
 }
 
-export async function generateDocumentEmbedding(text: string): Promise<number[]> {
-  validateInput(text);
-  const google = getGeminiProvider();
-  const { embedding } = await embed({ model: google.textEmbeddingModel(GEMINI_EMBEDDING_MODEL), value: text });
-  return embedding;
+function resolveProvider(options?: { provider?: string }) {
+  if (process.env.NODE_ENV === 'test' && !options?.provider) return 'local';
+  return options?.provider || 'gemini';
 }
 
-export async function generateQueryEmbedding(text: string): Promise<number[]> {
+export async function generateDocumentEmbedding(text: string, options?: { provider?: string }): Promise<number[]> {
   validateInput(text);
-  const google = getGeminiProvider();
-  // We can prefix for retrieval task type if required by Google model, ai-sdk handles it typically or we pass prefix.
-  const { embedding } = await embed({ model: google.textEmbeddingModel(GEMINI_EMBEDDING_MODEL), value: text });
-  return embedding;
+  return getEmbeddingProvider(resolveProvider(options)).embedDocument(text);
 }
 
-export async function generateDocumentEmbeddings(texts: string[]): Promise<number[][]> {
+export async function generateQueryEmbedding(text: string, options?: { provider?: string }): Promise<number[]> {
+  validateInput(text);
+  return getEmbeddingProvider(resolveProvider(options)).embedQuery(text);
+}
+
+export async function generateDocumentEmbeddings(texts: string[], options?: { provider?: string }): Promise<number[][]> {
   texts.forEach(validateInput);
-  const google = getGeminiProvider();
-  const { embeddings } = await embedMany({ model: google.textEmbeddingModel(GEMINI_EMBEDDING_MODEL), values: texts });
-  return embeddings;
+  return getEmbeddingProvider(resolveProvider(options)).embedDocuments(texts);
 }

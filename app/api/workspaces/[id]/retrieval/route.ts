@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { retrieveRelevantChunks } from '@/lib/services/retrieval';
 import { successResponse, errorResponse, unauthorizedResponse } from '@/lib/validation/api-response';

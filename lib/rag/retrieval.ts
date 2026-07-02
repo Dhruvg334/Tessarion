@@ -1,4 +1,4 @@
-import { RetrievedChunk, RetrievalConfidence } from './types';
+import { RetrievedChunk, RetrievalConfidence, RetrievalFusionConfig } from './types';
 
 export function calculateRetrievalConfidence(chunk: Partial<RetrievedChunk>): RetrievalConfidence {
   let score = 0;
@@ -20,16 +20,34 @@ export function filterLowConfidenceChunks(chunks: RetrievedChunk[], threshold = 
   return chunks.filter(c => c.confidence >= threshold);
 }
 
-export function reciprocalRankFusion(dense: RetrievedChunk[], sparse: RetrievedChunk[], k = 60): RetrievedChunk[] {
+export function reciprocalRankFusion(
+  dense: RetrievedChunk[], 
+  sparse: RetrievedChunk[], 
+  k = 60,
+  config?: RetrievalFusionConfig
+): RetrievedChunk[] {
   const scores = new Map<string, { rrf: number; chunk: RetrievedChunk }>();
+  const sparseWeight = config?.sparseWeight ?? 1;
+  const denseWeight = config?.denseWeight ?? 1;
+  const rrfK = config?.rrfK ?? k;
+
+  // Option: Fallback to sparse if dense scores are terribly weak
+  if (config?.fallbackToSparseWhenDenseWeak) {
+    const maxDense = dense.length > 0 ? (dense[0].similarity || 0) : 0;
+    const threshold = config.minDenseConfidence ?? 0.3;
+    if (maxDense < threshold) {
+      // Just return sparse
+      return sparse.map((c, i) => ({ ...c, rrfScore: 1 / (rrfK + i) }));
+    }
+  }
 
   dense.forEach((c, index) => {
-    scores.set(c.id, { rrf: 1 / (k + index + 1), chunk: c });
+    scores.set(c.id, { rrf: denseWeight * (1 / (rrfK + index + 1)), chunk: c });
   });
 
   sparse.forEach((c, index) => {
     const existing = scores.get(c.id);
-    const score = 1 / (k + index + 1);
+    const score = sparseWeight * (1 / (rrfK + index + 1));
     if (existing) {
       existing.rrf += score;
     } else {

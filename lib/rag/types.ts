@@ -1,5 +1,13 @@
 export type RetrievalMode = 'dense' | 'sparse' | 'hybrid';
 
+export interface RetrievalFusionConfig {
+  sparseWeight?: number;
+  denseWeight?: number;
+  rrfK?: number;
+  minDenseConfidence?: number;
+  fallbackToSparseWhenDenseWeak?: boolean;
+}
+
 export interface RetrievedChunk {
   id: string;
   sourceDocumentId: string;

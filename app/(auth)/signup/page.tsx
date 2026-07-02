@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { hasSupabaseClientEnv } from '@/lib/config/env';
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('');
@@ -9,13 +10,19 @@ export default function SignUpPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const supabase = createClient();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
+    if (!hasSupabaseClientEnv()) {
+      setError('Supabase is not configured.');
+      setLoading(false);
+      return;
+    }
+
+    const supabase = createClient();
     const { error } = await supabase.auth.signUp({
       email,
       password,
