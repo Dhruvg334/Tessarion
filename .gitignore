@@ -6,6 +6,8 @@ node_modules/
 out/
 build/
 dist/
+*.tsbuildinfo
+tsconfig.tsbuildinfo
 
 # local env
 .env

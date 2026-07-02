@@ -3,7 +3,7 @@
 Tessarion is an AI-powered deep learning workspace where students learn by teaching.
 
 ## Tech Stack
-- **Frontend:** Next.js 15 (App Router), React, TypeScript, Zustand, TanStack Query, Cytoscape.js, Radix UI, Tailwind/CSS modules.
+- **Frontend:** Next.js 16 (App Router), React, TypeScript, Zustand, TanStack Query, Cytoscape.js, Radix UI.
 - **Backend:** Next.js Route Handlers, Inngest (durable workflows).
 - **Database:** Supabase (PostgreSQL, pgvector, Auth, Storage).
 - **AI:** Google Gemini via Vercel AI SDK.
