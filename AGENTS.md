@@ -5,7 +5,17 @@
 - **Summary:** An AI-powered deep learning workspace where students learn by teaching. Includes knowledge graphs, concept-level mastery tracking, and RAG over student-uploaded material.
 
 ## Stack Summary
-- Next.js 15 (App Router), TypeScript, Supabase (Postgres, Auth, Storage, pgvector), Gemini, Vercel AI SDK, Inngest, Zustand, TanStack Query, Cytoscape.js, Radix UI, Framer Motion.
+- Next.js 16
+- React 19
+- TypeScript
+- Supabase
+- Gemini via Vercel AI SDK
+- Inngest
+- Zustand
+- TanStack Query
+- Cytoscape.js
+- Radix UI
+- Framer Motion
 
 ## Folder Structure
 - `/app`: Next.js App Router pages and API routes.

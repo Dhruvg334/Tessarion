@@ -9,7 +9,7 @@ export async function GET() {
     
     // TODO: Validate params and handle business logic for processing
     return NextResponse.json({ data: [], message: 'Scaffolded processing GET endpoint' });
-  } catch (_error) {
+  } catch {
     // return toErrorResponse(error);
     return NextResponse.json({ error: { code: 'INTERNAL_ERROR', message: 'Not implemented' } }, { status: 500 });
   }
@@ -21,7 +21,7 @@ export async function POST() {
     // TODO: Validate request body via Zod
     // TODO: Handle business logic for processing
     return NextResponse.json({ data: null, message: 'Scaffolded processing POST endpoint' });
-  } catch (_error) {
+  } catch {
     // return toErrorResponse(error);
     return NextResponse.json({ error: { code: 'INTERNAL_ERROR', message: 'Not implemented' } }, { status: 500 });
   }
