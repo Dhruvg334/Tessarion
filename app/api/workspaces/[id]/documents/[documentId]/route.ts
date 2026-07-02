@@ -1,40 +1,32 @@
 import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { pasteDocumentSchema } from '@/lib/validation/schemas';
 import * as documentService from '@/lib/services/documents';
 
-export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string, documentId: string }> }) {
   try {
-    const { id: workspaceId } = await params;
+    const { id: workspaceId, documentId } = await params;
     const supabase = await createServerSupabaseClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 });
 
-    const documents = await documentService.listDocuments(workspaceId, user.id);
-    return NextResponse.json({ data: documents });
+    const doc = await documentService.getDocument(documentId, workspaceId, user.id);
+    return NextResponse.json({ data: doc });
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : 'Unknown error';
+    if (msg.includes('not found')) return NextResponse.json({ error: 'Not found' }, { status: 404 });
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
 
-export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string, documentId: string }> }) {
   try {
-    const { id: workspaceId } = await params;
+    const { id: workspaceId, documentId } = await params;
     const supabase = await createServerSupabaseClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 });
 
-    const body = await request.json();
-    
-    // For Phase 3, we only implement pasted text
-    const parsed = pasteDocumentSchema.safeParse(body);
-    if (!parsed.success) {
-      return NextResponse.json({ error: 'Validation failed', details: parsed.error.format() }, { status: 400 });
-    }
-
-    const doc = await documentService.createPastedDocument(workspaceId, user.id, parsed.data);
-    return NextResponse.json({ data: doc }, { status: 201 });
+    await documentService.deleteDocument(documentId, workspaceId, user.id);
+    return new NextResponse(null, { status: 204 });
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json({ error: msg }, { status: 500 });
