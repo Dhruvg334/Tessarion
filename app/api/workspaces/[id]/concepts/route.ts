@@ -1,28 +1,28 @@
 import { NextResponse } from 'next/server';
-// import { createServerSupabaseClient } from '@/lib/supabase/server';
-// import { toErrorResponse } from '@/lib/errors/api-error';
+// import { z } from 'zod';
+// import * as schemas from '@/lib/validation/schemas';
+// import * as services from '@/lib/services/concepts';
 
 export async function GET() {
   try {
-    // TODO: Verify auth session
-    // const supabase = await createServerSupabaseClient();
+    // 1. TODO: Verify auth session
+    // 2. TODO: Validate params if any
+    // 3. TODO: Call service layer (e.g. services.placeholder())
     
-    // TODO: Validate params and handle business logic for concepts
-    return NextResponse.json({ data: [], message: 'Scaffolded concepts GET endpoint' });
+    return NextResponse.json({ data: [], message: 'Scaffolded GET endpoint' });
   } catch {
-    // return toErrorResponse(error);
     return NextResponse.json({ error: { code: 'INTERNAL_ERROR', message: 'Not implemented' } }, { status: 500 });
   }
 }
 
 export async function POST() {
   try {
-    // TODO: Verify auth session
-    // TODO: Validate request body via Zod
-    // TODO: Handle business logic for concepts
-    return NextResponse.json({ data: null, message: 'Scaffolded concepts POST endpoint' });
+    // 1. TODO: Verify auth session
+    // 2. TODO: Validate request body via Zod schemas
+    // 3. TODO: Call service layer (e.g. services.placeholder())
+    
+    return NextResponse.json({ data: null, message: 'Scaffolded POST endpoint' });
   } catch {
-    // return toErrorResponse(error);
     return NextResponse.json({ error: { code: 'INTERNAL_ERROR', message: 'Not implemented' } }, { status: 500 });
   }
 }
