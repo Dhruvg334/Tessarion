@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
+import { Caveat } from "next/font/google";
 
 import './globals.css';
+
+const caveat = Caveat({ subsets: ["latin"], display: "swap", variable: "--font-caveat" });
 
 export const metadata: Metadata = {
   title: "Tessarion — Learn by Teaching",
@@ -13,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={caveat.variable}>
       <body>{children}</body>
     </html>
   );

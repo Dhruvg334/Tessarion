@@ -44,51 +44,67 @@ export default function UploadPage({ params }: { params: Promise<{ id: string }>
   };
 
   return (
-    <div className="container">
+    <div className="container" style={{ padding: '0 2rem' }}>
       <div style={{ marginBottom: '1rem' }}>
-        <Link href={`/workspace/${workspaceId}`} className="muted">← Back to Workspace</Link>
+        <Link href={`/workspace/${workspaceId}`} className="muted" style={{ display: 'inline-flex', alignItems: 'center', fontSize: '0.875rem' }}>
+          ← Back to Workspace
+        </Link>
       </div>
-      <h1 className="title">Upload Materials</h1>
       
-      <div style={{ display: 'flex', gap: '2rem', marginTop: '2rem' }}>
+      <div style={{ marginBottom: '2rem' }}>
+        <h1 className="title" style={{ marginBottom: '0.25rem' }}>Add Materials</h1>
+        <p className="muted">Upload your study materials, lecture notes, or textbook excerpts.</p>
+      </div>
+      
+      <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
         {/* Paste Text Form */}
-        <div className="card" style={{ flex: 1 }}>
-          <h3>Paste Text</h3>
-          {error && <p style={{ color: 'red' }}>{error}</p>}
+        <div className="card" style={{ flex: '1 1 400px' }}>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 600, borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem', marginBottom: '1rem' }}>Paste Text</h3>
+          {error && <p style={{ color: '#b91c1c', marginBottom: '1rem' }}>{error}</p>}
           {success && (
-            <div style={{ padding: '1rem', background: 'var(--accent)', color: '#fff', borderRadius: '4px', marginBottom: '1rem' }}>
-              Successfully processed into {chunkCount} chunks.
+            <div style={{ padding: '1rem', background: '#dcfce7', color: '#166534', borderRadius: '6px', marginBottom: '1rem', border: '1px solid #bbf7d0', fontSize: '0.875rem' }}>
+              <strong>Success:</strong> Processed into {chunkCount} context chunks.
             </div>
           )}
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
-            <input
-              type="text"
-              placeholder="Document Title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-              style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--background)', color: 'var(--foreground)' }}
-            />
-            <textarea
-              placeholder="Paste content here..."
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              required
-              rows={15}
-              style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--background)', color: 'var(--foreground)', resize: 'vertical' }}
-            />
-            <button disabled={loading} type="submit" style={{ padding: '0.5rem', background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+          
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.25rem', color: 'var(--foreground)' }}>Document Title</label>
+              <input
+                type="text"
+                className="input"
+                placeholder="e.g. Cellular Respiration Chapter 9"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.25rem', color: 'var(--foreground)' }}>Content</label>
+              <textarea
+                className="input"
+                placeholder="Paste the text content of your material here..."
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                required
+                rows={15}
+                style={{ resize: 'vertical', fontFamily: 'monospace', fontSize: '0.875rem' }}
+              />
+            </div>
+            
+            <button className="btn" disabled={loading} type="submit" style={{ marginTop: '0.5rem' }}>
               {loading ? 'Processing...' : 'Process Text'}
             </button>
           </form>
         </div>
 
         {/* File Upload Placeholder */}
-        <div className="card" style={{ flex: 1, opacity: 0.7 }}>
-          <h3>File Upload</h3>
-          <p className="muted" style={{ marginTop: '1rem' }}>Coming next. PDF, DOCX, and TXT files will be securely uploaded to Supabase Storage and parsed.</p>
-          <div style={{ border: '2px dashed var(--border)', borderRadius: '4px', padding: '3rem', textAlign: 'center', marginTop: '1rem' }}>
-            <p className="muted">Drag and drop files here (Disabled)</p>
+        <div className="card" style={{ flex: '1 1 300px', opacity: 0.7, height: 'fit-content' }}>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 600, borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem', marginBottom: '1rem' }}>File Upload</h3>
+          <p className="muted" style={{ fontSize: '0.875rem' }}>Coming next. PDF, DOCX, and TXT files will be securely uploaded to Supabase Storage and automatically parsed.</p>
+          <div style={{ border: '2px dashed var(--border)', borderRadius: '6px', padding: '3rem', textAlign: 'center', marginTop: '1.5rem', background: 'var(--background)' }}>
+            <p className="muted" style={{ fontSize: '0.875rem' }}>Drag and drop files here (Disabled)</p>
           </div>
         </div>
       </div>
