@@ -21,5 +21,7 @@ jobs:
       - run: npm run typecheck
       - run: npm run test:run
       - run: npm run eval:rag
+      - run: npm run eval:concepts
+      - run: npm run eval:teachback
       - run: npm run build
       - run: npm audit --audit-level=moderate

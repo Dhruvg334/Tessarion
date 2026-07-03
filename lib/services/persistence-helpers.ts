@@ -16,7 +16,22 @@ export async function upsertConceptNodes(
   userId: string,
   concepts: ExtractedConcept[]
 ): Promise<Map<string, string>> {
+  // Service role is used here because node/edge persistence can happen in background workers
+  // (like Inngest) where cookies() are not available, and for batch upserting across RLS.
+  // We explicitly verify workspace ownership before proceeding.
   const supabase = createServiceClient();
+
+  const { data: workspace, error: wsError } = await supabase
+    .from('workspaces')
+    .select('id')
+    .eq('id', workspaceId)
+    .eq('user_id', userId)
+    .single();
+
+  if (wsError || !workspace) {
+    throw new AppError('UNAUTHORIZED', 403, 'Workspace ownership verification failed');
+  }
+
   const nameToId = new Map<string, string>();
 
   // Fetch existing concepts in the workspace to merge
@@ -89,44 +104,74 @@ export async function upsertConceptEdges(
   relationships: ExtractedRelationship[],
   nodeIdsMap: Map<string, string>
 ) {
+  // Service role is used for background compatibility.
+  // Ownership is verified in upsertConceptNodes, but we fetch existing edges safely within the workspace.
   const supabase = createServiceClient();
 
+  const { data: existingEdges, error: fetchError } = await supabase
+    .from('concept_edges')
+    .select('*')
+    .eq('workspace_id', workspaceId);
+
+  if (fetchError) throw new AppError('DB_ERROR', 500, fetchError.message);
+
+  const existingMap = new Map();
+  for (const edge of (existingEdges || [])) {
+    const key = `${edge.source_node_id}-${edge.target_node_id}-${edge.relationship_type}`;
+    existingMap.set(key, edge);
+  }
+
   const edgesToInsert = [];
+  const edgesToUpdate = [];
+
   for (const rel of relationships) {
     const sourceId = nodeIdsMap.get(normalizeConceptName(rel.sourceNodeName));
     const targetId = nodeIdsMap.get(normalizeConceptName(rel.targetNodeName));
 
     if (sourceId && targetId && sourceId !== targetId) {
-      edgesToInsert.push({
-        id: crypto.randomUUID(),
-        workspace_id: workspaceId,
-        source_node_id: sourceId,
-        target_node_id: targetId,
-        relationship_type: rel.relationshipType,
-        description: rel.description,
-        source_chunk_ids: rel.sourceChunkIds,
-        confidence_score: rel.confidenceScore,
-        created_at: new Date().toISOString(),
-      });
+      const key = `${sourceId}-${targetId}-${rel.relationshipType}`;
+      const existing = existingMap.get(key);
+
+      if (existing) {
+        const newSourceChunkIds = Array.from(new Set([...(existing.source_chunk_ids || []), ...rel.sourceChunkIds]));
+        edgesToUpdate.push({
+          ...existing,
+          source_chunk_ids: newSourceChunkIds,
+          confidence_score: Math.max(existing.confidence_score || 0, rel.confidenceScore),
+        });
+        // Update map so we don't process same duplicate twice
+        existingMap.set(key, edgesToUpdate[edgesToUpdate.length - 1]);
+      } else {
+        const newEdge = {
+          id: crypto.randomUUID(),
+          workspace_id: workspaceId,
+          source_node_id: sourceId,
+          target_node_id: targetId,
+          relationship_type: rel.relationshipType,
+          description: rel.description,
+          source_chunk_ids: rel.sourceChunkIds,
+          confidence_score: rel.confidenceScore,
+          created_at: new Date().toISOString(),
+        };
+        edgesToInsert.push(newEdge);
+        existingMap.set(key, newEdge);
+      }
     }
   }
 
+  if (edgesToUpdate.length > 0) {
+    const { error: updateError } = await supabase
+      .from('concept_edges')
+      .upsert(edgesToUpdate);
+      
+    if (updateError) throw new AppError('DB_ERROR', 500, updateError.message);
+  }
+
   if (edgesToInsert.length > 0) {
-    // Avoid blindly upserting duplicates by ignoring them or deleting all and reinserting.
-    // For now, simple insert and rely on DB constraints, or just insert (edges might duplicate if not careful, 
-    // but we validated them in orchestrator. To be safe, we should fetch existing and filter).
-    
-    // Simplification for Phase 5: insert without explicit duplication check at DB level, 
-    // assuming our `validateRelationships` filtered within the run.
     const { error: insertError } = await supabase
       .from('concept_edges')
       .insert(edgesToInsert);
     
-    // Note: If duplicate edges are an issue at DB level, we might get an error if there's a UNIQUE constraint.
-    // Assuming no unique constraint on (source, target, type) yet, we proceed.
-    if (insertError) {
-      // Ignored for now if it's just duplicates failing a constraint
-      console.error(insertError);
-    }
+    if (insertError) throw new AppError('DB_ERROR', 500, insertError.message);
   }
 }

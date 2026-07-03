@@ -66,7 +66,7 @@ export default async function WorkspacePage({ params }: { params: Promise<{ id: 
           <div className="flex justify-between items-center border-b border-gray-200 pb-3 mb-4">
             <h2 style={{ fontSize: '1.25rem', fontWeight: 600, margin: 0 }}>Knowledge Graph</h2>
           </div>
-          <WorkspaceGraphViewer initialGraph={initialGraph} />
+          <WorkspaceGraphViewer initialGraph={initialGraph} workspaceId={id} />
         </div>
       </div>
     </div>

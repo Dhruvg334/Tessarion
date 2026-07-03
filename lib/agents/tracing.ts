@@ -7,6 +7,7 @@ export interface WorkflowTraceContext {
   agentName: string;
   runId: string;
   startTime: number;
+  steps: Array<{ state: string; status: string; timestamp: string }>;
 }
 
 export async function createTrace(
@@ -35,6 +36,7 @@ export async function createTrace(
     agentName,
     runId,
     startTime: Date.now(),
+    steps: [{ state: 'started', status: 'completed', timestamp: new Date().toISOString() }],
   };
 }
 
@@ -42,16 +44,18 @@ export async function updateTraceState(
   trace: WorkflowTraceContext,
   state: string
 ) {
+  trace.steps.push({ state, status: 'completed', timestamp: new Date().toISOString() });
   const supabase = createServiceClient();
   await supabase.from('agent_runs').update({
     action: state,
+    output_summary: { steps: trace.steps } as unknown as Record<string, unknown>,
   }).eq('id', trace.runId);
 }
 
 export async function completeTrace(
   trace: WorkflowTraceContext,
   status: 'success' | 'partial' | 'failed',
-  summary: AgentRunSummary,
+  summary: any,
   fallbackUsed: boolean,
   errorMessage?: string
 ) {
@@ -61,7 +65,7 @@ export async function completeTrace(
   await supabase.from('agent_runs').update({
     action: 'completed',
     status,
-    output_summary: summary as unknown as Record<string, unknown>,
+    output_summary: { ...summary, steps: trace.steps } as unknown as Record<string, unknown>,
     fallback_used: fallbackUsed,
     latency_ms: latency,
     completed_at: new Date().toISOString(),

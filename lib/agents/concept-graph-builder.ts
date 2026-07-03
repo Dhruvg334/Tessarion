@@ -7,6 +7,12 @@ import { classifyRelationships } from '../ai/tasks/relationship-classification';
 import { validateRelationships } from '../graph/validation';
 import { upsertConceptNodes, upsertConceptEdges } from '../services/persistence-helpers'; // We will create this
 
+// Note on Phase 5 architectural layers:
+// - evaluation layer is implemented
+// - tracing layer is implemented
+// - reflection summary layer is still planned.
+// Do not claim reflection is implemented until Phase 6 or later.
+
 export interface BuildGraphOptions {
   provider?: 'local' | 'gemini';
   minConfidence?: number;

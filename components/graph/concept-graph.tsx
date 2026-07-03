@@ -6,9 +6,10 @@ import { WorkspaceGraph } from '@/lib/services/graph';
 interface ConceptGraphProps {
   graph: WorkspaceGraph | null;
   isLoading?: boolean;
+  onNodeClick?: (node: any) => void;
 }
 
-export function ConceptGraph({ graph, isLoading }: ConceptGraphProps) {
+export function ConceptGraph({ graph, isLoading, onNodeClick }: ConceptGraphProps) {
   if (isLoading) {
     return (
       <div className="w-full h-96 flex items-center justify-center border border-dashed border-gray-300 rounded bg-[#fcfbf9]">
@@ -68,6 +69,7 @@ export function ConceptGraph({ graph, isLoading }: ConceptGraphProps) {
             className={`absolute flex flex-col items-center justify-center -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-transform hover:scale-105`}
             style={{ left: node.position_x || 0, top: node.position_y || 0 }}
             title={node.definition || node.name}
+            onClick={() => onNodeClick?.(node)}
           >
             <div className={`
               px-4 py-2 rounded-full shadow-sm text-sm font-medium border
