@@ -26,10 +26,10 @@ export default async function WorkspacePage({ params }: { params: Promise<{ id: 
   } catch {
     return (
       <div className="container" style={{ padding: '0 2rem' }}>
-        <div className="card" style={{ borderColor: '#ef4444', background: '#fef2f2' }}>
-          <h2 style={{ color: '#b91c1c', marginBottom: '0.5rem' }}>Workspace Not Found</h2>
-          <p className="muted" style={{ color: '#991b1b' }}>This workspace does not exist or you do not have permission to view it.</p>
-          <div style={{ marginTop: '1.5rem' }}><Link href="/dashboard" className="btn btn-secondary">← Back to Dashboard</Link></div>
+        <div className="card" style={{ borderLeft: '4px solid var(--ink)', background: 'var(--paper)' }}>
+          <h2 style={{ color: 'var(--ink)', marginBottom: '0.5rem', fontWeight: 600 }}>Workspace Not Found</h2>
+          <p className="muted">This workspace does not exist or you do not have permission to view it.</p>
+          <div style={{ marginTop: '1.5rem' }}><Link href="/dashboard" className="btn btn-secondary">← Back to Notebooks</Link></div>
         </div>
       </div>
     );
@@ -63,7 +63,7 @@ export default async function WorkspacePage({ params }: { params: Promise<{ id: 
 
         {/* Scaffolded Graph Area */}
         <div style={{ flex: '2 1 400px' }}>
-          <div className="flex justify-between items-center border-b border-gray-200 pb-3 mb-4">
+          <div className="flex justify-between items-center pb-3 mb-4" style={{ borderBottom: '1px solid var(--line)' }}>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 600, margin: 0 }}>Knowledge Graph</h2>
           </div>
           <WorkspaceGraphViewer initialGraph={initialGraph} workspaceId={id} />

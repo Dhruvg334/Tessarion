@@ -1,10 +1,18 @@
 :root {
-  --background: #fdfbf7;
-  --foreground: #1c1917;
-  --muted: #78716c;
-  --card: #ffffff;
-  --border: #e7e5e4;
-  --accent: #2563eb;
+  --cream: #fdf8ee;
+  --paper: #fffdf7;
+  --white: #ffffff;
+  --ink: #0b0b0a;
+  --ink-soft: rgba(11, 11, 10, 0.68);
+  --line: rgba(11, 11, 10, 0.14);
+  --line-strong: rgba(11, 11, 10, 0.28);
+  
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --muted: var(--ink-soft);
+  --card: var(--white);
+  --border: var(--line);
+  --accent: var(--ink); /* replacing blue with ink for links */
 }
 
 * {
@@ -116,5 +124,42 @@ a:hover {
 
 .input:focus {
   outline: none;
-  border-color: var(--foreground);
+  border-color: var(--ink);
+}
+
+/* Auth Pages Utilities */
+.auth-shell {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.auth-brand-panel {
+  display: none;
+  flex: 1;
+  background-color: var(--cream);
+  border-right: 1px solid var(--line);
+  padding: 4rem;
+  flex-direction: column;
+  justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .auth-brand-panel {
+    display: flex;
+  }
+}
+
+.auth-form-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background-color: var(--paper);
+}
+
+.auth-form-card {
+  width: 100%;
+  max-width: 400px;
 }

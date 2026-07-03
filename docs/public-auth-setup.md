@@ -42,3 +42,6 @@ To verify auth works properly:
 5. Verify `/dashboard` and `/workspace/[id]` are accessible.
 6. Create a workspace, open it, paste source material, extract concepts, and start a teach-back session.
 7. Click the **Log out** button in the header. You should be redirected to `/login` and unable to access `/dashboard`.
+
+### Profile Repair (Phase 6.3)
+Note that in local testing without the Supabase profile trigger enabled, createWorkspace explicitly handles profiles insertion via the service role to ensure a user profile exists, averting foreign key errors.

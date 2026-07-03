@@ -1,4 +1,5 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/service';
 import { CreateWorkspaceInput, UpdateWorkspaceInput } from '@/lib/validation/schemas';
 import { Workspace } from '@/types/database';
 
@@ -29,6 +30,27 @@ export async function getWorkspace(workspaceId: string, userId: string): Promise
 }
 
 export async function createWorkspace(userId: string, input: CreateWorkspaceInput): Promise<Workspace> {
+  const serviceClient = createServiceClient();
+  
+  // Safe Profile Repair Path
+  // Check if profile exists, if not, create it to satisfy foreign key constraint.
+  const { data: profile } = await serviceClient
+    .from('profiles')
+    .select('id')
+    .eq('id', userId)
+    .single();
+
+  if (!profile) {
+    const { data: userAuth, error: authErr } = await serviceClient.auth.admin.getUserById(userId);
+    if (!authErr && userAuth?.user) {
+      await serviceClient.from('profiles').insert({
+        id: userId,
+        email: userAuth.user.email || 'unknown@example.com',
+        display_name: userAuth.user.email?.split('@')[0] || 'User',
+      });
+    }
+  }
+
   const supabase = await createServerSupabaseClient();
   const { data, error } = await supabase
     .from('workspaces')
@@ -40,7 +62,10 @@ export async function createWorkspace(userId: string, input: CreateWorkspaceInpu
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) {
+    console.error('Failed to insert workspace:', error);
+    throw error;
+  }
   return data as Workspace;
 }
 

@@ -13,17 +13,17 @@ interface ConceptGraphProps {
 export function ConceptGraph({ graph, isLoading, onNodeClick }: ConceptGraphProps) {
   if (isLoading) {
     return (
-      <div className="w-full h-96 flex items-center justify-center border border-dashed border-gray-300 rounded bg-[#fcfbf9]">
-        <p className="text-gray-500 font-handwritten text-xl animate-pulse">Mapping concepts...</p>
+      <div className="w-full h-96 flex items-center justify-center rounded" style={{ border: '1px dashed var(--line)', backgroundColor: 'var(--paper)' }}>
+        <p className="font-handwritten text-xl animate-pulse" style={{ color: 'var(--muted)' }}>Mapping concepts...</p>
       </div>
     );
   }
 
   if (!graph || graph.nodes.length === 0) {
     return (
-      <div className="w-full h-96 flex flex-col items-center justify-center border border-dashed border-gray-300 rounded bg-[#fcfbf9]">
-        <p className="text-gray-500 font-handwritten text-xl mb-4">The graph is empty.</p>
-        <p className="text-gray-400 text-sm max-w-sm text-center">
+      <div className="w-full h-96 flex flex-col items-center justify-center rounded" style={{ border: '1px dashed var(--line-strong)', backgroundColor: 'var(--paper)' }}>
+        <p className="font-handwritten text-xl mb-4" style={{ color: 'var(--muted)' }}>The graph is empty.</p>
+        <p className="text-sm max-w-sm text-center" style={{ color: 'var(--muted)' }}>
           Upload source materials and extract concepts to begin generating your knowledge graph.
         </p>
       </div>
@@ -31,11 +31,11 @@ export function ConceptGraph({ graph, isLoading, onNodeClick }: ConceptGraphProp
   }
 
   return (
-    <div className="relative w-full h-[500px] border border-gray-200 rounded overflow-hidden bg-[#fcfbf9] shadow-inner">
+    <div className="relative w-full h-[500px] rounded overflow-hidden shadow-inner" style={{ border: '1px solid var(--line)', backgroundColor: 'var(--paper)' }}>
       <svg className="absolute inset-0 w-full h-full pointer-events-none">
         <defs>
           <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-            <polygon points="0 0, 10 3.5, 0 7" fill="#6b7280" />
+            <polygon points="0 0, 10 3.5, 0 7" fill="var(--muted)" />
           </marker>
         </defs>
         {graph.edges.map(edge => {
@@ -52,7 +52,7 @@ export function ConceptGraph({ graph, isLoading, onNodeClick }: ConceptGraphProp
               y1={source.position_y || 0}
               x2={target.position_x || 0}
               y2={target.position_y || 0}
-              stroke="#cbd5e1"
+              stroke="var(--line-strong)"
               strokeWidth="2"
               strokeDasharray={edge.relationship_type === 'related' ? '4 4' : 'none'}
               markerEnd={isDirected ? "url(#arrowhead)" : ""}
@@ -72,24 +72,28 @@ export function ConceptGraph({ graph, isLoading, onNodeClick }: ConceptGraphProp
             title={node.definition || node.name}
             onClick={() => onNodeClick?.(node)}
           >
-            <div className={`
-              px-4 py-2 rounded-full shadow-sm text-sm font-medium border
-              ${isLowConfidence ? 'bg-orange-50 border-orange-200 text-orange-800' : 'bg-white border-gray-300 text-gray-800'}
-            `}>
+            <div 
+              className="px-4 py-2 rounded-full shadow-sm text-sm font-medium"
+              style={{
+                backgroundColor: isLowConfidence ? 'var(--cream)' : 'var(--white)',
+                border: isLowConfidence ? '2px dashed var(--line-strong)' : '1px solid var(--line)',
+                color: 'var(--ink)'
+              }}
+            >
               {node.name}
             </div>
-            {isLowConfidence && <span className="text-[10px] text-orange-600 mt-1">Review Needed</span>}
+            {isLowConfidence && <span className="text-[10px] mt-1 font-bold" style={{ color: 'var(--ink)' }}>REVIEW NEEDED</span>}
           </div>
         );
       })}
 
-      <div className="absolute bottom-4 right-4 bg-white/80 backdrop-blur-sm p-4 rounded border border-gray-200 shadow-sm text-xs text-gray-600 font-mono">
-        <p className="font-bold text-gray-800 mb-1">Graph Metrics</p>
+      <div className="absolute bottom-4 right-4 p-4 rounded shadow-sm text-xs font-mono" style={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', border: '1px solid var(--line)', color: 'var(--muted)' }}>
+        <p className="font-bold mb-1" style={{ color: 'var(--ink)' }}>Graph Metrics</p>
         <p>Nodes: {graph.metrics.nodeCount}</p>
         <p>Edges: {graph.metrics.edgeCount}</p>
         <p>Grounding: {(graph.metrics.sourceGroundingRate * 100).toFixed(0)}%</p>
         <p>Avg Conf: {(graph.metrics.averageConceptConfidence * 100).toFixed(0)}%</p>
-        {graph.metrics.isolatedNodeCount > 0 && <p className="text-amber-600">Isolated: {graph.metrics.isolatedNodeCount}</p>}
+        {graph.metrics.isolatedNodeCount > 0 && <p style={{ fontWeight: 600, color: 'var(--ink)' }}>Isolated: {graph.metrics.isolatedNodeCount}</p>}
       </div>
     </div>
   );

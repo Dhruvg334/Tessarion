@@ -5,8 +5,8 @@ export default function MarketingPage() {
     <div>
       {/* Hero Section */}
       <section style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '2rem' }}>
-        <h1 className="handwritten">Tessarion</h1>
-        <p className="muted" style={{ fontSize: '1.25rem', maxWidth: '600px', margin: '0 auto 2.5rem auto' }}>
+        <h1 className="handwritten" style={{ fontSize: '7rem', color: 'var(--ink)' }}>Tessarion</h1>
+        <p className="muted" style={{ fontSize: '1.25rem', maxWidth: '600px', margin: '0 auto 2.5rem auto', color: 'var(--ink-soft)' }}>
           A learning workspace where students understand by teaching.
         </p>
         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
@@ -32,8 +32,8 @@ export default function MarketingPage() {
             <p className="muted">Explain the concept in your own words. The AI finds gaps in your understanding.</p>
           </div>
           <div className="card">
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '0.5rem' }}>4. Master the graph</h3>
-            <p className="muted">Over time, build a personal knowledge graph of mastered concepts. (Coming soon)</p>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--ink)' }}>4. Master the graph</h3>
+            <p className="muted">Over time, build a personal knowledge graph of mastered concepts.</p>
           </div>
         </div>
       </section>

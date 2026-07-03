@@ -10,12 +10,12 @@ export function AppHeader() {
       padding: '1rem 0'
     }}>
       <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 2rem' }}>
-        <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--foreground)' }}>
+        <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--ink)' }}>
           <TesseractIcon size={24} />
-          <span style={{ fontWeight: 600 }}>Tessarion</span>
+          <span className="handwritten" style={{ fontSize: '1.25rem', marginBottom: 0 }}>Tessarion</span>
         </Link>
         <nav style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
-          <Link href="/dashboard" style={{ color: 'var(--muted)', fontWeight: 500, fontSize: '0.875rem' }}>Dashboard</Link>
+          <Link href="/dashboard" style={{ color: 'var(--ink-soft)', fontWeight: 500, fontSize: '0.875rem' }}>Dashboard</Link>
           <LogoutButton />
         </nav>
       </div>

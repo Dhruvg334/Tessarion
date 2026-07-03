@@ -101,7 +101,7 @@ export function TeachBackPanel({ workspaceId, conceptId, conceptName, conceptDef
               onChange={(e) => setExplanation(e.target.value)}
               disabled={loading}
             />
-            {error && <div style={{ color: '#ef4444', marginBottom: '1rem' }}>{error}</div>}
+            {error && <div style={{ color: 'var(--ink)', fontWeight: 500, marginBottom: '1rem', borderLeft: '4px solid var(--ink)', paddingLeft: '0.75rem' }}>Error: {error}</div>}
             <button 
               className="btn" 
               onClick={handleSubmit} 
@@ -114,16 +114,16 @@ export function TeachBackPanel({ workspaceId, conceptId, conceptName, conceptDef
         ) : (
           <div>
             {result.status === 'insufficient_evidence' ? (
-              <div style={{ color: '#b91c1c', backgroundColor: '#fef2f2', padding: '1rem', borderRadius: '4px' }}>
+              <div style={{ color: 'var(--ink)', backgroundColor: 'var(--paper)', border: '1px solid var(--line-strong)', padding: '1rem', borderRadius: '4px' }}>
                 <h3 style={{ margin: '0 0 0.5rem 0' }}>Insufficient Evidence</h3>
                 <p style={{ margin: 0 }}>There isn&apos;t enough source text associated with this concept to provide grounded feedback.</p>
               </div>
             ) : result.summary ? (
               <>
                 {result.summary.coveredWell.length > 0 && (
-                  <div style={{ marginBottom: '1.5rem', padding: '1rem', backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '4px' }}>
-                    <h3 style={{ margin: '0 0 0.5rem 0', color: '#166534', fontSize: '1rem' }}>Covered Well</h3>
-                    <ul style={{ margin: 0, paddingLeft: '1.25rem', color: '#15803d' }}>
+                  <div style={{ marginBottom: '1.5rem', padding: '1rem', backgroundColor: 'var(--paper)', border: '1px solid var(--line)', borderLeft: '4px solid var(--ink)', borderRadius: '4px' }}>
+                    <h3 style={{ margin: '0 0 0.5rem 0', color: 'var(--ink)', fontSize: '1rem' }}>Covered Well</h3>
+                    <ul style={{ margin: 0, paddingLeft: '1.25rem', color: 'var(--ink-soft)' }}>
                       {result.summary.coveredWell.map((cw, i) => (
                         <li key={i}>{cw.description}</li>
                       ))}
@@ -152,7 +152,7 @@ export function TeachBackPanel({ workspaceId, conceptId, conceptName, conceptDef
                 </button>
               </>
             ) : (
-              <div style={{ color: '#b91c1c' }}>Failed to generate feedback summary.</div>
+              <div style={{ color: 'var(--ink)', borderLeft: '4px solid var(--ink)', paddingLeft: '0.75rem' }}>Failed to generate feedback summary.</div>
             )}
           </div>
         )}

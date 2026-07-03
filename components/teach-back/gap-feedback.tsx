@@ -5,11 +5,11 @@ export function GapFeedback({ gap }: { gap: GapFindingOutput }) {
   const getSeverityStyle = (severity: string) => {
     switch (severity) {
       case 'significant':
-        return { color: '#991b1b', backgroundColor: '#fef2f2', borderColor: '#ef4444' };
+        return { color: 'var(--ink)', backgroundColor: 'var(--paper)', borderLeft: '4px solid var(--ink)' };
       case 'moderate':
-        return { color: '#9a3412', backgroundColor: '#fff7ed', borderColor: '#f97316' };
+        return { color: 'var(--ink)', backgroundColor: 'transparent', borderLeft: '2px solid var(--ink)' };
       default:
-        return { color: '#075985', backgroundColor: '#f0f9ff', borderColor: '#0ea5e9' };
+        return { color: 'var(--muted)', backgroundColor: 'transparent', borderLeft: '1px solid var(--line-strong)' };
     }
   };
 
@@ -19,8 +19,8 @@ export function GapFeedback({ gap }: { gap: GapFindingOutput }) {
     <div style={{
       padding: '1rem',
       marginBottom: '1rem',
-      borderRadius: '4px',
-      borderLeft: `4px solid ${style.borderColor}`,
+      border: '1px solid var(--line)',
+      borderLeft: style.borderLeft,
       backgroundColor: style.backgroundColor,
       color: style.color
     }}>
