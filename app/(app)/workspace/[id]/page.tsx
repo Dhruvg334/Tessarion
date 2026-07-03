@@ -1,6 +1,7 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getWorkspace } from '@/lib/services/workspaces';
 import { listDocuments } from '@/lib/services/documents';
+import { getWorkspaceGraph } from '@/lib/services/graph';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { WorkspaceGraphViewer } from '@/components/graph/workspace-graph-viewer';
@@ -17,9 +18,11 @@ export default async function WorkspacePage({ params }: { params: Promise<{ id: 
 
   let workspace;
   let documents: import('@/types/database').SourceDocument[] = [];
+  let initialGraph = null;
   try {
     workspace = await getWorkspace(id, user.id);
     documents = await listDocuments(id, user.id);
+    initialGraph = await getWorkspaceGraph(id, user.id);
   } catch {
     return (
       <div className="container" style={{ padding: '0 2rem' }}>
@@ -63,7 +66,7 @@ export default async function WorkspacePage({ params }: { params: Promise<{ id: 
           <div className="flex justify-between items-center border-b border-gray-200 pb-3 mb-4">
             <h2 style={{ fontSize: '1.25rem', fontWeight: 600, margin: 0 }}>Knowledge Graph</h2>
           </div>
-          <WorkspaceGraphViewer workspaceId={id} />
+          <WorkspaceGraphViewer initialGraph={initialGraph} />
         </div>
       </div>
     </div>

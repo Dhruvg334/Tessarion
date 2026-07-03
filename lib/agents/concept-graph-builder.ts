@@ -1,5 +1,5 @@
 import { SourceChunk } from '@/types/database';
-import { ConceptExtractionResult, AgentRunSummary } from '../ai/types';
+import { ConceptExtractionResult, AgentRunSummary, ExtractedConcept, ExtractedRelationship } from '../ai/types';
 import { createTrace, updateTraceState, completeTrace } from './tracing';
 import { extractConcepts } from '../ai/tasks/concept-extraction';
 import { validateConceptGrounding } from '../ai/tasks/grounding-validation';
@@ -48,16 +48,16 @@ export async function buildConceptGraphAgent(
 
     // 2. extracting_candidates
     await updateTraceState(trace, 'extracting_candidates');
-    let extractedConcepts = [];
+    let extractedConcepts: ExtractedConcept[] = [];
     try {
       extractedConcepts = await extractConcepts(chunks, options);
-    } catch (err) {
+    } catch {
       if (provider !== 'local') {
         fallbackUsed = true;
         summary.warnings.push(`Provider ${provider} failed, falling back to local deterministic.`);
         extractedConcepts = await extractConcepts(chunks, { ...options, provider: 'local' });
       } else {
-        throw err;
+        throw new Error('Local concept extraction failed');
       }
     }
     summary.proposedConcepts = extractedConcepts.length;
@@ -76,11 +76,11 @@ export async function buildConceptGraphAgent(
 
     // 4. classifying_relationships
     await updateTraceState(trace, 'classifying_relationships');
-    let extractedRelationships = [];
+    let extractedRelationships: ExtractedRelationship[] = [];
     if (validConcepts.length > 1) {
       try {
         extractedRelationships = await classifyRelationships(validConcepts, chunks, options);
-      } catch (err) {
+      } catch {
         if (provider !== 'local' && !fallbackUsed) {
           fallbackUsed = true;
           summary.warnings.push(`Relationship provider ${provider} failed, falling back to local.`);
@@ -116,7 +116,7 @@ export async function buildConceptGraphAgent(
     }
     
     await updateTraceState(trace, 'completed');
-    await completeTrace(trace, status as any, summary, fallbackUsed);
+    await completeTrace(trace, status as 'success' | 'partial' | 'failed', summary, fallbackUsed);
 
     return {
       runId: trace.runId,

@@ -20,8 +20,8 @@ describe('classifyRelationships', () => {
     };
 
     const concepts: ExtractedConcept[] = [
-      { name: 'Mitochondria', definition: '', sourceChunkIds: ['c1'], confidenceScore: 1, importanceScore: 1, aliases: [], evidenceQuotes: [], suggestedBloomLevel: 1, extractionMethod: 'local' },
-      { name: 'ATP production', definition: '', sourceChunkIds: ['c1'], confidenceScore: 1, importanceScore: 1, aliases: [], evidenceQuotes: [], suggestedBloomLevel: 1, extractionMethod: 'local' }
+      { name: 'Mitochondria', definition: '', sourceChunkIds: ['c1'], confidenceScore: 1, importanceScore: 1, aliases: [], evidenceQuotes: [], suggestedBloomLevel: 1, extractionMethod: 'local_deterministic' },
+      { name: 'ATP production', definition: '', sourceChunkIds: ['c1'], confidenceScore: 1, importanceScore: 1, aliases: [], evidenceQuotes: [], suggestedBloomLevel: 1, extractionMethod: 'local_deterministic' }
     ];
 
     const rels = await classifyRelationships(concepts, [chunk], { provider: 'local' });

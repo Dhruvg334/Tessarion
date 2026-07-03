@@ -5,7 +5,7 @@ import { buildConceptGraphAgent } from '@/lib/agents/concept-graph-builder';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string; documentId: string } }
+  context: { params: Promise<{ id: string; documentId: string }> }
 ) {
   try {
     const supabase = await createServerSupabaseClient();
@@ -15,7 +15,7 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id: workspaceId, documentId } = await params;
+    const { id: workspaceId, documentId } = await context.params;
 
     // Verify workspace and document ownership
     const { data: doc, error: docError } = await supabase
@@ -33,7 +33,7 @@ export async function POST(
     let body = {};
     try {
       body = await request.json();
-    } catch (e) {
+    } catch {
       // empty body is fine
     }
 
@@ -56,7 +56,7 @@ export async function POST(
     const result = await buildConceptGraphAgent(workspaceId, user.id, chunks || [], parsed.data);
 
     return NextResponse.json(result);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in graph generation:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }

@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { SourceDocument } from '@/types/database';
-import { ConceptExtractionResult } from '@/lib/ai/types';
 
 interface DocumentListProps {
   documents: SourceDocument[];

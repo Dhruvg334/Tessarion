@@ -2,6 +2,7 @@ import { ExtractedConcept, ExtractedRelationship } from '../ai/types';
 import { createServiceClient } from '@/lib/supabase/service';
 import { AppError } from '@/lib/errors/app-error';
 import { calculateDeterministicLayout } from '../graph/layout';
+import { ConceptNode } from '@/types/database';
 
 function normalizeConceptName(name: string): string {
   return name.trim().toLowerCase().replace(/\s+/g, ' ');
@@ -69,7 +70,7 @@ export async function upsertConceptNodes(
   }
 
   // Recalculate deterministic layout positions before upsert
-  const layoutedNodes = calculateDeterministicLayout(nodesToUpsert as any);
+  const layoutedNodes = calculateDeterministicLayout(nodesToUpsert as unknown as ConceptNode[]);
 
   if (layoutedNodes.length > 0) {
     const { error: upsertError } = await supabase
