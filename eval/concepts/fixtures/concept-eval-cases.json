@@ -1,0 +1,79 @@
+[
+  {
+    "id": "case_1",
+    "text": "# Mitochondria\nMitochondria is defined as the powerhouse of the cell. Mitochondria causes ATP production, which requires oxygen. ATP production leads to cellular energy.",
+    "expectedConcepts": ["Mitochondria", "ATP production", "cellular energy"],
+    "expectedRelationships": [
+      { "source": "Mitochondria", "target": "ATP production", "type": "causal" },
+      { "source": "ATP production", "target": "cellular energy", "type": "causal" }
+    ],
+    "distractors": ["powerhouse", "cell", "oxygen"]
+  },
+  {
+    "id": "case_2",
+    "text": "# Photosynthesis\nPhotosynthesis refers to the process by which plants make food. Photosynthesis depends on sunlight. Sunlight requires clear skies. However, cellular respiration contrasts with photosynthesis because it consumes food.",
+    "expectedConcepts": ["Photosynthesis", "sunlight", "cellular respiration"],
+    "expectedRelationships": [
+      { "source": "sunlight", "target": "Photosynthesis", "type": "prerequisite" },
+      { "source": "cellular respiration", "target": "Photosynthesis", "type": "contrasts" }
+    ],
+    "distractors": ["plants", "food", "clear skies"]
+  },
+  {
+    "id": "case_3",
+    "text": "A **Black Hole** is a region of spacetime where gravity is so strong that nothing can escape. A Black Hole causes spaghettification. Spaghettification leads to destruction of matter.",
+    "expectedConcepts": ["Black Hole", "spaghettification", "destruction of matter"],
+    "expectedRelationships": [
+      { "source": "Black Hole", "target": "spaghettification", "type": "causal" },
+      { "source": "spaghettification", "target": "destruction of matter", "type": "causal" }
+    ],
+    "distractors": ["region", "spacetime", "gravity"]
+  },
+  {
+    "id": "case_4",
+    "text": "# Supply and Demand\nSupply refers to the amount of a resource available. Demand is defined as the desire of buyers for that resource. Supply unlike Demand represents the seller's perspective.",
+    "expectedConcepts": ["Supply", "Demand"],
+    "expectedRelationships": [
+      { "source": "Supply", "target": "Demand", "type": "contrasts" }
+    ],
+    "distractors": ["resource", "desire", "perspective"]
+  },
+  {
+    "id": "case_5",
+    "text": "The **CPU** is defined as the central processing unit of a computer. The CPU requires memory to function. Memory is defined as RAM.",
+    "expectedConcepts": ["CPU", "Memory"],
+    "expectedRelationships": [
+      { "source": "Memory", "target": "CPU", "type": "prerequisite" }
+    ],
+    "distractors": ["computer", "RAM"]
+  },
+  {
+    "id": "case_6",
+    "text": "# Mitosis\nMitosis is defined as cell division that results in two identical daughter cells. Mitosis causes tissue growth. Meiosis unlike Mitosis results in four different cells.",
+    "expectedConcepts": ["Mitosis", "tissue growth", "Meiosis"],
+    "expectedRelationships": [
+      { "source": "Mitosis", "target": "tissue growth", "type": "causal" },
+      { "source": "Meiosis", "target": "Mitosis", "type": "contrasts" }
+    ],
+    "distractors": ["cell division", "daughter cells"]
+  },
+  {
+    "id": "case_7",
+    "text": "An **Algorithm** refers to a step-by-step procedure for calculations. An Algorithm requires data structures. **Data Structures** refers to data organization.",
+    "expectedConcepts": ["Algorithm", "Data Structures"],
+    "expectedRelationships": [
+      { "source": "Data Structures", "target": "Algorithm", "type": "prerequisite" }
+    ],
+    "distractors": ["procedure", "calculations", "organization"]
+  },
+  {
+    "id": "case_8",
+    "text": "# Inflation\nInflation means a general increase in prices. Inflation causes purchasing power loss. **Deflation** unlike Inflation means a decrease in prices.",
+    "expectedConcepts": ["Inflation", "purchasing power loss", "Deflation"],
+    "expectedRelationships": [
+      { "source": "Inflation", "target": "purchasing power loss", "type": "causal" },
+      { "source": "Deflation", "target": "Inflation", "type": "contrasts" }
+    ],
+    "distractors": ["increase", "prices", "decrease"]
+  }
+]

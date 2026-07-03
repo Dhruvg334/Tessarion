@@ -1,28 +1,27 @@
-import { NextResponse } from 'next/server';
-// import { z } from 'zod';
-// import * as schemas from '@/lib/validation/schemas';
-// import * as services from '@/lib/services/graph';
+import { NextRequest, NextResponse } from 'next/server';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { getWorkspaceGraph } from '@/lib/services/graph';
 
-export async function GET() {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    // 1. TODO: Verify auth session
-    // 2. TODO: Validate params if any
-    // 3. TODO: Call service layer (e.g. services.placeholder())
-    
-    return NextResponse.json({ data: [], message: 'Scaffolded GET endpoint' });
-  } catch {
-    return NextResponse.json({ error: { code: 'INTERNAL_ERROR', message: 'Not implemented' } }, { status: 500 });
-  }
-}
+    const supabase = await createServerSupabaseClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-export async function POST() {
-  try {
-    // 1. TODO: Verify auth session
-    // 2. TODO: Validate request body via Zod schemas
-    // 3. TODO: Call service layer (e.g. services.placeholder())
-    
-    return NextResponse.json({ data: null, message: 'Scaffolded POST endpoint' });
-  } catch {
-    return NextResponse.json({ error: { code: 'INTERNAL_ERROR', message: 'Not implemented' } }, { status: 500 });
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { id: workspaceId } = await params;
+    const graph = await getWorkspaceGraph(workspaceId, user.id);
+    return NextResponse.json({ graph });
+  } catch (error: any) {
+    if (error.statusCode === 404) {
+      return NextResponse.json({ error: error.message }, { status: 404 });
+    }
+    console.error('Error fetching graph:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

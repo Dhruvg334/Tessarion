@@ -11,7 +11,8 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "eval:rag": "tsx eval/rag/run-rag-eval.ts"
+    "eval:rag": "tsx eval/rag/run-rag-eval.ts",
+    "eval:concepts": "tsx eval/concepts/run-concept-eval.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^4.0.7",

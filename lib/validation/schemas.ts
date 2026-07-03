@@ -56,3 +56,17 @@ export const completeReviewSchema = z.object({
   skipped: z.boolean().default(false),
 });
 export type CompleteReviewInput = z.infer<typeof completeReviewSchema>;
+
+export const extractConceptsSchema = z.object({
+  provider: z.enum(['local', 'gemini']).default('local'),
+  minConfidence: z.number().min(0).max(1).default(0.7),
+  documentOnly: z.boolean().default(false),
+});
+export type ExtractConceptsInput = z.infer<typeof extractConceptsSchema>;
+
+export const generateGraphSchema = z.object({
+  provider: z.enum(['local', 'gemini']).default('local'),
+  minConfidence: z.number().min(0).max(1).default(0.7),
+  documentOnly: z.boolean().default(false),
+});
+export type GenerateGraphInput = z.infer<typeof generateGraphSchema>;

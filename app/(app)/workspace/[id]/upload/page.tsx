@@ -64,6 +64,11 @@ export default function UploadPage({ params }: { params: Promise<{ id: string }>
           {success && (
             <div style={{ padding: '1rem', background: '#dcfce7', color: '#166534', borderRadius: '6px', marginBottom: '1rem', border: '1px solid #bbf7d0', fontSize: '0.875rem' }}>
               <strong>Success:</strong> Processed into {chunkCount} context chunks.
+              <div className="mt-3">
+                <Link href={`/workspace/${workspaceId}`} className="btn font-handwritten" style={{ padding: '0.3rem 0.75rem', fontSize: '1rem' }}>
+                  Return to workspace to extract concepts
+                </Link>
+              </div>
             </div>
           )}
           
