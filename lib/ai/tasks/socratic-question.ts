@@ -22,7 +22,7 @@ const severityScore = {
 };
 
 export async function generateSocraticQuestions(options: SocraticQuestionOptions): Promise<SocraticQuestionOutput[]> {
-  const { gaps, provider } = options;
+  const { gaps } = options;
   if (!gaps || gaps.length === 0) return [];
 
   // Sort gaps by priority -> severity -> confidence

@@ -24,7 +24,7 @@ export async function detectGaps(options: GapDetectionOptions): Promise<GapFindi
     // Mock the Gemini call for now or return local fallback
     // In actual production, `generateObject` with zod schema `GapFindingOutput` array goes here.
     return detectGapsLocal(options); 
-  } catch (err) {
+  } catch {
     // Fallback to local
     return detectGapsLocal(options);
   }

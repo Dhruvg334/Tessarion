@@ -11,7 +11,6 @@ export async function generateFeedbackSummary(options: FeedbackSummaryOptions): 
   const { gaps, conceptName, followUpQuestion } = options;
 
   const missingConcepts = gaps.filter(g => g.gapType === 'missing_concept');
-  const misconceptions = gaps.filter(g => g.gapType === 'misconception');
   const unsupportedClaims = gaps.filter(g => g.gapType === 'unsupported_claim');
   
   const actualGaps = gaps.filter(g => g.gapType !== 'unsupported_claim');

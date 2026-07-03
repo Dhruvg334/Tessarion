@@ -1,4 +1,4 @@
-import { GapFindingOutput, GapType } from '../types';
+import { GapFindingOutput } from '../types';
 
 export interface LocalGapDetectionOptions {
   studentExplanation: string;

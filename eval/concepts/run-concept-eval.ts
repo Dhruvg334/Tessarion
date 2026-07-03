@@ -1,6 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { extractConceptsLocal } from '../../lib/ai/tasks/local-concept-extraction';
+import { assertLocalEvalMode } from '../../lib/config/ci-guards';
+
+assertLocalEvalMode();
 import { validateConceptGrounding } from '../../lib/ai/tasks/grounding-validation';
 import { classifyRelationships } from '../../lib/ai/tasks/relationship-classification';
 import { validateRelationships } from '../../lib/graph/validation';

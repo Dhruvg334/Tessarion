@@ -5,6 +5,9 @@ import path from 'path';
 import { computeRecallAtK, computeMRR, computeNDCGAtK, computeContextPrecision } from '../../lib/rag/evaluation';
 import { localProvider } from '../../lib/ai/providers/local';
 import { reciprocalRankFusion } from '../../lib/rag/retrieval';
+import { assertLocalEvalMode } from '../../lib/config/ci-guards';
+
+assertLocalEvalMode();
 
 const cases = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures/rag-eval-cases.json'), 'utf8'));
 const chunks = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures/chunks.json'), 'utf8'));

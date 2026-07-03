@@ -6,7 +6,8 @@ import { WorkspaceGraph } from '@/lib/services/graph';
 interface ConceptGraphProps {
   graph: WorkspaceGraph | null;
   isLoading?: boolean;
-  onNodeClick?: (node: any) => void;
+  selectedConceptId?: string | null;
+  onNodeClick?: (node: { id: string; name: string; definition?: string | null }) => void;
 }
 
 export function ConceptGraph({ graph, isLoading, onNodeClick }: ConceptGraphProps) {

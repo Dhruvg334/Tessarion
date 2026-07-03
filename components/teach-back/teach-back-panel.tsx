@@ -44,8 +44,8 @@ export function TeachBackPanel({ workspaceId, conceptId, conceptName, conceptDef
       const data = await submitRes.json();
       setResult(data);
 
-    } catch (err: any) {
-      setError(err.message || 'An error occurred during teach-back.');
+    } catch (err: unknown) {
+      setError((err as Error).message || 'An error occurred during teach-back.');
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,4 @@
 import { createServiceClient } from '@/lib/supabase/service';
-import { AgentRunSummary } from '../ai/types';
 
 export interface WorkflowTraceContext {
   workspaceId: string;
@@ -52,10 +51,10 @@ export async function updateTraceState(
   }).eq('id', trace.runId);
 }
 
-export async function completeTrace(
+export async function completeTrace<T extends object>(
   trace: WorkflowTraceContext,
   status: 'success' | 'partial' | 'failed',
-  summary: any,
+  summary: T,
   fallbackUsed: boolean,
   errorMessage?: string
 ) {

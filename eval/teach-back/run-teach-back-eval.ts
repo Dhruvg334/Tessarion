@@ -1,6 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { detectGaps } from '../../lib/ai/tasks/gap-detection';
+import { assertLocalEvalMode } from '../../lib/config/ci-guards';
+
+assertLocalEvalMode();
 
 // We'll just run detectGaps directly for the eval to keep it purely offline
 async function runEval() {

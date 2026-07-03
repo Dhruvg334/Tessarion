@@ -34,7 +34,7 @@ export async function executeTeachBack(options: ExecuteTeachBackOptions): Promis
     if (!conceptNode) throw new Error('Concept not found');
 
     await updateTraceState(trace, 'retrieving_evidence');
-    let sourceChunks: any[] = [];
+    let sourceChunks: { id: string; content: string }[] = [];
     if (conceptNode.source_chunk_ids && conceptNode.source_chunk_ids.length > 0) {
       const { data: chunks } = await supabase.from('source_chunks').select('id, content').in('id', conceptNode.source_chunk_ids);
       if (chunks) sourceChunks = chunks;
@@ -44,7 +44,7 @@ export async function executeTeachBack(options: ExecuteTeachBackOptions): Promis
     await updateTraceState(trace, 'validating_evidence');
     if (sourceChunks.length === 0 && !conceptNode.definition) {
       // Insufficient evidence to do a grounded teach-back
-      await completeTrace(trace, 'failed', {} as any, false, 'Insufficient evidence');
+      await completeTrace(trace, 'failed', {}, false, 'Insufficient evidence');
       return {
         runId,
         status: 'insufficient_evidence',
@@ -103,7 +103,7 @@ export async function executeTeachBack(options: ExecuteTeachBackOptions): Promis
     await updateTraceState(trace, 'persisting_feedback');
     await persistTeachBackFeedback(sessionId, summary);
 
-    await completeTrace(trace, 'success', summary as any, fallbackUsed);
+    await completeTrace(trace, 'success', summary, fallbackUsed);
     return {
       runId,
       status: 'completed',
@@ -116,7 +116,7 @@ export async function executeTeachBack(options: ExecuteTeachBackOptions): Promis
 
   } catch (err: unknown) {
     const error = err instanceof Error ? err : new Error('Unknown error');
-    await completeTrace(trace, 'failed', {} as any, fallbackUsed, error.message);
+    await completeTrace(trace, 'failed', {}, fallbackUsed, error.message);
     throw new AppError('AGENT_ERROR', 500, error.message);
   }
 }

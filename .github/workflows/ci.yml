@@ -3,11 +3,22 @@ on:
   push:
     branches: [main]
   pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test-and-build:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     env:
+      CI: 'true'
+      TESSARION_EVAL_MODE: local
+      TESSARION_AI_PROVIDER: local
+      TESSARION_RERANK_PROVIDER: local
       NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
       NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
       TESSARION_APP_URL: http://localhost:3000

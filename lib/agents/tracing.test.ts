@@ -40,7 +40,7 @@ describe('tracing', () => {
     expect(updateArgs.output_summary.steps.length).toBe(2);
 
     mockEq.mockResolvedValueOnce({ error: null });
-    await completeTrace(trace, 'success', { warnings: [] } as any, false);
+    await completeTrace(trace, 'success', { warnings: [] }, false);
 
     expect(trace.steps.length).toBe(2); // completeTrace doesn't push a step itself
     const finalArgs = mockUpdate.mock.calls[1][0];
