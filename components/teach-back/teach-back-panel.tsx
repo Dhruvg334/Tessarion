@@ -125,7 +125,7 @@ export function TeachBackPanel({ workspaceId, conceptId, conceptName, conceptDef
                     <h3 style={{ margin: '0 0 0.5rem 0', color: '#166534', fontSize: '1rem' }}>Covered Well</h3>
                     <ul style={{ margin: 0, paddingLeft: '1.25rem', color: '#15803d' }}>
                       {result.summary.coveredWell.map((cw, i) => (
-                        <li key={i}>{cw}</li>
+                        <li key={i}>{cw.description}</li>
                       ))}
                     </ul>
                   </div>

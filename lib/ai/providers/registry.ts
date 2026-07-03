@@ -22,6 +22,7 @@ export const rerankProviders: Record<string, RerankProvider> = {
 };
 
 export function getEmbeddingProvider(id: string = 'gemini'): EmbeddingProvider {
+  if (process.env.CI === 'true') id = 'local';
   assertNoExternalProviderInCI(id);
   const provider = embeddingProviders[id];
   if (!provider) throw new AppError(`Unknown embedding provider: ${id}`, 400);
@@ -30,6 +31,7 @@ export function getEmbeddingProvider(id: string = 'gemini'): EmbeddingProvider {
 }
 
 export function getRerankProvider(id: string = 'local'): RerankProvider {
+  if (process.env.CI === 'true') id = 'local';
   assertNoExternalProviderInCI(id);
   const provider = rerankProviders[id];
   if (!provider) throw new AppError(`Unknown rerank provider: ${id}`, 400);

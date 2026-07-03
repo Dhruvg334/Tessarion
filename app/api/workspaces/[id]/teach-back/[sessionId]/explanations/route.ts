@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { submitExplanation } from '@/lib/services/sessions';
 import { executeTeachBack } from '@/lib/agents/teach-back-agent';
+import { z } from 'zod';
+
+const RequestSchema = z.object({
+  content: z.string().min(1, 'Explanation cannot be empty'),
+  provider: z.enum(['local', 'gemini']).default('local')
+});
 
 export async function POST(
   request: NextRequest,
@@ -10,7 +16,11 @@ export async function POST(
   try {
     const { id, sessionId } = await context.params;
     const body = await request.json();
-    const { content, provider = 'local' } = body;
+    const result_parsed = RequestSchema.safeParse(body);
+    if (!result_parsed.success) {
+      return NextResponse.json({ error: result_parsed.error.issues[0]?.message || 'Validation error' }, { status: 400 });
+    }
+    const { content, provider } = result_parsed.data;
 
     const supabase = await createServerSupabaseClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -26,6 +36,7 @@ export async function POST(
     const result = await executeTeachBack({
       workspaceId: id,
       sessionId,
+      userId: user.id,
       studentExplanation: content,
       provider
     });
@@ -34,6 +45,7 @@ export async function POST(
   } catch (err: unknown) {
     const error = err instanceof Error ? err : new Error('Unknown error');
     const status = (error as { statusCode?: number }).statusCode || 500;
-    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status });
+    const message = status === 500 ? 'Internal Server Error' : error.message;
+    return NextResponse.json({ error: message }, { status });
   }
 }

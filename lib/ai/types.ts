@@ -71,8 +71,16 @@ export interface SocraticQuestionOutput {
   generationMethod: 'local_deterministic' | 'llm';
 }
 
+export interface CoveredWellPoint {
+  description: string;
+  sourceChunkIds: string[];
+  relatedConceptId?: string;
+  confidenceScore: number;
+  evidenceQuote?: string;
+}
+
 export interface TeachBackSummary {
-  coveredWell: string[];
+  coveredWell: CoveredWellPoint[];
   gaps: GapFindingOutput[];
   unsupportedClaims: GapFindingOutput[];
   followUpQuestion: SocraticQuestionOutput | null;

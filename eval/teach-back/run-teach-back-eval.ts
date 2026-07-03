@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { detectGaps } from '../../lib/ai/tasks/gap-detection';
+import { generateSocraticQuestions } from '../../lib/ai/tasks/socratic-question';
 import { assertLocalEvalMode } from '../../lib/config/ci-guards';
 
 assertLocalEvalMode();
@@ -19,6 +20,9 @@ async function runEval() {
   let detectedUnsupportedClaims = 0;
 
   let totalGroundedGaps = 0;
+
+  let correctFollowUpTargets = 0;
+  let totalFollowUps = 0;
 
   console.log('--- Offline Deterministic Teach-Back Eval ---');
 
@@ -59,15 +63,25 @@ async function runEval() {
         totalGroundedGaps++; // Grounded in student text
       }
     }
+
+    if (gaps.length > 0) {
+      const questions = await generateSocraticQuestions({ gaps, studentExplanation: c.studentExplanation, provider: 'local' });
+      if (questions.length > 0) {
+        totalFollowUps++;
+        if (questions[0].targetGapType === c.expectedTopGapType) {
+          correctFollowUpTargets++;
+        }
+      }
+    }
   }
 
-  // F1 Score
   const precision = totalGapsFound === 0 ? 1 : correctGapTypes / totalGapsFound;
   const recall = totalGapsExpected === 0 ? 1 : correctGapTypes / totalGapsExpected;
   const f1 = (precision + recall) === 0 ? 0 : 2 * (precision * recall) / (precision + recall);
 
   const groundingRate = totalGapsEvaluated === 0 ? 1 : totalGroundedGaps / totalGapsEvaluated;
   const unsupportedClaimRate = totalUnsupportedClaims === 0 ? 1 : detectedUnsupportedClaims / totalUnsupportedClaims;
+  const targetAccuracy = totalFollowUps === 0 ? 1 : correctFollowUpTargets / totalFollowUps;
 
   console.table({
     "Gap Detection F1": f1.toFixed(3),
@@ -75,7 +89,7 @@ async function runEval() {
     "Source Grounding Rate": groundingRate.toFixed(3),
     "Evidence Coverage Rate": groundingRate.toFixed(3),
     "Unsupported Claim Detection Rate": unsupportedClaimRate.toFixed(3),
-    "Follow-up Target Accuracy": "1.000", // Hardcoded 1.0 for local deterministic behavior that strictly sorts
+    "Follow-up Target Accuracy": targetAccuracy.toFixed(3),
     "Run Success Rate": "1.000"
   });
 
@@ -83,7 +97,8 @@ async function runEval() {
     f1: 0.55,
     acc: 0.60,
     grounding: 0.95,
-    unsupported: 0.60
+    unsupported: 0.60,
+    targetAcc: 0.60
   };
 
   let failed = false;
@@ -91,6 +106,7 @@ async function runEval() {
   if (precision < thresholds.acc) { console.error('Failed Accuracy threshold'); failed = true; }
   if (groundingRate < thresholds.grounding) { console.error('Failed Grounding threshold'); failed = true; }
   if (unsupportedClaimRate < thresholds.unsupported) { console.error('Failed Unsupported threshold'); failed = true; }
+  if (targetAccuracy < thresholds.targetAcc) { console.error('Failed Target Accuracy threshold'); failed = true; }
 
   if (failed) {
     console.error('Eval failed!');

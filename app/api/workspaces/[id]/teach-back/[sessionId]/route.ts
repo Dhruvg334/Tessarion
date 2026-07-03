@@ -25,6 +25,7 @@ export async function GET(
   } catch (err: unknown) {
     const error = err instanceof Error ? err : new Error('Unknown error');
     const status = (error as { statusCode?: number }).statusCode || 500;
-    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status });
+    const message = status === 500 ? 'Internal Server Error' : error.message;
+    return NextResponse.json({ error: message }, { status });
   }
 }

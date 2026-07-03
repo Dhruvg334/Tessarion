@@ -4,109 +4,183 @@
     "conceptName": "Photosynthesis",
     "conceptDefinition": "The process by which green plants use sunlight to synthesize nutrients from carbon dioxide and water.",
     "sourceChunks": [
-      { "id": "chunk_photo_1", "content": "Photosynthesis is the process by which green plants and some other organisms use sunlight to synthesize nutrients from carbon dioxide and water. Photosynthesis in plants generally involves the green pigment chlorophyll and generates oxygen as a byproduct." }
+      {
+        "id": "chunk_photo_1",
+        "content": "Photosynthesis is the process by which green plants and some other organisms use sunlight to synthesize nutrients from carbon dioxide and water. Photosynthesis in plants generally involves the green pigment chlorophyll and generates oxygen as a byproduct."
+      }
     ],
-    "prerequisiteConcepts": ["Chlorophyll", "Sunlight"],
+    "prerequisiteConcepts": [
+      "Chlorophyll",
+      "Sunlight"
+    ],
     "studentExplanation": "Photosynthesis is when plants use sunlight, water, and carbon dioxide to make their own food.",
-    "expectedGaps": ["missing_prerequisite"]
+    "expectedGaps": [
+      "missing_prerequisite"
+    ],
+    "expectedTopGapType": "missing_prerequisite"
   },
   {
     "id": "tb_002",
     "conceptName": "Photosynthesis",
     "conceptDefinition": "The process by which green plants use sunlight to synthesize nutrients from carbon dioxide and water.",
     "sourceChunks": [
-      { "id": "chunk_photo_1", "content": "Photosynthesis is the process by which green plants and some other organisms use sunlight to synthesize nutrients from carbon dioxide and water. Photosynthesis in plants generally involves the green pigment chlorophyll and generates oxygen as a byproduct." }
+      {
+        "id": "chunk_photo_1",
+        "content": "Photosynthesis is the process by which green plants and some other organisms use sunlight to synthesize nutrients from carbon dioxide and water. Photosynthesis in plants generally involves the green pigment chlorophyll and generates oxygen as a byproduct."
+      }
     ],
     "prerequisiteConcepts": [],
     "studentExplanation": "It is when things grow.",
-    "expectedGaps": ["shallow_explanation"]
+    "expectedGaps": [
+      "shallow_explanation"
+    ],
+    "expectedTopGapType": "shallow_explanation"
   },
   {
     "id": "tb_003",
     "conceptName": "Photosynthesis",
     "conceptDefinition": "The process by which green plants use sunlight to synthesize nutrients from carbon dioxide and water.",
     "sourceChunks": [
-      { "id": "chunk_photo_1", "content": "Photosynthesis is the process by which green plants and some other organisms use sunlight to synthesize nutrients from carbon dioxide and water. Photosynthesis in plants generally involves the green pigment chlorophyll and generates oxygen as a byproduct." }
+      {
+        "id": "chunk_photo_1",
+        "content": "Photosynthesis is the process by which green plants and some other organisms use sunlight to synthesize nutrients from carbon dioxide and water. Photosynthesis in plants generally involves the green pigment chlorophyll and generates oxygen as a byproduct."
+      }
     ],
     "prerequisiteConcepts": [],
     "studentExplanation": "Photosynthesis is a process.",
-    "expectedGaps": ["shallow_explanation"]
+    "expectedGaps": [
+      "shallow_explanation"
+    ],
+    "expectedTopGapType": "shallow_explanation"
   },
   {
     "id": "tb_004",
     "conceptName": "Photosynthesis",
     "conceptDefinition": "The process by which green plants use sunlight to synthesize nutrients from carbon dioxide and water.",
     "sourceChunks": [
-      { "id": "chunk_photo_1", "content": "Photosynthesis is the process by which green plants and some other organisms use sunlight to synthesize nutrients from carbon dioxide and water. Photosynthesis in plants generally involves the green pigment chlorophyll and generates oxygen as a byproduct." }
+      {
+        "id": "chunk_photo_1",
+        "content": "Photosynthesis is the process by which green plants and some other organisms use sunlight to synthesize nutrients from carbon dioxide and water. Photosynthesis in plants generally involves the green pigment chlorophyll and generates oxygen as a byproduct."
+      }
     ],
     "prerequisiteConcepts": [],
     "studentExplanation": "Photosynthesis is when plants use sunlight to synthesize nutrients from carbon dioxide and water. But it always happens at night perfectly.",
-    "expectedGaps": ["unsupported_claim"]
+    "expectedGaps": [
+      "unsupported_claim"
+    ],
+    "expectedTopGapType": "unsupported_claim"
   },
   {
     "id": "tb_005",
     "conceptName": "Mitochondria",
     "conceptDefinition": "An organelle found in large numbers in most cells, in which the biochemical processes of respiration and energy production occur.",
     "sourceChunks": [
-      { "id": "chunk_mito_1", "content": "Mitochondria are membrane-bound cell organelles that generate most of the chemical energy needed to power the cell's biochemical reactions." }
+      {
+        "id": "chunk_mito_1",
+        "content": "Mitochondria are membrane-bound cell organelles that generate most of the chemical energy needed to power the cell's biochemical reactions."
+      }
     ],
-    "prerequisiteConcepts": ["Cell"],
+    "prerequisiteConcepts": [
+      "Cell"
+    ],
     "studentExplanation": "The powerhouse.",
-    "expectedGaps": ["shallow_explanation", "missing_concept"]
+    "expectedGaps": [
+      "shallow_explanation",
+      "missing_concept"
+    ],
+    "expectedTopGapType": "shallow_explanation"
   },
   {
     "id": "tb_006",
     "conceptName": "Mitochondria",
     "conceptDefinition": "An organelle found in large numbers in most cells, in which the biochemical processes of respiration and energy production occur.",
     "sourceChunks": [
-      { "id": "chunk_mito_1", "content": "Mitochondria are membrane-bound cell organelles that generate most of the chemical energy needed to power the cell's biochemical reactions." }
+      {
+        "id": "chunk_mito_1",
+        "content": "Mitochondria are membrane-bound cell organelles that generate most of the chemical energy needed to power the cell's biochemical reactions."
+      }
     ],
     "prerequisiteConcepts": [],
     "studentExplanation": "They are cell organelles that generate chemical energy for the cell. Unlike other organelles, they do not have a membrane.",
-    "expectedGaps": ["misconception"]
+    "expectedGaps": [
+      "misconception"
+    ],
+    "expectedTopGapType": "misconception"
   },
   {
     "id": "tb_007",
     "conceptName": "Gravity",
     "conceptDefinition": "The force that attracts a body toward the center of the earth, or toward any other physical body having mass.",
     "sourceChunks": [
-      { "id": "chunk_grav_1", "content": "Gravity is a fundamental interaction which causes mutual attraction between all things with mass or energy." }
+      {
+        "id": "chunk_grav_1",
+        "content": "Gravity is a fundamental interaction which causes mutual attraction between all things with mass or energy."
+      }
     ],
-    "prerequisiteConcepts": ["Mass"],
+    "prerequisiteConcepts": [
+      "Mass"
+    ],
     "studentExplanation": "Gravity is the force that pulls things down to the earth.",
-    "expectedGaps": ["missing_prerequisite"]
+    "expectedGaps": [
+      "missing_prerequisite"
+    ],
+    "expectedTopGapType": "missing_prerequisite"
   },
   {
     "id": "tb_008",
     "conceptName": "Gravity",
     "conceptDefinition": "The force that attracts a body toward the center of the earth, or toward any other physical body having mass.",
     "sourceChunks": [
-      { "id": "chunk_grav_1", "content": "Gravity is a fundamental interaction which causes mutual attraction between all things with mass or energy." }
+      {
+        "id": "chunk_grav_1",
+        "content": "Gravity is a fundamental interaction which causes mutual attraction between all things with mass or energy."
+      }
     ],
-    "prerequisiteConcepts": ["Mass"],
+    "prerequisiteConcepts": [
+      "Mass"
+    ],
     "studentExplanation": "The pull of the earth. It is impossible to escape it.",
-    "expectedGaps": ["unsupported_claim", "missing_concept", "missing_prerequisite"]
+    "expectedGaps": [
+      "unsupported_claim",
+      "missing_concept",
+      "missing_prerequisite"
+    ],
+    "expectedTopGapType": "unsupported_claim"
   },
   {
     "id": "tb_009",
     "conceptName": "Osmosis",
     "conceptDefinition": "A process by which molecules of a solvent tend to pass through a semipermeable membrane from a less concentrated solution into a more concentrated one.",
     "sourceChunks": [
-      { "id": "chunk_osmosis_1", "content": "Osmosis is the spontaneous net movement or diffusion of solvent molecules through a selectively permeable membrane from a region of high water potential to a region of low water potential." }
+      {
+        "id": "chunk_osmosis_1",
+        "content": "Osmosis is the spontaneous net movement or diffusion of solvent molecules through a selectively permeable membrane from a region of high water potential to a region of low water potential."
+      }
     ],
-    "prerequisiteConcepts": ["Semipermeable membrane"],
+    "prerequisiteConcepts": [
+      "Semipermeable membrane"
+    ],
     "studentExplanation": "Water moves from high to low concentration. Instead of moving through a membrane, it just teleports.",
-    "expectedGaps": ["misconception"]
+    "expectedGaps": [
+      "misconception"
+    ],
+    "expectedTopGapType": "misconception"
   },
   {
     "id": "tb_010",
     "conceptName": "Osmosis",
     "conceptDefinition": "A process by which molecules of a solvent tend to pass through a semipermeable membrane from a less concentrated solution into a more concentrated one.",
     "sourceChunks": [
-      { "id": "chunk_osmosis_1", "content": "Osmosis is the spontaneous net movement or diffusion of solvent molecules through a selectively permeable membrane from a region of high water potential to a region of low water potential." }
+      {
+        "id": "chunk_osmosis_1",
+        "content": "Osmosis is the spontaneous net movement or diffusion of solvent molecules through a selectively permeable membrane from a region of high water potential to a region of low water potential."
+      }
     ],
-    "prerequisiteConcepts": ["Semipermeable membrane"],
+    "prerequisiteConcepts": [
+      "Semipermeable membrane"
+    ],
     "studentExplanation": "Osmosis is the diffusion of solvent molecules through a selectively permeable membrane.",
-    "expectedGaps": []
+    "expectedGaps": [],
+    "expectedTopGapType": null
   }
 ]

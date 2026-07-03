@@ -2,6 +2,7 @@ import { createServiceClient } from '@/lib/supabase/service';
 import { detectGaps } from '../ai/tasks/gap-detection';
 import { generateSocraticQuestions } from '../ai/tasks/socratic-question';
 import { generateFeedbackSummary } from '../ai/tasks/reflection-summary';
+import { validateTeachBackFeedback } from '../ai/tasks/feedback-validation';
 import { TeachBackAgentResult } from '../ai/types';
 import { persistTeachBackFeedback } from '../services/sessions';
 import { createTrace, updateTraceState, completeTrace } from './tracing';
@@ -10,13 +11,14 @@ import { AppError } from '../errors/app-error';
 export interface ExecuteTeachBackOptions {
   workspaceId: string;
   sessionId: string;
+  userId: string;
   studentExplanation: string;
   provider: 'local' | 'gemini';
 }
 
 export async function executeTeachBack(options: ExecuteTeachBackOptions): Promise<TeachBackAgentResult> {
-  const { workspaceId, sessionId, studentExplanation, provider } = options;
-  const trace = await createTrace(workspaceId, sessionId, 'teach-back-agent');
+  const { workspaceId, sessionId, userId, studentExplanation, provider } = options;
+  const trace = await createTrace(workspaceId, userId, 'teach-back-agent');
   const supabase = createServiceClient();
   let fallbackUsed = false;
 
@@ -25,18 +27,29 @@ export async function executeTeachBack(options: ExecuteTeachBackOptions): Promis
   try {
     await updateTraceState(trace, 'pending');
 
-    // 1. Load Concept and Evidence
+    // 1. Load Concept and Evidence (Strict Workspace Scope Check)
     await updateTraceState(trace, 'loading_concept');
-    const { data: session } = await supabase.from('teach_back_sessions').select('concept_node_id').eq('id', sessionId).single();
-    if (!session) throw new Error('Session not found');
+    const { data: session } = await supabase.from('teach_back_sessions')
+      .select('concept_node_id')
+      .eq('id', sessionId)
+      .eq('workspace_id', workspaceId) // Strict scope check
+      .single();
+    if (!session) throw new Error('Session not found or not in workspace');
 
-    const { data: conceptNode } = await supabase.from('concept_nodes').select('*').eq('id', session.concept_node_id).single();
-    if (!conceptNode) throw new Error('Concept not found');
+    const { data: conceptNode } = await supabase.from('concept_nodes')
+      .select('*')
+      .eq('id', session.concept_node_id)
+      .eq('workspace_id', workspaceId) // Strict scope check
+      .single();
+    if (!conceptNode) throw new Error('Concept not found or not in workspace');
 
     await updateTraceState(trace, 'retrieving_evidence');
     let sourceChunks: { id: string; content: string }[] = [];
     if (conceptNode.source_chunk_ids && conceptNode.source_chunk_ids.length > 0) {
-      const { data: chunks } = await supabase.from('source_chunks').select('id, content').in('id', conceptNode.source_chunk_ids);
+      const { data: chunks } = await supabase.from('source_chunks')
+        .select('id, content')
+        .in('id', conceptNode.source_chunk_ids)
+        .eq('workspace_id', workspaceId); // Strict scope check
       if (chunks) sourceChunks = chunks;
     }
 
@@ -89,9 +102,14 @@ export async function executeTeachBack(options: ExecuteTeachBackOptions): Promis
     const summary = await generateFeedbackSummary({
       studentExplanation,
       conceptName: conceptNode.name,
+      conceptNodeId: conceptNode.id,
+      sourceChunks,
       gaps,
       followUpQuestion
     });
+
+    // 5.5 Validate Feedback Strictness
+    validateTeachBackFeedback(summary);
 
     // Determine reviewStatus
     let reviewStatus: 'reliable' | 'needs_review' | 'insufficient_evidence' = 'reliable';

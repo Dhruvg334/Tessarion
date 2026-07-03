@@ -175,6 +175,16 @@ export async function abandonTeachBackSession(workspaceId: string, sessionId: st
 export async function persistTeachBackFeedback(sessionId: string, summary: TeachBackSummary) {
   const supabase = createServiceClient();
   
+  // Idempotency check: see if gap_findings or socratic_questions already exist for this session
+  const { count: gapCount, error: countError } = await supabase.from('gap_findings')
+    .select('id', { count: 'exact', head: true })
+    .eq('session_id', sessionId);
+    
+  if (countError) throw new AppError('DB_ERROR', 500, countError.message);
+  if (gapCount && gapCount > 0) {
+    throw new AppError('FEEDBACK_ALREADY_EXISTS', 409, 'Feedback has already been persisted for this session');
+  }
+
   // Combine all gap findings to persist
   const allGaps = [...summary.gaps, ...summary.unsupportedClaims];
   

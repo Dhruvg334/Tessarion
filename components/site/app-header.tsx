@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { TesseractIcon } from '@/components/ui/tesseract-icon';
+import { LogoutButton } from './logout-button';
 
 export function AppHeader() {
   return (
@@ -15,6 +16,7 @@ export function AppHeader() {
         </Link>
         <nav style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
           <Link href="/dashboard" style={{ color: 'var(--muted)', fontWeight: 500, fontSize: '0.875rem' }}>Dashboard</Link>
+          <LogoutButton />
         </nav>
       </div>
     </header>

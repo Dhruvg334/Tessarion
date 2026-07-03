@@ -10,6 +10,7 @@ export default function SignUpPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -17,6 +18,7 @@ export default function SignUpPage() {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setSuccess('');
 
     if (!hasSupabaseClientEnv()) {
       setError('Database connection not configured. Please set up your environment variables.');
@@ -25,13 +27,15 @@ export default function SignUpPage() {
     }
 
     const supabase = createClient();
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
     });
 
     if (error) {
       setError(error.message);
+    } else if (data.user && !data.session) {
+      setSuccess('Check your email for the confirmation link.');
     } else {
       router.push('/dashboard');
       router.refresh();
@@ -74,6 +78,7 @@ export default function SignUpPage() {
           )}
 
           {error && <p style={{ color: '#b91c1c', marginBottom: '1rem', fontSize: '0.875rem' }}>{error}</p>}
+          {success && <p style={{ color: '#15803d', marginBottom: '1rem', fontSize: '0.875rem' }}>{success}</p>}
           
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <input

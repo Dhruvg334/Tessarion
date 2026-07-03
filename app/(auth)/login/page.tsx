@@ -1,17 +1,19 @@
 "use client";
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { hasSupabaseClientEnv } from '@/lib/config/env';
 import Link from 'next/link';
 import { TesseractIcon } from '@/components/ui/tesseract-icon';
 
-export default function LoginPage() {
+function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const nextPath = searchParams.get('next') || '/dashboard';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +35,7 @@ export default function LoginPage() {
     if (error) {
       setError(error.message);
     } else {
-      router.push('/dashboard');
+      router.push(nextPath);
       router.refresh();
     }
     setLoading(false);
@@ -109,5 +111,13 @@ export default function LoginPage() {
 
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="flex-center">Loading...</div>}>
+      <LoginForm />
+    </Suspense>
   );
 }

@@ -13,5 +13,8 @@ export function assertLocalEvalMode() {
     if (process.env.TESSARION_AI_PROVIDER && process.env.TESSARION_AI_PROVIDER !== 'local') {
       throw new Error(`Eval mode requires local provider, but found: ${process.env.TESSARION_AI_PROVIDER}`);
     }
+    if (process.env.TESSARION_RERANK_PROVIDER && process.env.TESSARION_RERANK_PROVIDER !== 'local') {
+      throw new Error(`Eval mode requires local rerank provider, but found: ${process.env.TESSARION_RERANK_PROVIDER}`);
+    }
   }
 }
