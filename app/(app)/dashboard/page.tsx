@@ -86,7 +86,7 @@ export default function DashboardPage() {
 
       const json = (await res.json()) as WorkspaceCreateResponse;
       if (!res.ok || !json.data?.id) {
-        setError(getSafeError(json, 'Failed to create notebook. Check Supabase is running and your local env values are correct.'));
+        setError(getSafeError(json, 'Failed to create notebook. Check that Next.js and Supabase are running.'));
         return;
       }
 
@@ -101,56 +101,67 @@ export default function DashboardPage() {
   if (loading) return <div className="container" style={{ padding: '5rem 2rem' }}>Loading notebooks...</div>;
 
   return (
-    <main className="container-wide" style={{ paddingTop: '4rem' }}>
-      <section style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '1.5rem', marginBottom: '2rem' }}>
-        <div>
-          <p className="eyebrow" style={{ marginBottom: '0.8rem' }}>Dashboard</p>
-          <h1 className="title" style={{ marginBottom: '0.5rem' }}>Your notebooks</h1>
-          <p className="subtitle">Create a study workspace, add source material, extract concepts, and teach them back.</p>
+    <main className="container-wide" style={{ paddingTop: '4rem', paddingBottom: '4rem' }}>
+      <header style={{ marginBottom: '3rem' }}>
+        <h1 className="title" style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Your Notebooks</h1>
+        <p className="subtitle" style={{ fontSize: '1.1rem', color: 'var(--ink-soft)' }}>Create a dedicated notebook for each subject you wish to learn.</p>
+      </header>
+
+      {error && (
+        <div style={{ padding: '1rem', border: '1px solid var(--ink)', marginBottom: '2rem', backgroundColor: 'var(--paper)', color: 'var(--ink)' }}>
+          <strong style={{ fontWeight: 600 }}>Error:</strong> {error}
         </div>
-        <p className="annotation" style={{ maxWidth: '260px', color: 'var(--ink-soft)' }}>one notebook per subject keeps the graph clean</p>
-      </section>
+      )}
 
-      {error && <div className="notice" style={{ marginBottom: '2rem' }}><strong>Error:</strong> {error}</div>}
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 320px) minmax(0, 1fr)', gap: '4rem', alignItems: 'start' }} className="dashboard-grid-responsive">
+        
+        <aside>
+          <section className="card card-ruled" style={{ padding: '2rem 1.5rem' }}>
+            <h2 style={{ fontSize: '1.1rem', fontWeight: 600, letterSpacing: '-0.02em', marginBottom: '1.5rem', color: 'var(--ink)' }}>Create notebook</h2>
+            
+            <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div>
+                <label htmlFor="name" className="eyebrow" style={{ display: 'block', marginBottom: '0.5rem' }}>Title</label>
+                <input id="name" className="input" required placeholder="e.g. Data Structures" value={newName} onChange={e => setNewName(e.target.value)} disabled={creating} />
+              </div>
+              
+              <div>
+                <label htmlFor="desc" className="eyebrow" style={{ display: 'block', marginBottom: '0.5rem' }}>Description (optional)</label>
+                <input id="desc" className="input" placeholder="e.g. For final exams" value={newDesc} onChange={e => setNewDesc(e.target.value)} disabled={creating} />
+              </div>
 
-      <div className="dashboard-grid">
-        <section className="card card-ruled" style={{ minHeight: '360px' }}>
-          <p className="eyebrow" style={{ marginBottom: '1rem' }}>New notebook</p>
-          <h2 style={{ fontSize: '1.75rem', lineHeight: 1.1, letterSpacing: '-0.035em', marginBottom: '1rem' }}>Start a focused workspace</h2>
-          <p className="muted" style={{ marginBottom: '1.75rem' }}>Use a clear subject name. Tessarion will organize documents and concepts inside this notebook.</p>
-
-          <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
-            <input className="input" required placeholder="Notebook title, e.g. DSA" value={newName} onChange={e => setNewName(e.target.value)} disabled={creating} />
-            <input className="input" placeholder="Short purpose, e.g. placement preparation" value={newDesc} onChange={e => setNewDesc(e.target.value)} disabled={creating} />
-            <button className="btn" disabled={creating} type="submit" style={{ alignSelf: 'flex-start', marginTop: '0.5rem' }}>
-              {creating ? 'Creating notebook...' : 'Create notebook'}
-            </button>
-          </form>
-        </section>
+              <button className="btn" disabled={creating} type="submit" style={{ marginTop: '0.5rem', width: '100%' }}>
+                {creating ? 'Creating...' : 'Create notebook'}
+              </button>
+            </form>
+          </section>
+        </aside>
 
         <section>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-            <h2 style={{ fontSize: '1.25rem', letterSpacing: '-0.02em' }}>Existing notebooks</h2>
-            <span className="muted" style={{ fontSize: '0.9rem' }}>{workspaces.length} total</span>
-          </div>
+          <h2 style={{ fontSize: '1.1rem', fontWeight: 600, letterSpacing: '-0.02em', marginBottom: '1.5rem', color: 'var(--ink)', paddingBottom: '0.5rem', borderBottom: '1px solid var(--ink-soft)' }}>
+            Existing notebooks ({workspaces.length})
+          </h2>
 
           {workspaces.length === 0 ? (
-            <div className="card" style={{ minHeight: '240px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-              <p className="annotation" style={{ marginBottom: '0.5rem' }}>No notebooks yet.</p>
-              <p className="muted">Create your first notebook and Tessarion will open it immediately.</p>
+            <div style={{ padding: '3rem 0', color: 'var(--ink-soft)', textAlign: 'center' }}>
+              <p>No notebooks found. Create one to get started.</p>
             </div>
           ) : (
-            <div className="workspace-grid">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem' }}>
               {workspaces.map((ws) => (
-                <Link key={ws.id} href={`/workspace/${ws.id}`} className="brand-link" style={{ display: 'block' }}>
-                  <article className="card workspace-card">
+                <Link key={ws.id} href={`/workspace/${ws.id}`} style={{ textDecoration: 'none' }}>
+                  <article className="card" style={{ padding: '1.5rem', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', border: '1px solid var(--ink-light)', transition: 'border-color 0.2s', cursor: 'pointer' }}
+                    onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--ink)')}
+                    onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--ink-light)')}
+                  >
                     <div>
-                      <p className="eyebrow" style={{ marginBottom: '0.75rem' }}>Notebook</p>
-                      <h3 style={{ marginBottom: '0.5rem', color: 'var(--ink)', fontSize: '1.25rem', fontWeight: 700, letterSpacing: '-0.025em' }}>{ws.name}</h3>
-                      <p className="muted" style={{ fontSize: '0.95rem' }}>{ws.description || 'No description provided.'}</p>
+                      <h3 style={{ marginBottom: '0.5rem', color: 'var(--ink)', fontSize: '1.2rem', fontWeight: 600, letterSpacing: '-0.01em', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{ws.name}</h3>
+                      {ws.description && (
+                        <p style={{ fontSize: '0.95rem', color: 'var(--ink-soft)', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{ws.description}</p>
+                      )}
                     </div>
-                    <div style={{ marginTop: '1.5rem', fontSize: '0.9rem', color: 'var(--ink)', fontWeight: 700 }}>
-                      Open notebook →
+                    <div style={{ marginTop: '1.5rem', fontSize: '0.85rem', color: 'var(--ink)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      Open →
                     </div>
                   </article>
                 </Link>

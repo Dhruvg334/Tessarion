@@ -31,29 +31,19 @@ export async function getWorkspace(workspaceId: string, userId: string): Promise
   return data as Workspace;
 }
 
-async function ensureCurrentUserProfile(userId: string) {
+async function repairProfile(userId: string) {
   if (!serverEnv.supabaseServiceRoleKey) {
-    return;
+    throw new AppError('Workspace creation is not configured. Check SUPABASE_SERVICE_ROLE_KEY.', 500, 'MISSING_SERVICE_ROLE');
   }
 
   const serviceClient = createServiceClient();
-  const { data: profile, error: profileError } = await serviceClient
-    .from('profiles')
-    .select('id')
-    .eq('id', userId)
-    .maybeSingle();
-
-  if (profileError) {
-    console.warn('Profile lookup failed before workspace creation:', profileError.message);
-    return;
-  }
-
-  if (profile) return;
-
   const { data: userAuth, error: authErr } = await serviceClient.auth.admin.getUserById(userId);
+  
   if (authErr || !userAuth?.user) {
-    console.warn('Could not repair profile before workspace creation:', authErr?.message || 'user not found');
-    return;
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('Profile repair failed: user not found in auth.users', authErr?.message);
+    }
+    throw new AppError('Failed to verify user account during workspace creation.', 500, 'USER_NOT_FOUND');
   }
 
   const { error: upsertError } = await serviceClient.from('profiles').upsert({
@@ -63,15 +53,16 @@ async function ensureCurrentUserProfile(userId: string) {
   }, { onConflict: 'id' });
 
   if (upsertError) {
-    console.warn('Profile repair upsert failed before workspace creation:', upsertError.message);
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('Profile repair upsert failed:', upsertError.message);
+    }
+    throw new AppError('Failed to complete account setup.', 500, 'PROFILE_REPAIR_FAILED');
   }
 }
 
-export async function createWorkspace(userId: string, input: CreateWorkspaceInput): Promise<Workspace> {
-  await ensureCurrentUserProfile(userId);
-
+async function insertWorkspace(userId: string, input: CreateWorkspaceInput) {
   const supabase = await createServerSupabaseClient();
-  const { data, error } = await supabase
+  return supabase
     .from('workspaces')
     .insert({
       user_id: userId,
@@ -80,13 +71,39 @@ export async function createWorkspace(userId: string, input: CreateWorkspaceInpu
     })
     .select()
     .single();
+}
 
-  if (error) {
-    console.error('Workspace insert failed:', { code: error.code, message: error.message, details: error.details });
-    throw new AppError('Failed to create workspace', 500, 'WORKSPACE_CREATE_FAILED');
+export async function createWorkspace(userId: string, input: CreateWorkspaceInput): Promise<Workspace> {
+  let result = await insertWorkspace(userId, input);
+
+  if (result.error) {
+    if (result.error.code === '23503' && result.error.message.includes('profiles')) {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('Workspace insert failed due to missing profile FK (23503). Attempting repair.');
+        console.warn(`Service role key configured: ${!!serverEnv.supabaseServiceRoleKey}`);
+      }
+      
+      // Attempt repair for the currently authenticated user
+      await repairProfile(userId);
+      
+      // Retry once
+      result = await insertWorkspace(userId, input);
+      
+      if (result.error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Workspace insert failed after repair:', { code: result.error.code, message: result.error.message, details: result.error.details });
+        }
+        throw new AppError('Failed to create workspace after account repair', 500, 'WORKSPACE_CREATE_FAILED');
+      }
+    } else {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Workspace insert failed:', { code: result.error.code, message: result.error.message, details: result.error.details });
+      }
+      throw new AppError('Failed to create workspace', 500, 'WORKSPACE_CREATE_FAILED');
+    }
   }
 
-  return data as Workspace;
+  return result.data as Workspace;
 }
 
 export async function updateWorkspace(workspaceId: string, userId: string, input: UpdateWorkspaceInput): Promise<Workspace> {

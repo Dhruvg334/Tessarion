@@ -1,88 +1,68 @@
 import Link from 'next/link';
 
-const flowSteps = [
-  ['Add sources', 'Paste notes, lectures, textbook excerpts, or reference material into a focused notebook.'],
-  ['Build the graph', 'Tessarion extracts concepts, links prerequisites, and keeps evidence attached to source chunks.'],
-  ['Teach it back', 'Explain a concept in your own words and receive one source-grounded follow-up question.'],
-];
-
 export default function MarketingPage() {
   return (
     <main>
-      <section className="container-wide hero-grid">
-        <div>
-          <p className="eyebrow" style={{ marginBottom: '1.2rem' }}>Source-grounded learning workspace</p>
-          <h1 className="handwritten hero-wordmark">Tessarion</h1>
-          <p className="subtitle" style={{ margin: '1.2rem 0 2rem' }}>
-            A clean notebook where students learn by teaching: upload study material, build a concept graph, explain ideas back, and uncover gaps using evidence from the source.
+      <section className="container" style={{ padding: '8rem 2rem 6rem', textAlign: 'center', maxWidth: 800 }}>
+        <h1 className="handwritten" style={{ fontSize: 'clamp(4rem, 8vw, 6rem)', lineHeight: 1, marginBottom: '1.5rem', color: 'var(--ink)' }}>
+          Tessarion
+        </h1>
+        <p className="subtitle" style={{ fontSize: '1.25rem', marginBottom: '2.5rem', marginInline: 'auto', color: 'var(--ink)' }}>
+          A study workspace that builds understanding through explanation, not just reading. Upload materials, visualize concepts, and test your knowledge by teaching it back.
+        </p>
+        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <Link href="/signup" className="btn">Start learning</Link>
+          <Link href="/how-it-works" className="btn btn-secondary">See how it works</Link>
+        </div>
+      </section>
+
+      <section className="container-wide" style={{ paddingTop: '5rem', paddingBottom: '5rem', borderTop: '1px solid var(--line)' }}>
+        <div style={{ textAlign: 'center', marginBottom: '4rem', maxWidth: 640, marginInline: 'auto' }}>
+          <p className="eyebrow" style={{ marginBottom: '0.75rem' }}>The Cognitive Science</p>
+          <h2 className="title" style={{ fontSize: '2.25rem' }}>Learning requires desirable difficulty.</h2>
+          <p className="subtitle" style={{ marginTop: '1rem' }}>Rereading notes creates the illusion of competence. True mastery comes from struggling to recall and explain.</p>
+        </div>
+
+        <div className="flow-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2.5rem' }}>
+          <article className="flow-step" style={{ padding: '2rem', border: '1px solid var(--ink-light)' }}>
+            <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem', fontWeight: 600 }}>Retrieval Practice</h3>
+            <p className="muted">
+              Every time you try to pull information from memory without looking at the answer, you strengthen the neural pathway. Tessarion forces you to explain concepts from memory before you can see the grounded feedback.
+            </p>
+          </article>
+          
+          <article className="flow-step" style={{ padding: '2rem', border: '1px solid var(--ink-light)' }}>
+            <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem', fontWeight: 600 }}>Concept Mapping</h3>
+            <p className="muted">
+              Knowledge is not a list of facts; it is a network of relationships. When you upload a document, Tessarion builds a visual graph of concepts and prerequisites, helping you see how ideas connect.
+            </p>
+          </article>
+          
+          <article className="flow-step" style={{ padding: '2rem', border: '1px solid var(--ink-light)' }}>
+            <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem', fontWeight: 600 }}>Metacognition</h3>
+            <p className="muted">
+              You don&apos;t know what you don&apos;t know until you try to teach it. Tessarion&apos;s gap detection compares your explanation directly against the source text to highlight omissions, unsupported claims, and weak connections.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section className="container-wide" style={{ paddingTop: '5rem', paddingBottom: '5rem', borderTop: '1px solid var(--line)' }}>
+        <div className="card" style={{ padding: '4rem 3rem', textAlign: 'center' }}>
+          <p className="eyebrow" style={{ marginBottom: '1rem' }}>No illusions</p>
+          <h2 className="title" style={{ fontSize: '2.25rem', maxWidth: 800, marginInline: 'auto', marginBottom: '1.5rem' }}>
+            A notebook built on evidence, not generative hallucination.
+          </h2>
+          <p className="subtitle" style={{ maxWidth: 680, marginInline: 'auto' }}>
+            Tessarion is not an autonomous tutor that gives you answers. It is a strict workspace that requires you to do the hard work of generation and elaboration. Feedback is strictly bounded by the chunks of text you provide.
           </p>
-          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
-            <Link href="/signup" className="btn">Start learning</Link>
-            <Link href="/how-it-works" className="btn btn-secondary">See how it works</Link>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '1rem', maxWidth: 680 }}>
-            <div><p className="annotation">graph-first</p><p className="muted" style={{ fontSize: '0.9rem' }}>Concepts are connected, not isolated.</p></div>
-            <div><p className="annotation">grounded</p><p className="muted" style={{ fontSize: '0.9rem' }}>Feedback cites your material.</p></div>
-            <div><p className="annotation">active</p><p className="muted" style={{ fontSize: '0.9rem' }}>You explain before you advance.</p></div>
-          </div>
-        </div>
-
-        <div className="hero-panel">
-          <div className="notebook-board">
-            <div className="float-card" style={{ marginBottom: '1rem' }}>
-              <p className="eyebrow">Notebook</p>
-              <h2 style={{ fontSize: '1.45rem', letterSpacing: '-0.03em' }}>Data Structures</h2>
-              <p className="muted" style={{ fontSize: '0.92rem' }}>Arrays → Linked Lists → Trees → Graphs</p>
-            </div>
-            <div className="float-card" style={{ width: '82%', marginLeft: 'auto', marginBottom: '1rem' }}>
-              <p className="annotation">Teach-back prompt</p>
-              <p style={{ marginTop: '0.5rem' }}>Explain why tree traversal order changes the output sequence.</p>
-            </div>
-            <div className="float-card" style={{ width: '88%', marginTop: '2rem' }}>
-              <p className="eyebrow">Grounded feedback</p>
-              <p className="muted" style={{ marginTop: '0.5rem' }}>You covered recursion, but missed the role of the base case. Check the source note attached to traversal definitions.</p>
-            </div>
-          </div>
         </div>
       </section>
 
-      <section className="container-wide" style={{ paddingTop: '4rem', paddingBottom: '4rem', borderTop: '1px solid var(--line)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '2rem', alignItems: 'end', marginBottom: '2rem', flexWrap: 'wrap' }}>
-          <div>
-            <p className="eyebrow" style={{ marginBottom: '0.75rem' }}>Learning loop</p>
-            <h2 className="title" style={{ maxWidth: 720 }}>A study flow that makes gaps visible.</h2>
-          </div>
-          <Link href="/demo" className="btn btn-secondary">Explore demo</Link>
-        </div>
-        <div className="flow-row">
-          {flowSteps.map(([title, body], index) => (
-            <article className="flow-step" key={title}>
-              <span className="big-number">0{index + 1}</span>
-              <h3 style={{ fontSize: '1.35rem', margin: '0.5rem 0', letterSpacing: '-0.03em' }}>{title}</h3>
-              <p className="muted">{body}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="container-wide" style={{ paddingTop: '4rem', paddingBottom: '4rem' }}>
-        <div className="card" style={{ padding: '3rem' }}>
-          <p className="eyebrow" style={{ marginBottom: '0.75rem' }}>Architecture, not vibes</p>
-          <h2 className="title" style={{ fontSize: 'clamp(2rem, 3.5vw, 3.2rem)' }}>Retrieval, concept graphs, and teach-back work together.</h2>
-          <p className="subtitle" style={{ marginBottom: '2rem' }}>
-            Tessarion is built around evidence. Source chunks feed retrieval, retrieval supports graph construction, and the teach-back agent uses that context to produce grounded feedback.
-          </p>
-          <div className="arch-strip">
-            {['Sources', 'Chunks', 'Concept Graph', 'Teach-Back', 'Feedback'].map((node) => <div className="arch-node" key={node}>{node}</div>)}
-          </div>
-        </div>
-      </section>
-
-      <section className="container" style={{ paddingTop: '4rem', paddingBottom: '6rem', textAlign: 'center' }}>
-        <p className="annotation" style={{ marginBottom: '0.5rem' }}>Ready to make your first notebook?</p>
-        <h2 className="title">Start with one topic.</h2>
-        <p className="subtitle" style={{ margin: '0 auto 2rem' }}>Paste one clear source, extract concepts, and explain one concept back. That is enough to see where understanding is strong and where it needs work.</p>
-        <Link href="/signup" className="btn">Create notebook</Link>
+      <section className="container" style={{ paddingTop: '6rem', paddingBottom: '6rem', textAlign: 'center' }}>
+        <h2 className="title" style={{ fontSize: '2rem', marginBottom: '1rem' }}>Ready to test your understanding?</h2>
+        <p className="subtitle" style={{ maxWidth: 500, marginInline: 'auto', marginBottom: '2.5rem' }}>Create your first notebook, add a study source, and try teaching it back.</p>
+        <Link href="/signup" className="btn" style={{ padding: '0.8rem 2rem', fontSize: '1.1rem' }}>Create notebook</Link>
       </section>
     </main>
   );

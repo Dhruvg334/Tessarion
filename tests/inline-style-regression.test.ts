@@ -13,7 +13,7 @@ function getAllFiles(dirPath: string, arrayOfFiles: string[] = []) {
         arrayOfFiles.push(join(dirPath, file));
       }
     });
-  } catch (e) {
+  } catch {
     // Ignore
   }
   return arrayOfFiles;
