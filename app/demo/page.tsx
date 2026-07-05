@@ -6,66 +6,66 @@ export default function DemoPage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <SiteHeader />
-      <main className="container" style={{ flex: 1, padding: '4rem 2rem' }}>
+      <main className="container-wide" style={{ flex: 1, paddingTop: '4rem', paddingBottom: '4rem' }}>
         <div style={{ marginBottom: '3rem', textAlign: 'center' }}>
-          <span style={{ display: 'inline-block', background: 'var(--accent)', color: '#fff', padding: '0.25rem 0.75rem', borderRadius: '999px', fontSize: '0.875rem', fontWeight: 600, marginBottom: '1rem' }}>
-            Interactive Preview
+          <span className="eyebrow" style={{ display: 'inline-block', border: '1px solid var(--line-strong)', padding: '0.35rem 0.75rem', borderRadius: 999, marginBottom: '1rem' }}>
+            Static preview
           </span>
-          <h1 className="title">Demo Workspace</h1>
-          <p className="muted">This is a static preview. Create an account to upload your own materials and interact with the AI.</p>
+          <h1 className="title">Demo workspace</h1>
+          <p className="subtitle" style={{ margin: '0 auto' }}>A non-authenticated preview of the source → graph → teach-back loop.</p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-          
-          {/* Left Column: Source Material & Graph */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '2rem' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             <div className="card">
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 600, borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem', marginBottom: '1rem' }}>
-                Source Documents
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 650, borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem', marginBottom: '1rem' }}>
+                Source documents
               </h2>
-              <div style={{ padding: '1rem', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '6px' }}>
-                <p style={{ fontWeight: 500 }}>Cellular Respiration (Chapter 9)</p>
-                <p className="muted" style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>12 pages • Extracted 84 chunks</p>
-                <div style={{ marginTop: '1rem', fontSize: '0.875rem', color: 'var(--muted)', fontStyle: 'italic', paddingLeft: '1rem', borderLeft: '3px solid var(--border)' }}>
-                  &quot;...Glycolysis occurs in the cytosol and begins the degradation process by breaking glucose into two molecules of a compound called pyruvate...&quot;
+              <div style={{ padding: '1rem', background: 'var(--paper)', border: '1px solid var(--border)', borderRadius: '14px' }}>
+                <p style={{ fontWeight: 650 }}>Cellular Respiration — Chapter 9</p>
+                <p className="muted" style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>12 pages • 84 chunks</p>
+                <div style={{ marginTop: '1rem', fontSize: '0.875rem', color: 'var(--muted)', fontStyle: 'italic', paddingLeft: '1rem', borderLeft: '3px solid var(--line-strong)' }}>
+                  &quot;Glycolysis occurs in the cytosol and begins the degradation process by breaking glucose into two molecules of pyruvate...&quot;
                 </div>
               </div>
             </div>
 
             <div className="card">
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 600, borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem', marginBottom: '1rem' }}>
-                Concept Graph Preview
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 650, borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem', marginBottom: '1rem' }}>
+                Concept graph preview
               </h2>
-              <div style={{ height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--background)', borderRadius: '6px', border: '1px dashed var(--border)', color: 'var(--muted)' }}>
-                [Static Graph Visualization Placeholder]
+              <div style={{ minHeight: '220px', display: 'grid', placeItems: 'center', background: 'var(--paper)', borderRadius: '16px', border: '1px dashed var(--line-strong)', color: 'var(--muted)', padding: '2rem' }}>
+                <div style={{ width: '100%', maxWidth: 360 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}><span className="arch-node">Glucose</span><span className="arch-node">ATP</span></div>
+                  <div style={{ textAlign: 'center', marginBottom: '1rem' }} className="annotation">leads into</div>
+                  <div style={{ display: 'flex', justifyContent: 'center' }}><span className="arch-node">Glycolysis</span></div>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Right Column: Teach-back flow */}
           <div className="card" style={{ display: 'flex', flexDirection: 'column' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 600, borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem', marginBottom: '1rem' }}>
-              Teach-Back Session
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 650, borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem', marginBottom: '1rem' }}>
+              Teach-back session
             </h2>
-            
             <div style={{ marginBottom: '1.5rem' }}>
-              <p style={{ fontWeight: 500, marginBottom: '0.5rem' }}>Concept: Glycolysis</p>
+              <p style={{ fontWeight: 650, marginBottom: '0.5rem' }}>Concept: Glycolysis</p>
               <p className="muted">Explain the role of ATP investment in the early stages of glycolysis.</p>
             </div>
 
-            <div style={{ padding: '1rem', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '6px', marginBottom: '1.5rem' }}>
-              <p style={{ fontFamily: 'var(--font-caveat), cursive', fontSize: '1.5rem', lineHeight: 1.2, color: 'var(--foreground)' }}>
-                The cell has to spend some ATP first to phosphorylate the glucose molecule, which makes it unstable so it can break in half later.
+            <div style={{ padding: '1.1rem', background: 'var(--paper)', border: '1px solid var(--border)', borderRadius: '16px', marginBottom: '1.5rem' }}>
+              <p className="annotation">
+                The cell spends ATP first to phosphorylate glucose, making it unstable so it can break apart later.
               </p>
             </div>
 
-            <div style={{ padding: '1rem', background: 'rgba(37, 99, 235, 0.05)', border: '1px solid rgba(37, 99, 235, 0.2)', borderRadius: '6px', marginBottom: '2rem' }}>
-              <h4 style={{ color: 'var(--accent)', fontWeight: 600, marginBottom: '0.5rem' }}>AI Feedback (Grounded)</h4>
-              <p style={{ fontSize: '0.9rem', marginBottom: '0.75rem' }}>
-                Good start! You correctly identified that ATP is invested to phosphorylate glucose and make it unstable.
+            <div className="notice" style={{ marginBottom: '2rem' }}>
+              <h4 style={{ fontWeight: 750, marginBottom: '0.5rem' }}>Grounded feedback</h4>
+              <p style={{ fontSize: '0.92rem', marginBottom: '0.75rem' }}>
+                You correctly identified ATP investment and glucose phosphorylation.
               </p>
-              <p style={{ fontSize: '0.9rem', color: '#b91c1c' }}>
-                <strong>Missing nuance:</strong> According to the text, how many ATP are invested per glucose molecule, and what enzyme catalyzes the first transfer?
+              <p style={{ fontSize: '0.92rem' }}>
+                <strong>Follow-up:</strong> According to the source, what enzyme catalyzes the first transfer?
               </p>
             </div>
 
@@ -73,7 +73,6 @@ export default function DemoPage() {
               <Link href="/signup" className="btn" style={{ width: '100%' }}>Create account to try it</Link>
             </div>
           </div>
-
         </div>
       </main>
       <SiteFooter />

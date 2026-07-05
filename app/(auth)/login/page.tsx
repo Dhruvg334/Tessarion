@@ -21,90 +21,73 @@ function LoginForm() {
     setError('');
 
     if (!hasSupabaseClientEnv()) {
-      setError('Database connection not configured. Please set up your environment variables.');
+      setError('Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local, then restart Next.js.');
       setLoading(false);
       return;
     }
 
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
 
-    if (error) {
-      setError(error.message);
-    } else {
+      if (error) {
+        setError(error.message);
+        return;
+      }
+
       router.push(nextPath);
       router.refresh();
+    } catch {
+      setError('Could not reach Supabase Auth. Check that Supabase is running, .env.local points to the correct local API URL, and the dev server was restarted after editing env variables.');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
     <div className="auth-shell">
-      <div style={{ position: 'absolute', top: '2rem', left: '2rem', zIndex: 10 }}>
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--ink)' }}>
-          <TesseractIcon size={24} />
-          <span className="handwritten" style={{ fontSize: '1.5rem', marginBottom: 0 }}>Tessarion</span>
-        </Link>
-      </div>
+      <Link href="/" className="auth-logo brand-link">
+        <TesseractIcon size={24} />
+        <span className="handwritten" style={{ fontSize: '1.5rem' }}>Tessarion</span>
+      </Link>
 
-      {/* Left: Context */}
       <div className="auth-brand-panel">
-        <h2 className="title" style={{ fontSize: '2.5rem', marginBottom: '1.5rem' }}>Welcome back.</h2>
-        <p className="muted" style={{ fontSize: '1.125rem', marginBottom: '2rem', maxWidth: '400px' }}>
-          Continue building your personal knowledge graph.
+        <p className="eyebrow" style={{ marginBottom: '1rem' }}>Return to the notebook</p>
+        <h2 className="title">Welcome back.</h2>
+        <p className="subtitle" style={{ maxWidth: '420px' }}>
+          Continue teaching concepts back, refining weak links, and building a graph that reflects what you actually understand.
         </p>
-        <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '1rem', color: 'var(--muted)' }}>
-          <li>✓ Private, isolated workspaces</li>
-          <li>✓ Source-grounded learning history</li>
-          <li>✓ Mastery tracking over time</li>
+        <ul className="auth-list" style={{ marginTop: '2rem' }}>
+          <li>— Private, isolated workspaces</li>
+          <li>— Source-grounded learning history</li>
+          <li>— Feedback built from your material</li>
         </ul>
       </div>
 
-      {/* Right: Form */}
       <div className="auth-form-wrapper">
         <div className="auth-form-card">
-          <h2 style={{ fontSize: '1.75rem', fontWeight: 600, marginBottom: '1.5rem', letterSpacing: '-0.02em' }}>Log In</h2>
-          
+          <h2 style={{ fontSize: '1.85rem', fontWeight: 650, marginBottom: '0.5rem', letterSpacing: '-0.03em' }}>Log in</h2>
+          <p className="muted" style={{ marginBottom: '1.5rem' }}>Open your Tessarion notebooks.</p>
+
           {!hasSupabaseClientEnv() && (
-            <div style={{ padding: '1rem', border: '2px solid var(--ink)', borderRadius: '6px', marginBottom: '1.5rem', fontSize: '0.875rem' }}>
-              <strong>Setup Required:</strong> Supabase environment variables are missing. Auth is disabled in this local environment.
+            <div className="notice" style={{ marginBottom: '1.5rem' }}>
+              <strong>Setup required:</strong> Supabase environment variables are missing. Auth is disabled in this local environment.
             </div>
           )}
 
-          {error && <p style={{ borderLeft: '4px solid var(--ink)', paddingLeft: '0.75rem', fontWeight: 500, marginBottom: '1rem', fontSize: '0.875rem' }}>Error: {error}</p>}
-          
+          {error && <p className="notice" style={{ marginBottom: '1rem' }}><strong>Error:</strong> {error}</p>}
+
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <input
-              type="email"
-              placeholder="Email"
-              className="input"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              className="input"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <input type="email" placeholder="Email" className="input" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <input type="password" placeholder="Password" className="input" value={password} onChange={(e) => setPassword(e.target.value)} required />
             <button className="btn" disabled={loading} type="submit" style={{ marginTop: '0.5rem' }}>
-              {loading ? 'Authenticating...' : 'Log In'}
+              {loading ? 'Authenticating...' : 'Log in'}
             </button>
           </form>
-          
-          <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.875rem', textAlign: 'center' }}>
-            <p className="muted">
-              Don&apos;t have an account? <Link href="/signup" style={{ fontWeight: 500, color: 'var(--ink)' }}>Sign up</Link>
-            </p>
-            <p className="muted">
-              Just looking around? <Link href="/demo" style={{ fontWeight: 500, color: 'var(--ink)' }}>Try the demo</Link>
-            </p>
+
+          <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.9rem', textAlign: 'center' }}>
+            <p className="muted">Don&apos;t have an account? <Link href="/signup" style={{ fontWeight: 700 }}>Sign up</Link></p>
+            <p className="muted">Just looking around? <Link href="/demo" style={{ fontWeight: 700 }}>Try the demo</Link></p>
           </div>
         </div>
       </div>
