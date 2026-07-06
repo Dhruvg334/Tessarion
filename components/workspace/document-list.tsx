@@ -26,7 +26,8 @@ export function DocumentList({ documents, workspaceId }: DocumentListProps) {
         window.location.reload();
       } else {
         const json = await res.json();
-        setError(json.error?.message || 'Extraction failed');
+        const message = json?.error?.message || json?.error || 'Extraction failed';
+        setError(typeof message === 'string' ? message : 'Extraction failed');
       }
     } catch (e) {
       setError('Failed to reach the extraction API');
@@ -53,7 +54,7 @@ export function DocumentList({ documents, workspaceId }: DocumentListProps) {
       )}
       {documents.map(doc => (
         <div key={doc.id} className="card" style={{ padding: '1rem' }}>
-          <div className="flex justify-between items-start">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <h4 style={{ margin: '0 0 0.25rem 0', fontWeight: 500 }}>{doc.file_name}</h4>
               <p className="muted" style={{ margin: 0, fontSize: '0.75rem' }}>
@@ -64,8 +65,8 @@ export function DocumentList({ documents, workspaceId }: DocumentListProps) {
               <button 
                 onClick={() => handleExtract(doc.id)}
                 disabled={extracting === doc.id}
-                className="btn btn-secondary text-xs px-2 py-1"
-                style={{ width: '160px', textAlign: 'center' }}
+                className="btn btn-secondary"
+                style={{ width: '160px', textAlign: 'center', fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
               >
                 {extracting === doc.id ? (
                   <LoadingState type="button" message="Building the graph..." />

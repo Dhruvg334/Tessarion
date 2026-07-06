@@ -40,7 +40,8 @@ function DashboardContent() {
 
         const json = await res.json();
         if (!res.ok) {
-          setError(json.error?.message || 'Failed to load notebooks.');
+          const message = json?.error?.message || json?.error || 'Failed to load notebooks.';
+          setError(typeof message === 'string' ? message : 'Failed to load notebooks.');
           return;
         }
 
@@ -80,7 +81,8 @@ function DashboardContent() {
 
       const json = await res.json();
       if (!res.ok || !json.data?.id) {
-        setError(json.error?.message || 'Failed to create notebook. Check that Next.js and Supabase are running.');
+        const message = json?.error?.message || json?.error || 'Failed to create notebook. Check that Next.js and Supabase are running.';
+        setError(typeof message === 'string' ? message : 'Failed to create notebook.');
         return;
       }
 

@@ -29,7 +29,11 @@ export default function UploadPage({ params }: { params: Promise<{ id: string }>
       
       const json = await res.json();
       if (!res.ok) {
-        throw new Error(json.error || 'Failed to upload');
+        const message =
+          json?.error?.message ||
+          json?.error ||
+          'Failed to upload';
+        throw new Error(message);
       }
 
       setSuccess(true);
