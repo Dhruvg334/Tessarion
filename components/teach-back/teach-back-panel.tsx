@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { GapFeedback } from './gap-feedback';
 import { SocraticQuestionCard } from './socratic-question-card';
 import { TeachBackAgentResult } from '@/lib/ai/types';
+import { LoadingState } from '@/components/shell/loading-state';
 
 interface TeachBackPanelProps {
   workspaceId: string;
@@ -59,27 +60,27 @@ export function TeachBackPanel({ workspaceId, conceptId, conceptName, conceptDef
       width: '100%',
       maxWidth: '450px',
       height: '100vh',
-      backgroundColor: '#fdfbf7', // Notebook cream background
-      boxShadow: '-4px 0 15px rgba(0,0,0,0.05)',
+      backgroundColor: 'var(--paper)',
+      boxShadow: 'var(--shadow-card)',
       zIndex: 100,
       display: 'flex',
       flexDirection: 'column',
-      borderLeft: '1px solid #e2e0db',
+      borderLeft: '1px solid var(--line-strong)',
       overflowY: 'auto'
     }}>
-      <div style={{ padding: '1.5rem', borderBottom: '1px solid #e2e0db', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2 style={{ margin: 0, fontSize: '1.25rem', fontFamily: 'serif' }}>Teach Back: {conceptName}</h2>
-        <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#64748b' }}>×</button>
+      <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h2 style={{ margin: 0, fontSize: '1.25rem', fontFamily: 'serif', color: 'var(--ink)' }}>Teach Back: {conceptName}</h2>
+        <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: 'var(--ink-soft)' }}>×</button>
       </div>
 
       <div style={{ padding: '1.5rem', flex: 1 }}>
         {!result ? (
           <>
-            <p style={{ color: '#475569', marginBottom: '1rem', lineHeight: 1.6 }}>
+            <p style={{ color: 'var(--ink-soft)', marginBottom: '1rem', lineHeight: 1.6 }}>
               Explain <strong>{conceptName}</strong> in your own words. We&apos;ll check your understanding against the source material.
             </p>
             {conceptDefinition && (
-              <div style={{ marginBottom: '1rem', padding: '0.75rem', backgroundColor: '#f1f5f9', borderRadius: '4px', fontSize: '0.9rem' }}>
+              <div style={{ marginBottom: '1rem', padding: '0.75rem', backgroundColor: 'var(--cream)', border: '1px solid var(--line)', borderRadius: '4px', fontSize: '0.9rem', color: 'var(--ink)' }}>
                 <strong>Hint:</strong> {conceptDefinition}
               </div>
             )}
@@ -89,10 +90,10 @@ export function TeachBackPanel({ workspaceId, conceptId, conceptName, conceptDef
                 minHeight: '200px',
                 padding: '1rem',
                 borderRadius: '6px',
-                border: '1px solid #cbd5e1',
+                border: '1px solid var(--line-strong)',
                 fontSize: '1rem',
                 lineHeight: 1.5,
-                backgroundColor: '#ffffff',
+                backgroundColor: 'var(--white)',
                 resize: 'vertical',
                 marginBottom: '1rem'
               }}
@@ -102,14 +103,21 @@ export function TeachBackPanel({ workspaceId, conceptId, conceptName, conceptDef
               disabled={loading}
             />
             {error && <div style={{ color: 'var(--ink)', fontWeight: 500, marginBottom: '1rem', borderLeft: '4px solid var(--ink)', paddingLeft: '0.75rem' }}>Error: {error}</div>}
-            <button 
-              className="btn" 
-              onClick={handleSubmit} 
-              disabled={loading || !explanation.trim()}
-              style={{ width: '100%' }}
-            >
-              {loading ? 'Analyzing...' : 'Submit Explanation'}
-            </button>
+            
+            {loading ? (
+              <div style={{ padding: '2rem 0' }}>
+                <LoadingState type="panel" message="Checking source evidence..." />
+              </div>
+            ) : (
+              <button 
+                className="btn" 
+                onClick={handleSubmit} 
+                disabled={!explanation.trim()}
+                style={{ width: '100%' }}
+              >
+                Submit Explanation
+              </button>
+            )}
           </>
         ) : (
           <div>

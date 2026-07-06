@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { SourceDocument } from '@/types/database';
+import { LoadingState } from '@/components/shell/loading-state';
 
 interface DocumentListProps {
   documents: SourceDocument[];
@@ -10,9 +11,11 @@ interface DocumentListProps {
 
 export function DocumentList({ documents, workspaceId }: DocumentListProps) {
   const [extracting, setExtracting] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleExtract = async (docId: string) => {
     setExtracting(docId);
+    setError(null);
     try {
       const res = await fetch(`/api/workspaces/${workspaceId}/documents/${docId}/concepts`, {
         method: 'POST',
@@ -20,10 +23,13 @@ export function DocumentList({ documents, workspaceId }: DocumentListProps) {
         body: JSON.stringify({ provider: 'local' })
       });
       if (res.ok) {
-        // Just reload the page to refresh the graph for now
         window.location.reload();
+      } else {
+        const json = await res.json();
+        setError(json.error?.message || 'Extraction failed');
       }
     } catch (e) {
+      setError('Failed to reach the extraction API');
       console.error(e);
     } finally {
       setExtracting(null);
@@ -40,6 +46,11 @@ export function DocumentList({ documents, workspaceId }: DocumentListProps) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      {error && (
+        <div style={{ padding: '0.75rem', backgroundColor: 'var(--paper)', border: '1px solid var(--ink)', color: 'var(--ink)', fontSize: '0.9rem' }}>
+          {error}
+        </div>
+      )}
       {documents.map(doc => (
         <div key={doc.id} className="card" style={{ padding: '1rem' }}>
           <div className="flex justify-between items-start">
@@ -54,8 +65,13 @@ export function DocumentList({ documents, workspaceId }: DocumentListProps) {
                 onClick={() => handleExtract(doc.id)}
                 disabled={extracting === doc.id}
                 className="btn btn-secondary text-xs px-2 py-1"
+                style={{ width: '160px', textAlign: 'center' }}
               >
-                {extracting === doc.id ? 'Extracting...' : 'Extract Concepts'}
+                {extracting === doc.id ? (
+                  <LoadingState type="button" message="Building the graph..." />
+                ) : (
+                  'Extract Concepts'
+                )}
               </button>
             )}
           </div>

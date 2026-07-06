@@ -21,20 +21,28 @@ export const rerankProviders: Record<string, RerankProvider> = {
   open_source: openSourceProvider
 };
 
-export function getEmbeddingProvider(id: string = 'gemini'): EmbeddingProvider {
-  if (process.env.CI === 'true') id = 'local';
-  assertNoExternalProviderInCI(id);
-  const provider = embeddingProviders[id];
-  if (!provider) throw new AppError(`Unknown embedding provider: ${id}`, 400);
-  if (!provider.isConfigured()) throw new AppError(`Provider ${id} is not configured`, 500);
+export function getEmbeddingProvider(id?: string): EmbeddingProvider {
+  let resolvedId = id;
+  if (!resolvedId) {
+    resolvedId = process.env.CI === 'true' ? 'local' : 'gemini';
+  }
+  
+  assertNoExternalProviderInCI(resolvedId);
+  const provider = embeddingProviders[resolvedId];
+  if (!provider) throw new AppError(`Unknown embedding provider: ${resolvedId}`, 400);
+  if (!provider.isConfigured()) throw new AppError(`Provider ${resolvedId} is not configured`, 500);
   return provider;
 }
 
-export function getRerankProvider(id: string = 'local'): RerankProvider {
-  if (process.env.CI === 'true') id = 'local';
-  assertNoExternalProviderInCI(id);
-  const provider = rerankProviders[id];
-  if (!provider) throw new AppError(`Unknown rerank provider: ${id}`, 400);
-  if (!provider.isConfigured()) throw new AppError(`Provider ${id} is not configured`, 500);
+export function getRerankProvider(id?: string): RerankProvider {
+  let resolvedId = id;
+  if (!resolvedId) {
+    resolvedId = 'local'; // default reranker is local anyway
+  }
+  
+  assertNoExternalProviderInCI(resolvedId);
+  const provider = rerankProviders[resolvedId];
+  if (!provider) throw new AppError(`Unknown rerank provider: ${resolvedId}`, 400);
+  if (!provider.isConfigured()) throw new AppError(`Provider ${resolvedId} is not configured`, 500);
   return provider;
 }
