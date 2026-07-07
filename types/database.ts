@@ -138,11 +138,34 @@ export interface SocraticQuestion {
   created_at: string;
 }
 
+export interface MasterySignal {
+  id: string;
+  workspace_id: string;
+  concept_id: string;
+  user_id: string;
+  source_session_id: string;
+  source_explanation_id: string | null;
+  signal_type: string;
+  strength: number | null;
+  confidence_score: number | null;
+  evidence: string | null;
+  source_chunk_ids: string[];
+  gap_finding_ids: string[];
+  created_at: string;
+}
+
 export interface MasteryRecord {
   id: string;
   concept_node_id: string;
   mastery_score: number;
-  mastery_level: 'untested' | 'weak' | 'developing' | 'strong' | 'mastered' | null;
+  mastery_level: 'unassessed' | 'insufficient_evidence' | 'emerging' | 'partial' | 'understood' | 'weak_connection' | 'misconception' | 'needs_review' | null;
+  confidence_score: number | null;
+  evidence_count: number;
+  attempts_count: number;
+  last_assessed_at: string | null;
+  strongest_gaps: string[];
+  recommendation_label: string | null;
+  explanation: string | null;
   ease_factor: number | null;
   interval_days: number | null;
   trigger_type: 'teach_back' | 'review' | 'propagation' | 'manual' | null;

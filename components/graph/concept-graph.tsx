@@ -63,26 +63,62 @@ export function ConceptGraph({ graph, isLoading, onNodeClick }: ConceptGraphProp
       
       {graph.nodes.map(node => {
         const isLowConfidence = (node.confidence_score || 0) < 0.7;
+        const masteryLevel = (node as any).mastery?.mastery_level || 'unassessed';
+        
+        let bgColor = 'var(--white)';
+        let borderColor = 'var(--line)';
+        let borderStyle = 'solid';
+        let borderWidth = '1px';
+        let textColor = 'var(--ink)';
+        let fontWeight = '500';
+
+        if (masteryLevel === 'understood') {
+          borderWidth = '2px';
+          borderColor = 'var(--ink)';
+          fontWeight = '700';
+        } else if (masteryLevel === 'misconception') {
+          bgColor = 'var(--ink)';
+          textColor = 'var(--cream)';
+          borderColor = 'var(--ink)';
+        } else if (masteryLevel === 'needs_review' || masteryLevel === 'weak_connection') {
+          borderStyle = 'dashed';
+          borderColor = 'var(--ink)';
+          borderWidth = '2px';
+        } else if (masteryLevel === 'unassessed' || masteryLevel === 'insufficient_evidence') {
+          borderStyle = 'dotted';
+        }
+
+        if (isLowConfidence && masteryLevel === 'unassessed') {
+          bgColor = 'var(--cream)';
+          borderStyle = 'dashed';
+          borderColor = 'var(--line-strong)';
+        }
         
         return (
           <div
             key={node.id}
             className={`absolute flex flex-col items-center justify-center -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-transform hover:scale-105`}
             style={{ left: node.position_x || 0, top: node.position_y || 0 }}
-            title={node.definition || node.name}
+            title={`${node.name}\nMastery: ${masteryLevel.replace('_', ' ')}\n${node.definition || ''}`}
             onClick={() => onNodeClick?.(node)}
           >
             <div 
-              className="px-4 py-2 rounded-full shadow-sm text-sm font-medium"
+              className="px-4 py-2 rounded-full shadow-sm text-sm"
               style={{
-                backgroundColor: isLowConfidence ? 'var(--cream)' : 'var(--white)',
-                border: isLowConfidence ? '2px dashed var(--line-strong)' : '1px solid var(--line)',
-                color: 'var(--ink)'
+                backgroundColor: bgColor,
+                border: `${borderWidth} ${borderStyle} ${borderColor}`,
+                color: textColor,
+                fontWeight: fontWeight
               }}
             >
               {node.name}
             </div>
             {isLowConfidence && <span className="text-[10px] mt-1 font-bold" style={{ color: 'var(--ink)' }}>REVIEW NEEDED</span>}
+            {masteryLevel !== 'unassessed' && masteryLevel !== 'insufficient_evidence' && (
+              <span className="text-[10px] mt-1 uppercase" style={{ color: 'var(--ink-soft)', fontWeight: 600 }}>
+                {masteryLevel.replace('_', ' ')}
+              </span>
+            )}
           </div>
         );
       })}

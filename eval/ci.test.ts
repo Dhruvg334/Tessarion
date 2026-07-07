@@ -8,4 +8,10 @@ describe('CI workflow', () => {
     const content = fs.readFileSync(ciPath, 'utf8');
     expect(content).toContain('npm run eval:concepts');
   });
+
+  it('should run eval:mastery in CI', () => {
+    const ciPath = path.join(process.cwd(), '.github', 'workflows', 'ci.yml');
+    const content = fs.readFileSync(ciPath, 'utf8');
+    expect(content).toContain('npm run eval:mastery');
+  });
 });

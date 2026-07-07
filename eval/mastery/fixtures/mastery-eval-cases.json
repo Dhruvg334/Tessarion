@@ -1,0 +1,61 @@
+[
+  {
+    "id": "case-1",
+    "description": "Perfect understanding",
+    "coveredWell": ["Definition", "Usage", "Example"],
+    "gapFindings": [],
+    "existingMastery": null,
+    "expectedState": "understood"
+  },
+  {
+    "id": "case-2",
+    "description": "Severe misconception overriding everything",
+    "coveredWell": ["Definition"],
+    "gapFindings": [
+      {
+        "id": "g1",
+        "gap_type": "misconception",
+        "severity": "significant",
+        "description": "Thinks arrays are linked lists",
+        "source_chunk_ids": []
+      }
+    ],
+    "existingMastery": {
+      "state": "understood",
+      "attemptsCount": 2,
+      "evidenceCount": 4
+    },
+    "expectedState": "misconception"
+  },
+  {
+    "id": "case-3",
+    "description": "Multiple missing concepts",
+    "coveredWell": [],
+    "gapFindings": [
+      { "id": "g2", "gap_type": "missing_concept", "severity": "moderate", "description": "Missed nodes", "source_chunk_ids": [] },
+      { "id": "g3", "gap_type": "missing_concept", "severity": "moderate", "description": "Missed memory", "source_chunk_ids": [] }
+    ],
+    "existingMastery": null,
+    "expectedState": "emerging"
+  },
+  {
+    "id": "case-4",
+    "description": "One missing concept, but some coverage",
+    "coveredWell": ["Nodes"],
+    "gapFindings": [
+      { "id": "g4", "gap_type": "missing_concept", "severity": "moderate", "description": "Missed memory", "source_chunk_ids": [] }
+    ],
+    "existingMastery": null,
+    "expectedState": "partial"
+  },
+  {
+    "id": "case-5",
+    "description": "Shallow explanation",
+    "coveredWell": ["Nodes"],
+    "gapFindings": [
+      { "id": "g5", "gap_type": "shallow_explanation", "severity": "moderate", "description": "Needs more depth", "source_chunk_ids": [] }
+    ],
+    "existingMastery": null,
+    "expectedState": "partial"
+  }
+]

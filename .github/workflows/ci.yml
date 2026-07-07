@@ -34,5 +34,6 @@ jobs:
       - run: npm run eval:rag
       - run: npm run eval:concepts
       - run: npm run eval:teachback
+      - run: npm run eval:mastery
       - run: npm run build
       - run: npm audit --audit-level=moderate

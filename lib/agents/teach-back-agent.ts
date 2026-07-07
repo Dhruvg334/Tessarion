@@ -7,6 +7,8 @@ import { TeachBackAgentResult } from '../ai/types';
 import { persistTeachBackFeedback } from '../services/sessions';
 import { createTrace, updateTraceState, completeTrace } from './tracing';
 import { AppError } from '../errors/app-error';
+import { getConceptMastery, persistMasteryUpdate } from '../services/mastery';
+import { calculateMastery } from '../mastery/calculate-mastery';
 
 export interface ExecuteTeachBackOptions {
   workspaceId: string;
@@ -120,6 +122,33 @@ export async function executeTeachBack(options: ExecuteTeachBackOptions): Promis
     // 6. Persist Feedback
     await updateTraceState(trace, 'persisting_feedback');
     await persistTeachBackFeedback(sessionId, summary);
+
+    // 7. Calculate and Persist Mastery
+    const existingMastery = await getConceptMastery(workspaceId, conceptNode.id, userId);
+    
+    // Construct gap findings for mastery calculation
+    const masteryGaps = gaps.map((g, index) => ({
+      id: `gap-${index}`,
+      gap_type: g.gapType as any,
+      severity: g.severity as any,
+      description: g.description,
+      source_chunk_ids: g.sourceChunkIds
+    }));
+
+    const { newMastery, newSignals } = calculateMastery({
+      conceptId: conceptNode.id,
+      workspaceId,
+      userId,
+      sourceSessionId: sessionId,
+      sourceExplanationId: 'latest', // we don't have explanation IDs stored synchronously here, could pass null or "latest"
+      coveredWell: summary.coveredWell.map(cw => cw.description),
+      gapFindings: masteryGaps,
+      existingMastery: existingMastery || undefined
+    });
+
+    await persistMasteryUpdate(newMastery, newSignals);
+
+    summary.masteryState = newMastery.state; // Optionally attach to summary to return to client
 
     await completeTrace(trace, 'success', summary, fallbackUsed);
     return {

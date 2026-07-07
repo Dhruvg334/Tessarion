@@ -181,7 +181,7 @@ export default async function WorkspacePage(props: { params: Promise<{ id: strin
         <div style={{ maxWidth: '800px' }}>
           <EmptyState 
             title="Next Planned Capability" 
-            description="Review scheduling will become available after mastery scoring." 
+            description="Review recommendations will use mastery states in the next phase." 
           />
         </div>
       )}

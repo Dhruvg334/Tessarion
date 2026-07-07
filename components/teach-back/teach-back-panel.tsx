@@ -128,6 +128,15 @@ export function TeachBackPanel({ workspaceId, conceptId, conceptName, conceptDef
               </div>
             ) : result.summary ? (
               <>
+                {result.summary.masteryState && (
+                  <div style={{ marginBottom: '1.5rem', padding: '1rem', backgroundColor: 'var(--white)', border: '1px solid var(--line-strong)', borderRadius: '4px', textAlign: 'center' }}>
+                    <div className="eyebrow" style={{ marginBottom: '0.25rem' }}>Updated Learning State</div>
+                    <div style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--ink)', textTransform: 'capitalize' }}>
+                      {result.summary.masteryState.replace('_', ' ')}
+                    </div>
+                  </div>
+                )}
+
                 {result.summary.coveredWell.length > 0 && (
                   <div style={{ marginBottom: '1.5rem', padding: '1rem', backgroundColor: 'var(--paper)', border: '1px solid var(--line)', borderLeft: '4px solid var(--ink)', borderRadius: '4px' }}>
                     <h3 style={{ margin: '0 0 0.5rem 0', color: 'var(--ink)', fontSize: '1rem' }}>Covered Well</h3>

@@ -19,6 +19,7 @@ const PANELS: PanelNavItem[] = [
 
 function DashboardContent() {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
+  const [masterySummary, setMasterySummary] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [creating, setCreating] = useState(false);
@@ -32,20 +33,29 @@ function DashboardContent() {
     const load = async () => {
       setError('');
       try {
-        const res = await fetch('/api/workspaces');
-        if (res.status === 401) {
+        const [wsRes, masteryRes] = await Promise.all([
+          fetch('/api/workspaces'),
+          fetch('/api/mastery')
+        ]);
+        
+        if (wsRes.status === 401) {
           router.push('/login?next=/dashboard');
           return;
         }
 
-        const json = await res.json();
-        if (!res.ok) {
-          const message = json?.error?.message || json?.error || 'Failed to load notebooks.';
+        const wsJson = await wsRes.json();
+        if (!wsRes.ok) {
+          const message = wsJson?.error?.message || wsJson?.error || 'Failed to load notebooks.';
           setError(typeof message === 'string' ? message : 'Failed to load notebooks.');
           return;
         }
 
-        setWorkspaces(json.data || []);
+        setWorkspaces(wsJson.data || []);
+
+        if (masteryRes.ok) {
+          const masteryJson = await masteryRes.json();
+          setMasterySummary(masteryJson.data);
+        }
       } catch {
         setError('Could not reach the workspace API. Confirm the app server is running and try again.');
       } finally {
@@ -135,6 +145,38 @@ function DashboardContent() {
           </aside>
 
           <section>
+            {masterySummary && masterySummary.assessedCount > 0 ? (
+              <div style={{ marginBottom: '3rem' }}>
+                <h2 style={{ fontSize: '1.1rem', fontWeight: 600, letterSpacing: '-0.02em', marginBottom: '1.5rem', color: 'var(--ink)', paddingBottom: '0.5rem', borderBottom: '1px solid var(--ink-soft)' }}>
+                  Learning State
+                </h2>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
+                  <div className="card" style={{ padding: '1.5rem', textAlign: 'center' }}>
+                    <div style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '0.5rem' }}>{masterySummary.understoodCount}</div>
+                    <div className="eyebrow">Understood</div>
+                  </div>
+                  <div className="card" style={{ padding: '1.5rem', textAlign: 'center' }}>
+                    <div style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '0.5rem' }}>{masterySummary.needsReviewCount}</div>
+                    <div className="eyebrow">Needs Review</div>
+                  </div>
+                  <div className="card" style={{ padding: '1.5rem', textAlign: 'center' }}>
+                    <div style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '0.5rem' }}>{masterySummary.misconceptionCount}</div>
+                    <div className="eyebrow">Misconceptions</div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div style={{ marginBottom: '3rem' }}>
+                <h2 style={{ fontSize: '1.1rem', fontWeight: 600, letterSpacing: '-0.02em', marginBottom: '1.5rem', color: 'var(--ink)', paddingBottom: '0.5rem', borderBottom: '1px solid var(--ink-soft)' }}>
+                  Learning State
+                </h2>
+                <EmptyState 
+                  title="No Mastery Data Yet" 
+                  description="Mastery appears after you complete teach-back sessions on concepts." 
+                />
+              </div>
+            )}
+
             <h2 style={{ fontSize: '1.1rem', fontWeight: 600, letterSpacing: '-0.02em', marginBottom: '1.5rem', color: 'var(--ink)', paddingBottom: '0.5rem', borderBottom: '1px solid var(--ink-soft)' }}>
               Existing notebooks ({workspaces.length})
             </h2>

@@ -85,6 +85,7 @@ export interface TeachBackSummary {
   unsupportedClaims: GapFindingOutput[];
   followUpQuestion: SocraticQuestionOutput | null;
   evidenceUsed: string[];
+  masteryState?: string;
 }
 
 export interface TeachBackAgentResult {
