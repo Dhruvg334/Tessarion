@@ -22,6 +22,15 @@ export async function scheduleReviewsFromMastery(
     throw new AppError('INVALID_SCOPE', 400, 'Mastery does not belong to workspace or user');
   }
 
+  // Validate concept node belongs to workspace
+  const { data: cNode, error: cError } = await supabase
+    .from('concept_nodes')
+    .select('id')
+    .eq('id', mastery.conceptId)
+    .eq('workspace_id', workspaceId)
+    .single();
+  if (cError || !cNode) throw new AppError('INVALID_SCOPE', 400, 'Concept node does not belong to workspace');
+
   // Validate mastery record exists in this scope
   const { data: mRecord, error: mError } = await supabase
     .from('mastery_records')
@@ -29,11 +38,13 @@ export async function scheduleReviewsFromMastery(
     .eq('id', masteryRecordId)
     .eq('workspace_id', workspaceId)
     .eq('user_id', userId)
+    .eq('concept_node_id', mastery.conceptId)
     .single();
 
   if (mError || !mRecord) throw new AppError('INVALID_SCOPE', 400, 'Mastery record does not exist in scope');
 
   // Verify provided signal IDs belong to the same workspace, user, and concept where possible
+  // NOTE: mastery_signals do not explicitly store a mastery_record_id, so filtering by workspace, user, and concept is the strongest available linkage.
   if (signalIds.length > 0) {
     const { data: validSignals, error: sigError } = await supabase
       .from('mastery_signals')
@@ -67,8 +78,14 @@ export async function scheduleReviewsFromMastery(
   if (!isScheduleable) {
     // If not scheduleable (e.g. unassessed, insufficient_evidence) and there is an active review, suspend it
     if (existingActive) {
-      const { error: updError } = await supabase.from('review_schedules').update({ status: 'suspended', updated_at: new Date().toISOString() }).eq('id', existingActive.id);
+      const { data: updData, error: updError } = await supabase.from('review_schedules')
+        .update({ status: 'suspended', updated_at: new Date().toISOString() })
+        .eq('id', existingActive.id)
+        .eq('workspace_id', workspaceId)
+        .eq('user_id', userId)
+        .select('id');
       if (updError) throw new AppError('DB_ERROR', 500, updError.message);
+      if (!updData || updData.length === 0) throw new AppError('NOT_FOUND', 404, 'Review schedule not found or unauthorized');
       return { recommendation: rec, action: 'suspended' };
     }
     return { recommendation: rec, action: 'skippedNotReady' };
@@ -94,7 +111,7 @@ export async function scheduleReviewsFromMastery(
 
   if (existingActive) {
     // Update existing active
-    const { error: updError } = await supabase.from('review_schedules').update({
+    const { data: updData, error: updError } = await supabase.from('review_schedules').update({
       mastery_record_id: masteryRecordId,
       priority: rec.priority,
       reason_type: rec.reasonType,
@@ -102,8 +119,12 @@ export async function scheduleReviewsFromMastery(
       scheduled_for: rec.suggestedReviewAt!.toISOString(),
       source_mastery_signal_ids: signalIds,
       updated_at: new Date().toISOString()
-    }).eq('id', existingActive.id);
+    }).eq('id', existingActive.id)
+      .eq('workspace_id', workspaceId)
+      .eq('user_id', userId)
+      .select('id');
     if (updError) throw new AppError('DB_ERROR', 500, updError.message);
+    if (!updData || updData.length === 0) throw new AppError('NOT_FOUND', 404, 'Review schedule not found or unauthorized');
     return { recommendation: rec, action: 'updated' };
   } else {
     // Insert new
@@ -305,7 +326,8 @@ export async function scheduleReviewsFromWorkspaceMastery(workspaceId: string, u
     suspended: 0,
     skippedNotReady: 0,
     skippedUnderstoodCap: 0,
-    processed: 0
+    processed: 0,
+    legacyTraceFallback: 0
   };
 
   for (const record of records || []) {
@@ -326,7 +348,7 @@ export async function scheduleReviewsFromWorkspaceMastery(workspaceId: string, u
     };
     
     // Fetch recent mastery signals for traceability
-    const { data: signals } = await supabase
+    const { data: signals, error: sigError } = await supabase
       .from('mastery_signals')
       .select('id')
       .eq('workspace_id', workspaceId)
@@ -335,10 +357,29 @@ export async function scheduleReviewsFromWorkspaceMastery(workspaceId: string, u
       .order('created_at', { ascending: false })
       .limit(3);
       
+    if (sigError) throw new AppError('DB_ERROR', 500, sigError.message);
+      
     const signalIds = signals ? signals.map(s => s.id) : [];
 
+    // Legacy fallback behavior: If no signals exist for this concept, we only allow scheduling
+    // if there is prior evidence or attempts. We track this as legacyTraceFallback.
+    if (signalIds.length === 0) {
+      if (record.evidence_count > 0 || record.attempts_count > 0) {
+        summary.legacyTraceFallback++;
+      } else {
+        // Not enough legacy evidence to justify scheduling without signals
+        summary.skippedNotReady++;
+        summary.processed++;
+        continue;
+      }
+    }
+
     const { action } = await scheduleReviewsFromMastery(workspaceId, userId, mockMastery, record.id, signalIds);
-    summary[action]++;
+    if (action === 'created') summary.created++;
+    else if (action === 'updated') summary.updated++;
+    else if (action === 'suspended') summary.suspended++;
+    else if (action === 'skippedNotReady') summary.skippedNotReady++;
+    else if (action === 'skippedUnderstoodCap') summary.skippedUnderstoodCap++;
     summary.processed++;
   }
   

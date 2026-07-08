@@ -4,14 +4,16 @@
     "masteryState": "unassessed",
     "expectedType": null,
     "expectedPriority": null,
-    "expectedStatus": "not_ready"
+    "expectedStatus": "not_ready",
+    "inputSignals": []
   },
   {
     "name": "Insufficient evidence",
     "masteryState": "insufficient_evidence",
     "expectedType": null,
     "expectedPriority": null,
-    "expectedStatus": "not_ready"
+    "expectedStatus": "not_ready",
+    "inputSignals": ["sig-valid-1"]
   },
   {
     "name": "Understood concept",
@@ -19,7 +21,8 @@
     "expectedType": "scheduled_reinforcement",
     "expectedPriority": "low",
     "expectedOffsetDays": 7,
-    "expectedStatus": "queued"
+    "expectedStatus": "queued",
+    "inputSignals": ["sig-valid-2"]
   },
   {
     "name": "Partial concept",
@@ -27,7 +30,8 @@
     "expectedType": "shallow_explanation",
     "expectedPriority": "medium",
     "expectedOffsetDays": 3,
-    "expectedStatus": "queued"
+    "expectedStatus": "queued",
+    "inputSignals": ["sig-valid-3"]
   },
   {
     "name": "Duplicate scheduling (Idempotency)",
@@ -37,7 +41,8 @@
     "expectedType": "needs_review",
     "expectedPriority": "high",
     "expectedStatus": "queued",
-    "simulate": "idempotency"
+    "simulate": "idempotency",
+    "inputSignals": ["sig-valid-4"]
   },
   {
     "name": "Stale recommendation superseded by new mastery state",
@@ -47,7 +52,8 @@
     "expectedType": "scheduled_reinforcement",
     "expectedPriority": "low",
     "expectedStatus": "queued",
-    "simulate": "stale_override"
+    "simulate": "stale_override",
+    "inputSignals": ["sig-valid-5"]
   },
   {
     "name": "Suspension on insufficient evidence",
@@ -57,7 +63,8 @@
     "expectedType": null,
     "expectedPriority": null,
     "expectedStatus": "suspended",
-    "simulate": "suspension"
+    "simulate": "suspension",
+    "inputSignals": ["sig-valid-6"]
   },
   {
     "name": "Understood cap enforced",
@@ -65,7 +72,8 @@
     "expectedType": null,
     "expectedPriority": null,
     "expectedStatus": "capped",
-    "simulate": "understood_cap"
+    "simulate": "understood_cap",
+    "inputSignals": ["sig-valid-7"]
   },
   {
     "name": "Traceability verified",
@@ -73,6 +81,36 @@
     "expectedType": "misconception",
     "expectedPriority": "critical",
     "expectedStatus": "queued",
-    "simulate": "traceability"
+    "simulate": "traceability",
+    "inputSignals": ["sig-valid-8"]
+  },
+  {
+    "name": "Missing signal IDs lowers traceability",
+    "masteryState": "misconception",
+    "expectedType": "misconception",
+    "expectedPriority": "critical",
+    "expectedStatus": "queued",
+    "simulate": "traceability",
+    "inputSignals": [],
+    "legacyFallback": true
+  },
+  {
+    "name": "Invalid signal IDs rejected in simulation",
+    "masteryState": "partial",
+    "expectedType": null,
+    "expectedPriority": null,
+    "expectedStatus": "invalid_scope",
+    "inputSignals": ["sig-invalid-1"]
+  },
+  {
+    "name": "Stale override keeps track of new signals",
+    "masteryState": "needs_review",
+    "existingActiveStatus": "queued",
+    "existingActivePriority": "low",
+    "expectedType": "needs_review",
+    "expectedPriority": "high",
+    "expectedStatus": "queued",
+    "simulate": "stale_override",
+    "inputSignals": ["sig-valid-9", "sig-valid-10"]
   }
 ]

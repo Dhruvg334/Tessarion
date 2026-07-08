@@ -13,7 +13,7 @@ const mockUpdate = vi.fn().mockReturnValue({ eq: mockEq });
 
 vi.mock('@/lib/supabase/server', () => ({
   createServerSupabaseClient: () => ({
-    from: (_table: string) => {
+    from: () => {
       return {
         insert: mockInsert,
         update: mockUpdate,
@@ -25,7 +25,7 @@ vi.mock('@/lib/supabase/server', () => ({
   })
 }));
 
-import { markReviewCompleted, skipReview } from './review';
+import { markReviewCompleted, skipReview, scheduleReviewsFromWorkspaceMastery } from './review';
 
 describe('review service', () => {
   beforeEach(() => {
@@ -63,7 +63,7 @@ describe('review service', () => {
     });
 
     it('should throw INVALID_SCOPE if mastery object does not match scope', async () => {
-      mockSingle.mockResolvedValueOnce({ data: { id: 'ws1' }, error: null });
+      mockSingle.mockResolvedValueOnce({ data: { id: 'ws1' }, error: null }); // ws
 
       const mismatchedMastery = { ...mockMastery, workspaceId: 'ws2' };
       
@@ -74,10 +74,23 @@ describe('review service', () => {
         expect((err as { statusCode?: number }).statusCode).toBe(400);
       }
     });
+    
+    it('should throw INVALID_SCOPE if concept is not in workspace', async () => {
+      mockSingle.mockResolvedValueOnce({ data: { id: 'ws1' }, error: null }); // ws
+      mockSingle.mockResolvedValueOnce({ data: null, error: { message: 'Concept not found' } }); // cNode
+
+      try {
+        await scheduleReviewsFromMastery('ws1', 'user1', mockMastery, 'mr1', []);
+        expect.fail('Should have thrown');
+      } catch (err: unknown) {
+        expect((err as { statusCode?: number }).statusCode).toBe(400);
+      }
+    });
 
     it('should throw INVALID_SCOPE if mastery record does not match scope', async () => {
-      mockSingle.mockResolvedValueOnce({ data: { id: 'ws1' }, error: null });
-      mockSingle.mockResolvedValueOnce({ data: null, error: { message: 'Mastery record not found' } });
+      mockSingle.mockResolvedValueOnce({ data: { id: 'ws1' }, error: null }); // ws
+      mockSingle.mockResolvedValueOnce({ data: { id: 'c1' }, error: null }); // cNode
+      mockSingle.mockResolvedValueOnce({ data: null, error: { message: 'Mastery record not found' } }); // mRecord
 
       try {
         await scheduleReviewsFromMastery('ws1', 'user1', mockMastery, 'mr1', []);
@@ -89,6 +102,7 @@ describe('review service', () => {
 
     it('should throw INVALID_SCOPE if signal IDs are invalid', async () => {
       mockSingle.mockResolvedValueOnce({ data: { id: 'ws1' }, error: null }); // ws
+      mockSingle.mockResolvedValueOnce({ data: { id: 'c1' }, error: null }); // cNode
       mockSingle.mockResolvedValueOnce({ data: { id: 'mr1' }, error: null }); // mRecord
       mockSingle.mockResolvedValueOnce({ data: [{ id: 'sig1' }], error: null }); // signals (only 1 instead of 2)
 
@@ -100,8 +114,27 @@ describe('review service', () => {
       }
     });
     
-    it('should update existing active review instead of inserting duplicate', async () => {
+    it('should throw DB_ERROR on update failure for suspension (scoped update)', async () => {
       mockSingle.mockResolvedValueOnce({ data: { id: 'ws1' }, error: null }); // ws
+      mockSingle.mockResolvedValueOnce({ data: { id: 'c1' }, error: null }); // cNode
+      mockSingle.mockResolvedValueOnce({ data: { id: 'mr1' }, error: null }); // mRecord
+      mockSingle.mockResolvedValueOnce({ data: { id: 'active1', status: 'queued' }, error: null }); // existing active
+      
+      mockUpdate.mockResolvedValueOnce({ data: [], error: null }); // zero rows updated for suspension
+
+      const unassessedMastery = { ...mockMastery, state: 'unassessed' as const };
+      
+      try {
+        await scheduleReviewsFromMastery('ws1', 'user1', unassessedMastery, 'mr1', []);
+        expect.fail('Should have thrown');
+      } catch (err: unknown) {
+        expect((err as { statusCode?: number }).statusCode).toBe(404);
+      }
+    });
+
+    it('should update existing active review instead of inserting duplicate (scoped update)', async () => {
+      mockSingle.mockResolvedValueOnce({ data: { id: 'ws1' }, error: null }); // ws
+      mockSingle.mockResolvedValueOnce({ data: { id: 'c1' }, error: null }); // cNode
       mockSingle.mockResolvedValueOnce({ data: { id: 'mr1' }, error: null }); // mRecord
       mockSingle.mockResolvedValueOnce({ data: { id: 'active1', status: 'queued' }, error: null }); // existing active
       mockSingle.mockResolvedValueOnce({ count: 1, error: null }); // cap count
@@ -114,6 +147,7 @@ describe('review service', () => {
 
     it('should skip scheduling reinforcement if understood cap is reached', async () => {
       mockSingle.mockResolvedValueOnce({ data: { id: 'ws1' }, error: null }); // ws
+      mockSingle.mockResolvedValueOnce({ data: { id: 'c1' }, error: null }); // cNode
       mockSingle.mockResolvedValueOnce({ data: { id: 'mr1' }, error: null }); // mRecord
       mockSingle.mockResolvedValueOnce({ data: null, error: null }); // no existing active
       mockSingle.mockResolvedValueOnce({ count: 3, error: null }); // cap count >= 3
@@ -122,6 +156,26 @@ describe('review service', () => {
       expect(result.action).toBe('skippedUnderstoodCap');
       expect(mockInsert).not.toHaveBeenCalled();
       expect(mockUpdate).not.toHaveBeenCalled();
+    });
+  });
+
+
+  describe('scheduleReviewsFromWorkspaceMastery', () => {
+    it('should throw DB_ERROR if mastery signal fetch fails', async () => {
+      // Setup ws and records
+      mockSingle.mockResolvedValueOnce({ data: { id: 'ws1' }, error: null }); // ws
+      
+      // Override mockSelect for records fetch and signals fetch
+      mockSelect
+        .mockResolvedValueOnce({ data: [{ id: 'rec1', concept_node_id: 'c1', evidence_count: 1, attempts_count: 1 }], error: null }) // records
+        .mockResolvedValueOnce({ data: null, error: { message: 'Fetch failed' } }); // signals
+
+      try {
+        await scheduleReviewsFromWorkspaceMastery('ws1', 'user1');
+        expect.fail('Should have thrown');
+      } catch (err: unknown) {
+        expect((err as { statusCode?: number }).statusCode).toBe(500);
+      }
     });
   });
 
