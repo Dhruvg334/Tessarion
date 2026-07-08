@@ -26,6 +26,15 @@ const thresholds: Record<string, number> = {
   'Run Success Rate': 1.00,
 };
 
+interface ActiveReview {
+  id: string;
+  conceptId: string;
+  status: string;
+  priority: string;
+  reasonType: string;
+  signalIds: string[];
+}
+
 async function runEval() {
   console.log('Running Review Service Simulation Eval...');
   const now = new Date();
@@ -44,6 +53,41 @@ async function runEval() {
 
   for (const tc of fixtures) {
     try {
+      const activeReviews = new Map<string, ActiveReview>();
+      const dbStore: ActiveReview[] = [];
+
+      // Setup initial state based on fixture
+      if (tc.existingActiveStatus) {
+        const initialReview: ActiveReview = {
+          id: 'rev-1',
+          conceptId: 'concept-1',
+          status: tc.existingActiveStatus,
+          priority: tc.existingActivePriority || 'medium',
+          reasonType: tc.simulate === 'understood_cap' ? 'scheduled_reinforcement' : 'needs_review',
+          signalIds: []
+        };
+        dbStore.push(initialReview);
+        if (['queued', 'due', 'overdue'].includes(tc.existingActiveStatus)) {
+          activeReviews.set('concept-1', initialReview);
+        }
+      }
+
+      // If we are testing understood cap, we pre-fill 3 understood active reviews
+      if (tc.simulate === 'understood_cap') {
+        for (let i = 2; i <= 4; i++) {
+          const capReview: ActiveReview = {
+            id: `rev-${i}`,
+            conceptId: `concept-${i}`,
+            status: 'queued',
+            priority: 'low',
+            reasonType: 'scheduled_reinforcement',
+            signalIds: []
+          };
+          dbStore.push(capReview);
+          activeReviews.set(`concept-${i}`, capReview);
+        }
+      }
+
       const mockMastery: ConceptMastery = {
         workspaceId: 'ws-1',
         userId: 'user-1',
@@ -61,49 +105,88 @@ async function runEval() {
       };
 
       const rec = calculateReviewRecommendation(mockMastery, now);
+      const existingActive = activeReviews.get('concept-1');
+
+      let action = 'skipped';
+      const providedSignalIds = tc.simulate === 'traceability' ? ['sig-123'] : [];
+      let finalReviewState: ActiveReview | null = null;
+
+      const isScheduleable = rec.suggestedReviewAt !== null && rec.priority !== null && rec.reasonType !== null;
+      if (!isScheduleable) {
+        if (existingActive) {
+          existingActive.status = 'suspended';
+          action = 'suspended';
+          finalReviewState = existingActive;
+        } else {
+          action = 'skippedNotReady';
+        }
+      } else {
+        let capReached = false;
+        if (rec.masteryState === 'understood') {
+          const count = dbStore.filter(r => ['queued', 'due', 'overdue'].includes(r.status) && r.reasonType === 'scheduled_reinforcement').length;
+          const alreadyReinforcement = existingActive && existingActive.reasonType === 'scheduled_reinforcement';
+          if (count >= 3 && !alreadyReinforcement) {
+            capReached = true;
+          }
+        }
+
+        if (capReached) {
+          action = 'skippedUnderstoodCap';
+        } else if (existingActive) {
+          existingActive.priority = rec.priority!;
+          existingActive.reasonType = rec.reasonType!;
+          existingActive.signalIds = providedSignalIds;
+          action = 'updated';
+          finalReviewState = existingActive;
+        } else {
+          const newReview: ActiveReview = {
+            id: 'rev-new',
+            conceptId: 'concept-1',
+            status: 'queued',
+            priority: rec.priority!,
+            reasonType: rec.reasonType!,
+            signalIds: providedSignalIds
+          };
+          dbStore.push(newReview);
+          activeReviews.set('concept-1', newReview);
+          action = 'created';
+          finalReviewState = newReview;
+        }
+      }
 
       if (tc.simulate === 'idempotency') {
         idempotencyTotal++;
-        // Idempotency check: ensuring no drift and returning same recommendation so the service would update it instead of insert
-        if (rec.priority === tc.expectedPriority && rec.reasonType === tc.expectedType) {
+        if (action === 'updated' && finalReviewState?.priority === tc.expectedPriority && finalReviewState?.reasonType === tc.expectedType) {
           idempotencyCorrect++;
         }
       }
 
       if (tc.simulate === 'stale_override') {
         staleOverrideTotal++;
-        // Stale override: checking if priority and reason type reflect the NEW state
-        if (rec.priority === tc.expectedPriority && rec.reasonType === tc.expectedType) {
+        if (action === 'updated' && finalReviewState?.priority === tc.expectedPriority && finalReviewState?.reasonType === tc.expectedType) {
           staleOverrideCorrect++;
         }
       }
 
       if (tc.simulate === 'suspension') {
         staleOverrideTotal++;
-        if (rec.priority === null && rec.suggestedReviewAt === null) {
-          // It would be suspended by the service logic
+        if (action === 'suspended' && finalReviewState?.status === 'suspended') {
           staleOverrideCorrect++;
         }
       }
 
       if (tc.simulate === 'understood_cap') {
         capTotal++;
-        // Service would prevent scheduling more than 3
-        // We simulate the service cap logic directly
-        const dbCount = 3; 
-        const willSchedule = dbCount < 3 || tc.existingActiveStatus;
-        if (!willSchedule && tc.expectedStatus === 'capped') {
+        if (tc.expectedStatus === 'capped' && action === 'skippedUnderstoodCap') {
           capCorrect++;
-        } else if (willSchedule && tc.expectedStatus !== 'capped') {
+        } else if (tc.expectedStatus !== 'capped' && action !== 'skippedUnderstoodCap') {
           capCorrect++;
         }
       }
 
       if (tc.simulate === 'traceability') {
         traceabilityTotal++;
-        // We simulate that signalIds are successfully passed and persisted
-        const signalIds = ['sig-123', 'sig-456'];
-        if (signalIds.length === 2 && rec.priority === tc.expectedPriority) {
+        if (finalReviewState?.signalIds.length === 1 && finalReviewState.signalIds[0] === 'sig-123') {
           traceabilityCorrect++;
         }
       }
