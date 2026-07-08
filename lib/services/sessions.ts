@@ -172,7 +172,11 @@ export async function abandonTeachBackSession(workspaceId: string, sessionId: st
 }
 
 // Background service methods (used by Agent)
-export async function persistTeachBackFeedback(sessionId: string, summary: TeachBackSummary) {
+export interface PersistFeedbackResult {
+  persistedGapIds: string[];
+}
+
+export async function persistTeachBackFeedback(sessionId: string, summary: TeachBackSummary): Promise<PersistFeedbackResult> {
   const supabase = createServiceClient();
   
   // Idempotency check: see if gap_findings or socratic_questions already exist for this session
@@ -182,11 +186,15 @@ export async function persistTeachBackFeedback(sessionId: string, summary: Teach
     
   if (countError) throw new AppError('DB_ERROR', 500, countError.message);
   if (gapCount && gapCount > 0) {
-    throw new AppError('FEEDBACK_ALREADY_EXISTS', 409, 'Feedback has already been persisted for this session');
+    // Feedback already persisted — return existing gap IDs for idempotency
+    const { data: existingGaps } = await supabase.from('gap_findings')
+      .select('id').eq('session_id', sessionId).order('created_at', { ascending: true });
+    return { persistedGapIds: (existingGaps || []).map(g => g.id) };
   }
 
   // Combine all gap findings to persist
   const allGaps = [...summary.gaps, ...summary.unsupportedClaims];
+  let persistedGapIds: string[] = [];
   
   if (allGaps.length > 0) {
     const gapsToInsert = allGaps.map(g => ({
@@ -201,8 +209,10 @@ export async function persistTeachBackFeedback(sessionId: string, summary: Teach
       dismissed_by_student: false
     }));
 
-    const { error: gapError } = await supabase.from('gap_findings').insert(gapsToInsert);
+    const { data: insertedGaps, error: gapError } = await supabase
+      .from('gap_findings').insert(gapsToInsert).select('id');
     if (gapError) throw new AppError('DB_ERROR', 500, gapError.message);
+    persistedGapIds = (insertedGaps || []).map(g => g.id);
   }
 
   if (summary.followUpQuestion) {
@@ -210,7 +220,7 @@ export async function persistTeachBackFeedback(sessionId: string, summary: Teach
     const { error: qError } = await supabase.from('socratic_questions').insert({
       session_id: sessionId,
       question_text: q.questionText,
-      target_gap_id: q.targetGapId || null, // Will need matching if we want true foreign key relation, but for Phase 6 skipping strict relation is ok
+      target_gap_id: q.targetGapId || null,
       blooms_level: q.bloomsLevel,
       reasoning: q.reasoning,
       sequence_index: 1
@@ -225,4 +235,6 @@ export async function persistTeachBackFeedback(sessionId: string, summary: Teach
   }).eq('id', sessionId);
   
   if (sessionError) throw new AppError('DB_ERROR', 500, sessionError.message);
+
+  return { persistedGapIds };
 }

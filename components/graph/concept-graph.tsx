@@ -63,7 +63,7 @@ export function ConceptGraph({ graph, isLoading, onNodeClick }: ConceptGraphProp
       
       {graph.nodes.map(node => {
         const isLowConfidence = (node.confidence_score || 0) < 0.7;
-        const masteryLevel = (node as any).mastery?.mastery_level || 'unassessed';
+        const masteryLevel = node.mastery?.mastery_level || 'unassessed';
         
         let bgColor = 'var(--white)';
         let borderColor = 'var(--line)';

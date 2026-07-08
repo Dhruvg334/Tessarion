@@ -1,20 +1,14 @@
-import { ConceptMastery, MasteryState, MasterySignalData } from './types';
+import { ConceptMastery, MasteryState, MasterySignalData, CoveredMasteryEvidence, MasteryGapInput } from './types';
 
 export interface MasteryInput {
   conceptId: string;
   workspaceId: string;
   userId: string;
   sourceSessionId: string;
-  sourceExplanationId?: string;
-  coveredWell: string[];
-  gapFindings: Array<{
-    id: string;
-    gap_type: 'missing_concept' | 'misconception' | 'weak_connection' | 'shallow_explanation' | 'missing_prerequisite' | 'unsupported_claim' | null;
-    severity: 'minor' | 'moderate' | 'significant' | null;
-    description: string;
-    source_chunk_ids: string[];
-  }>;
-  existingMastery?: ConceptMastery;
+  sourceExplanationId: string | null;
+  coveredWell: CoveredMasteryEvidence[];
+  gapFindings: MasteryGapInput[];
+  existingMastery?: ConceptMastery | null;
 }
 
 export interface MasteryCalculationResult {
@@ -22,24 +16,38 @@ export interface MasteryCalculationResult {
   newSignals: MasterySignalData[];
 }
 
+/**
+ * Determines whether a covered-well evidence item is source-grounded.
+ * Ungrounded positive coverage is ignored for mastery improvement.
+ */
+function isGrounded(evidence: CoveredMasteryEvidence): boolean {
+  return (
+    (evidence.sourceChunkIds && evidence.sourceChunkIds.length > 0) ||
+    (typeof evidence.relatedConceptId === 'string' && evidence.relatedConceptId.length > 0)
+  );
+}
+
 export function calculateMastery(input: MasteryInput): MasteryCalculationResult {
   const { conceptId, workspaceId, userId, sourceSessionId, sourceExplanationId, coveredWell, gapFindings, existingMastery } = input;
 
   const newSignals: MasterySignalData[] = [];
-  
-  // Track covered parts as positive signals
-  coveredWell.forEach((covered, i) => {
+
+  // Only grounded positive coverage counts
+  const groundedCoverage = coveredWell.filter(isGrounded);
+
+  // Track grounded covered parts as positive signals
+  groundedCoverage.forEach((covered) => {
     newSignals.push({
       conceptId,
       workspaceId,
       userId,
       sourceSessionId,
-      sourceExplanationId: sourceExplanationId || null,
+      sourceExplanationId,
       signalType: 'positive_coverage',
-      strength: 0.8,
-      confidenceScore: 0.9,
-      evidence: covered,
-      sourceChunkIds: [],
+      strength: Math.min(covered.confidenceScore || 0.8, 1.0),
+      confidenceScore: covered.confidenceScore || 0.9,
+      evidence: covered.description,
+      sourceChunkIds: covered.sourceChunkIds || [],
       gapFindingIds: [],
     });
   });
@@ -49,19 +57,19 @@ export function calculateMastery(input: MasteryInput): MasteryCalculationResult 
     let strength = 0.5;
     if (gap.severity === 'minor') strength = 0.3;
     if (gap.severity === 'significant') strength = 0.9;
-    
+
     newSignals.push({
       conceptId,
       workspaceId,
       userId,
       sourceSessionId,
-      sourceExplanationId: sourceExplanationId || null,
+      sourceExplanationId,
       signalType: gap.gap_type || 'unknown_gap',
       strength,
       confidenceScore: 0.9,
       evidence: gap.description,
-      sourceChunkIds: gap.source_chunk_ids,
-      gapFindingIds: [gap.id],
+      sourceChunkIds: gap.source_chunk_ids || [],
+      gapFindingIds: gap.id ? [gap.id] : [],
     });
   });
 
@@ -70,7 +78,7 @@ export function calculateMastery(input: MasteryInput): MasteryCalculationResult 
   let explanation = 'No evidence collected yet.';
 
   const attemptsCount = (existingMastery?.attemptsCount || 0) + 1;
-  const evidenceCount = (existingMastery?.evidenceCount || 0) + coveredWell.length + gapFindings.length;
+  const evidenceCount = (existingMastery?.evidenceCount || 0) + groundedCoverage.length + gapFindings.length;
 
   const hasMisconception = gapFindings.some(g => g.gap_type === 'misconception' || g.gap_type === 'unsupported_claim');
   const hasSevereMisconception = gapFindings.some(g => (g.gap_type === 'misconception' || g.gap_type === 'unsupported_claim') && g.severity === 'significant');
@@ -83,7 +91,6 @@ export function calculateMastery(input: MasteryInput): MasteryCalculationResult 
     recommendationLabel = 'Start learning';
     explanation = 'No evidence found.';
   } else if (evidenceCount < 2 && attemptsCount < 2) {
-    // Some coverage or one small gap, but not enough info
     newState = 'insufficient_evidence';
     recommendationLabel = 'Provide more detail';
     explanation = 'Explanation was too brief to fully assess understanding.';
@@ -95,7 +102,7 @@ export function calculateMastery(input: MasteryInput): MasteryCalculationResult 
     newState = 'needs_review';
     recommendationLabel = 'Review core ideas';
     explanation = hasPrereqGap ? 'Missing foundational prerequisites.' : 'Some misconceptions present.';
-  } else if (missingConceptsCount > 1 || (missingConceptsCount > 0 && coveredWell.length === 0)) {
+  } else if (missingConceptsCount > 1 || (missingConceptsCount > 0 && groundedCoverage.length === 0)) {
     newState = 'emerging';
     recommendationLabel = 'Keep expanding';
     explanation = 'Missing multiple key concepts. Understanding is still forming.';
@@ -103,24 +110,23 @@ export function calculateMastery(input: MasteryInput): MasteryCalculationResult 
     newState = 'partial';
     recommendationLabel = 'Add more depth';
     explanation = 'Good start, but missing some depth or specific details.';
-  } else if (coveredWell.length > 0) {
+  } else if (groundedCoverage.length > 0) {
     newState = 'understood';
     recommendationLabel = 'Ready to advance';
     explanation = 'Clear and accurate understanding demonstrated.';
+  } else if (groundedCoverage.length === 0 && gapFindings.length === 0 && existingMastery) {
+    // If there's no new grounded evidence and no new gaps, retain the existing state
+    newState = existingMastery.state;
+    recommendationLabel = existingMastery.recommendationLabel;
+    explanation = existingMastery.explanation;
   } else {
     newState = 'insufficient_evidence';
     recommendationLabel = 'Elaborate further';
     explanation = 'Could not confidently assess mastery state.';
   }
 
-  // Idempotency / overrides logic: recent severe misconception overrides older strong coverage.
-  // We don't have historical gaps here (except what's in existingMastery), but we can adjust based on existing.
-  // If we had understood, and now we have severe misconception, it goes to misconception. This is already handled.
-  // If we had misconception, and now we have strong coverage, it goes to understood.
-  // The deterministic calculation uses the latest session to set the state heavily, 
-  // but we can factor in existingMastery.strongestGaps if no new gaps exist but it was previously misconception.
-  if (newState === 'understood' && existingMastery?.state === 'misconception' && coveredWell.length === 0) {
-    // If they didn't really cover anything new, keep misconception.
+  // Override logic: recent severe misconception overrides older understood
+  if (newState === 'understood' && existingMastery?.state === 'misconception' && groundedCoverage.length === 0) {
     newState = 'misconception';
     recommendationLabel = existingMastery.recommendationLabel;
     explanation = existingMastery.explanation;
@@ -137,7 +143,7 @@ export function calculateMastery(input: MasteryInput): MasteryCalculationResult 
     attemptsCount,
     lastAssessedAt: new Date().toISOString(),
     strongestGaps: gapFindings.filter(g => g.severity === 'significant').map(g => g.description),
-    coveredSignals: coveredWell,
+    coveredSignals: groundedCoverage.map(c => c.description),
     recommendationLabel,
     explanation,
   };

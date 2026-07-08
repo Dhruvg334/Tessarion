@@ -1,31 +1,31 @@
 [
   {
     "id": "case-1",
-    "description": "Perfect understanding",
-    "coveredWell": ["Definition", "Usage", "Example"],
+    "description": "Strong grounded coverage, no gaps",
+    "coveredWell": [
+      { "description": "Definition", "sourceChunkIds": ["c1"], "confidenceScore": 0.9 },
+      { "description": "Usage", "sourceChunkIds": ["c2"], "confidenceScore": 0.9 },
+      { "description": "Example", "sourceChunkIds": ["c3"], "confidenceScore": 0.9 }
+    ],
     "gapFindings": [],
-    "existingMastery": null,
-    "expectedState": "understood"
+    "existingMastery": { "state": "partial", "attemptsCount": 1, "evidenceCount": 3 },
+    "expectedState": "understood",
+    "expectedRecommendation": "Ready to advance",
+    "category": "positive"
   },
   {
     "id": "case-2",
-    "description": "Severe misconception overriding everything",
-    "coveredWell": ["Definition"],
-    "gapFindings": [
-      {
-        "id": "g1",
-        "gap_type": "misconception",
-        "severity": "significant",
-        "description": "Thinks arrays are linked lists",
-        "source_chunk_ids": []
-      }
+    "description": "Severe misconception overriding understood",
+    "coveredWell": [
+      { "description": "Definition", "sourceChunkIds": ["c1"], "confidenceScore": 0.8 }
     ],
-    "existingMastery": {
-      "state": "understood",
-      "attemptsCount": 2,
-      "evidenceCount": 4
-    },
-    "expectedState": "misconception"
+    "gapFindings": [
+      { "id": "g1", "gap_type": "misconception", "severity": "significant", "description": "Thinks arrays are linked lists", "source_chunk_ids": [] }
+    ],
+    "existingMastery": { "state": "understood", "attemptsCount": 2, "evidenceCount": 4 },
+    "expectedState": "misconception",
+    "expectedRecommendation": "Review and correct",
+    "category": "severe_gap"
   },
   {
     "id": "case-3",
@@ -35,27 +35,159 @@
       { "id": "g2", "gap_type": "missing_concept", "severity": "moderate", "description": "Missed nodes", "source_chunk_ids": [] },
       { "id": "g3", "gap_type": "missing_concept", "severity": "moderate", "description": "Missed memory", "source_chunk_ids": [] }
     ],
-    "existingMastery": null,
-    "expectedState": "emerging"
+    "existingMastery": { "state": "partial", "attemptsCount": 1, "evidenceCount": 3 },
+    "expectedState": "emerging",
+    "expectedRecommendation": "Keep expanding",
+    "category": "missing"
   },
   {
     "id": "case-4",
-    "description": "One missing concept, but some coverage",
-    "coveredWell": ["Nodes"],
+    "description": "One missing concept with some coverage",
+    "coveredWell": [
+      { "description": "Nodes", "sourceChunkIds": ["c1"], "confidenceScore": 0.8 }
+    ],
     "gapFindings": [
       { "id": "g4", "gap_type": "missing_concept", "severity": "moderate", "description": "Missed memory", "source_chunk_ids": [] }
     ],
-    "existingMastery": null,
-    "expectedState": "partial"
+    "existingMastery": { "state": "emerging", "attemptsCount": 1, "evidenceCount": 3 },
+    "expectedState": "partial",
+    "expectedRecommendation": "Add more depth",
+    "category": "missing"
   },
   {
     "id": "case-5",
     "description": "Shallow explanation",
-    "coveredWell": ["Nodes"],
+    "coveredWell": [
+      { "description": "Nodes", "sourceChunkIds": ["c1"], "confidenceScore": 0.7 }
+    ],
     "gapFindings": [
       { "id": "g5", "gap_type": "shallow_explanation", "severity": "moderate", "description": "Needs more depth", "source_chunk_ids": [] }
     ],
+    "existingMastery": { "state": "emerging", "attemptsCount": 1, "evidenceCount": 3 },
+    "expectedState": "partial",
+    "expectedRecommendation": "Add more depth",
+    "category": "shallow"
+  },
+  {
+    "id": "case-6",
+    "description": "Missing prerequisite",
+    "coveredWell": [
+      { "description": "Usage", "sourceChunkIds": ["c2"], "confidenceScore": 0.8 }
+    ],
+    "gapFindings": [
+      { "id": "g6", "gap_type": "missing_prerequisite", "severity": "moderate", "description": "Lacks foundational understanding", "source_chunk_ids": [] }
+    ],
+    "existingMastery": { "state": "partial", "attemptsCount": 1, "evidenceCount": 3 },
+    "expectedState": "needs_review",
+    "expectedRecommendation": "Review core ideas",
+    "category": "prereq"
+  },
+  {
+    "id": "case-7",
+    "description": "Unsupported claim",
+    "coveredWell": [
+      { "description": "Correct structure", "sourceChunkIds": ["c1"], "confidenceScore": 0.8 }
+    ],
+    "gapFindings": [
+      { "id": "g7", "gap_type": "unsupported_claim", "severity": "moderate", "description": "Claim not in sources", "source_chunk_ids": [] }
+    ],
+    "existingMastery": { "state": "partial", "attemptsCount": 1, "evidenceCount": 3 },
+    "expectedState": "needs_review",
+    "expectedRecommendation": "Review core ideas",
+    "category": "unsupported"
+  },
+  {
+    "id": "case-8",
+    "description": "Insufficient evidence first attempt",
+    "coveredWell": [
+      { "description": "Brief", "sourceChunkIds": ["c1"], "confidenceScore": 0.5 }
+    ],
+    "gapFindings": [],
     "existingMastery": null,
-    "expectedState": "partial"
+    "expectedState": "insufficient_evidence",
+    "expectedRecommendation": "Provide more detail",
+    "category": "insufficient"
+  },
+  {
+    "id": "case-9",
+    "description": "Old understood then new misconception",
+    "coveredWell": [],
+    "gapFindings": [
+      { "id": "g8", "gap_type": "misconception", "severity": "significant", "description": "Critical misunderstanding", "source_chunk_ids": [] }
+    ],
+    "existingMastery": { "state": "understood", "attemptsCount": 5, "evidenceCount": 10 },
+    "expectedState": "misconception",
+    "expectedRecommendation": "Review and correct",
+    "category": "severe_gap"
+  },
+  {
+    "id": "case-10",
+    "description": "Old misconception then strong correction",
+    "coveredWell": [
+      { "description": "Corrected definition", "sourceChunkIds": ["c1"], "confidenceScore": 0.9 },
+      { "description": "Corrected usage", "sourceChunkIds": ["c2"], "confidenceScore": 0.9 },
+      { "description": "Corrected example", "sourceChunkIds": ["c3"], "confidenceScore": 0.9 }
+    ],
+    "gapFindings": [],
+    "existingMastery": { "state": "misconception", "attemptsCount": 3, "evidenceCount": 5 },
+    "expectedState": "understood",
+    "expectedRecommendation": "Ready to advance",
+    "category": "correction"
+  },
+  {
+    "id": "case-11",
+    "description": "Mixed positive coverage and moderate gap",
+    "coveredWell": [
+      { "description": "Good point A", "sourceChunkIds": ["c1"], "confidenceScore": 0.8 },
+      { "description": "Good point B", "sourceChunkIds": ["c2"], "confidenceScore": 0.8 }
+    ],
+    "gapFindings": [
+      { "id": "g9", "gap_type": "missing_concept", "severity": "moderate", "description": "Missed C", "source_chunk_ids": [] }
+    ],
+    "existingMastery": { "state": "emerging", "attemptsCount": 1, "evidenceCount": 3 },
+    "expectedState": "partial",
+    "expectedRecommendation": "Add more depth",
+    "category": "mixed"
+  },
+  {
+    "id": "case-12",
+    "description": "Idempotency: same input twice produces same result",
+    "coveredWell": [
+      { "description": "Consistent point", "sourceChunkIds": ["c1"], "confidenceScore": 0.85 }
+    ],
+    "gapFindings": [
+      { "id": "g10", "gap_type": "shallow_explanation", "severity": "minor", "description": "Could be deeper", "source_chunk_ids": [] }
+    ],
+    "existingMastery": { "state": "partial", "attemptsCount": 2, "evidenceCount": 4 },
+    "expectedState": "partial",
+    "expectedRecommendation": "Add more depth",
+    "category": "idempotency"
+  },
+  {
+    "id": "case-13",
+    "description": "Ungrounded positive coverage should not improve mastery",
+    "coveredWell": [
+      { "description": "Ungrounded praise 1", "sourceChunkIds": [], "confidenceScore": 0.9 },
+      { "description": "Ungrounded praise 2", "sourceChunkIds": [], "confidenceScore": 0.9 }
+    ],
+    "gapFindings": [],
+    "existingMastery": { "state": "partial", "attemptsCount": 1, "evidenceCount": 3 },
+    "expectedState": "insufficient_evidence",
+    "expectedRecommendation": "Elaborate further",
+    "category": "grounding"
+  },
+  {
+    "id": "case-14",
+    "description": "Moderate misconception (non-severe) triggers needs_review not misconception",
+    "coveredWell": [
+      { "description": "Some correct", "sourceChunkIds": ["c1"], "confidenceScore": 0.8 }
+    ],
+    "gapFindings": [
+      { "id": "g11", "gap_type": "misconception", "severity": "moderate", "description": "Minor confusion", "source_chunk_ids": [] }
+    ],
+    "existingMastery": { "state": "partial", "attemptsCount": 1, "evidenceCount": 3 },
+    "expectedState": "needs_review",
+    "expectedRecommendation": "Review core ideas",
+    "category": "moderate_misconception"
   }
 ]

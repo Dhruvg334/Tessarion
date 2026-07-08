@@ -30,14 +30,17 @@ export async function POST(
     }
 
     // This records the explanation in the DB and ensures no duplicates
-    await submitExplanation(id, sessionId, user.id, content);
+    // Returns the persisted explanation row with its real DB id
+    const explanation = await submitExplanation(id, sessionId, user.id, content);
 
     // This orchestrates the gap detection and question generation
+    // Pass the real persisted explanation ID, not "latest" or an index
     const result = await executeTeachBack({
       workspaceId: id,
       sessionId,
       userId: user.id,
       studentExplanation: content,
+      explanationId: explanation.id,
       provider
     });
 

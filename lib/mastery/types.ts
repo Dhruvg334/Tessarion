@@ -8,6 +8,26 @@ export type MasteryState =
   | 'misconception'
   | 'needs_review';
 
+export type GapType = 'missing_concept' | 'misconception' | 'weak_connection' | 'shallow_explanation' | 'missing_prerequisite' | 'unsupported_claim';
+
+export type GapSeverity = 'minor' | 'moderate' | 'significant';
+
+export interface CoveredMasteryEvidence {
+  description: string;
+  sourceChunkIds: string[];
+  relatedConceptId?: string;
+  evidenceQuote?: string;
+  confidenceScore: number;
+}
+
+export interface MasteryGapInput {
+  id: string;
+  gap_type: GapType | null;
+  severity: GapSeverity | null;
+  description: string;
+  source_chunk_ids: string[];
+}
+
 export interface ConceptMastery {
   conceptId: string;
   workspaceId: string;
@@ -37,4 +57,14 @@ export interface MasterySignalData {
   sourceChunkIds: string[];
   gapFindingIds: string[];
   createdAt?: string;
+}
+
+export interface MasteryUpdateTrace {
+  previousMasteryState: MasteryState | null;
+  newMasteryState: MasteryState;
+  signalCount: number;
+  evidenceCount: number;
+  attemptsCount: number;
+  persisted: boolean;
+  warning?: string;
 }
