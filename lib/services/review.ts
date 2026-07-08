@@ -93,13 +93,13 @@ export async function scheduleReviewsFromMastery(
 
   // Handle Understood cap
   if (rec.masteryState === 'understood') {
-    const { count, error: countError } = await supabase.from('review_schedules')
+    const builder = supabase.from('review_schedules')
       .select('id', { count: 'exact', head: true })
       .eq('workspace_id', workspaceId)
       .eq('user_id', userId)
       .in('status', ['queued', 'due', 'overdue'])
       .eq('reason_type', 'scheduled_reinforcement');
-      
+    const { count, error: countError } = await builder;
     if (countError) throw new AppError('DB_ERROR', 500, countError.message);
     
     // If we are at or above cap, and this concept does NOT already have an active scheduled_reinforcement review, skip it.

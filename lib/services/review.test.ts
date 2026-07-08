@@ -5,16 +5,36 @@ import { ConceptMastery } from '../mastery/types';
 const mockSingle = vi.fn();
 const mockEq = vi.fn();
 const mockIn = vi.fn();
-mockEq.mockReturnValue({ eq: mockEq, in: mockIn, single: mockSingle, maybeSingle: mockSingle });
-mockIn.mockReturnValue({ eq: mockEq, in: mockIn, single: mockSingle, maybeSingle: mockSingle });
-const mockSelect = vi.fn().mockReturnValue({ eq: mockEq, in: mockIn });
+const mockSelectTerminal = vi.fn();
+const mockSelect = vi.fn();
+const mockOrder = vi.fn();
+const mockLimit = vi.fn().mockImplementation(() => mockSelectTerminal());
+
+const mockBuilder = { 
+  eq: mockEq, 
+  in: mockIn, 
+  single: mockSingle, 
+  maybeSingle: mockSingle, 
+  select: mockSelectTerminal,
+  order: mockOrder,
+  limit: mockLimit,
+  then: function(resolve: (value: unknown) => void, reject: (reason?: unknown) => void) {
+    return mockSelectTerminal().then(resolve, reject);
+  }
+};
+
+mockEq.mockReturnValue(mockBuilder);
+mockIn.mockReturnValue(mockBuilder);
+mockOrder.mockReturnValue(mockBuilder);
+mockSelect.mockReturnValue(mockBuilder);
 const mockInsert = vi.fn();
-const mockUpdate = vi.fn().mockReturnValue({ eq: mockEq });
+const mockUpdate = vi.fn().mockReturnValue(mockBuilder);
 
 vi.mock('@/lib/supabase/server', () => ({
   createServerSupabaseClient: () => ({
     from: () => {
       return {
+        from: () => { throw new Error('Invalid chained .from().from() call'); },
         insert: mockInsert,
         update: mockUpdate,
         select: mockSelect,
@@ -30,8 +50,19 @@ import { markReviewCompleted, skipReview, scheduleReviewsFromWorkspaceMastery } 
 describe('review service', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockSingle.mockReset();
+    mockSelectTerminal.mockReset();
+    mockInsert.mockReset();
+    
+    mockEq.mockReturnValue(mockBuilder);
+    mockIn.mockReturnValue(mockBuilder);
+    mockOrder.mockReturnValue(mockBuilder);
+    mockSelect.mockReturnValue(mockBuilder);
+    mockUpdate.mockReturnValue(mockBuilder);
+    mockLimit.mockImplementation(() => mockBuilder);
+    
     mockInsert.mockResolvedValue({ error: null });
-    mockUpdate.mockResolvedValue({ data: [{ id: '1' }], error: null });
+    mockSelectTerminal.mockResolvedValue({ data: [{ id: '1' }], error: null });
   });
 
   describe('scheduleReviewsFromMastery', () => {
@@ -120,7 +151,7 @@ describe('review service', () => {
       mockSingle.mockResolvedValueOnce({ data: { id: 'mr1' }, error: null }); // mRecord
       mockSingle.mockResolvedValueOnce({ data: { id: 'active1', status: 'queued' }, error: null }); // existing active
       
-      mockUpdate.mockResolvedValueOnce({ data: [], error: null }); // zero rows updated for suspension
+      mockSelectTerminal.mockResolvedValueOnce({ data: [], error: null }); // zero rows updated for suspension
 
       const unassessedMastery = { ...mockMastery, state: 'unassessed' as const };
       
@@ -136,8 +167,8 @@ describe('review service', () => {
       mockSingle.mockResolvedValueOnce({ data: { id: 'ws1' }, error: null }); // ws
       mockSingle.mockResolvedValueOnce({ data: { id: 'c1' }, error: null }); // cNode
       mockSingle.mockResolvedValueOnce({ data: { id: 'mr1' }, error: null }); // mRecord
+      mockSelectTerminal.mockResolvedValueOnce({ count: 1, error: null }); // cap count
       mockSingle.mockResolvedValueOnce({ data: { id: 'active1', status: 'queued' }, error: null }); // existing active
-      mockSingle.mockResolvedValueOnce({ count: 1, error: null }); // cap count
 
       const result = await scheduleReviewsFromMastery('ws1', 'user1', mockMastery, 'mr1', []);
       expect(result.action).toBe('updated');
@@ -149,8 +180,8 @@ describe('review service', () => {
       mockSingle.mockResolvedValueOnce({ data: { id: 'ws1' }, error: null }); // ws
       mockSingle.mockResolvedValueOnce({ data: { id: 'c1' }, error: null }); // cNode
       mockSingle.mockResolvedValueOnce({ data: { id: 'mr1' }, error: null }); // mRecord
+      mockSelectTerminal.mockResolvedValueOnce({ count: 3, error: null }); // cap count
       mockSingle.mockResolvedValueOnce({ data: null, error: null }); // no existing active
-      mockSingle.mockResolvedValueOnce({ count: 3, error: null }); // cap count >= 3
 
       const result = await scheduleReviewsFromMastery('ws1', 'user1', mockMastery, 'mr1', []);
       expect(result.action).toBe('skippedUnderstoodCap');
@@ -165,8 +196,8 @@ describe('review service', () => {
       // Setup ws and records
       mockSingle.mockResolvedValueOnce({ data: { id: 'ws1' }, error: null }); // ws
       
-      // Override mockSelect for records fetch and signals fetch
-      mockSelect
+      // Override mockSelectTerminal for records fetch and signals fetch
+      mockSelectTerminal
         .mockResolvedValueOnce({ data: [{ id: 'rec1', concept_node_id: 'c1', evidence_count: 1, attempts_count: 1 }], error: null }) // records
         .mockResolvedValueOnce({ data: null, error: { message: 'Fetch failed' } }); // signals
 
@@ -181,7 +212,7 @@ describe('review service', () => {
 
   describe('markReviewCompleted', () => {
     it('should throw NOT_FOUND if zero rows are updated', async () => {
-      mockUpdate.mockResolvedValueOnce({ data: [], error: null });
+      mockSelectTerminal.mockResolvedValueOnce({ data: [], error: null });
       try {
         await markReviewCompleted('ws1', 'rev1', 'user1');
         expect.fail('Should have thrown');
@@ -193,7 +224,7 @@ describe('review service', () => {
   
   describe('skipReview', () => {
     it('should throw NOT_FOUND if zero rows are updated', async () => {
-      mockUpdate.mockResolvedValueOnce({ data: [], error: null });
+      mockSelectTerminal.mockResolvedValueOnce({ data: [], error: null });
       try {
         await skipReview('ws1', 'rev1', 'user1');
         expect.fail('Should have thrown');
