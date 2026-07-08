@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { ProductPanelNav, PanelNavItem } from '@/components/shell/product-panel-nav';
 import { LoadingState } from '@/components/shell/loading-state';
 import { EmptyState } from '@/components/shell/empty-state';
+import { ReviewQueue } from '@/components/review/review-queue';
 
 type Workspace = import('@/types/database').Workspace;
 
@@ -19,7 +20,12 @@ const PANELS: PanelNavItem[] = [
 
 function DashboardContent() {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
-  const [masterySummary, setMasterySummary] = useState<any>(null);
+  const [masterySummary, setMasterySummary] = useState<{
+    assessedCount: number;
+    understoodCount: number;
+    needsReviewCount: number;
+    misconceptionCount: number;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [creating, setCreating] = useState(false);
@@ -230,10 +236,9 @@ function DashboardContent() {
       )}
 
       {currentPanel === 'review' && (
-        <EmptyState 
-          title="Review Queue Placeholder" 
-          description="Review scheduling will become available after mastery scoring is implemented in a future phase. No review queue yet." 
-        />
+        <div style={{ maxWidth: '800px' }}>
+          <ReviewQueue />
+        </div>
       )}
 
       {currentPanel === 'status' && (

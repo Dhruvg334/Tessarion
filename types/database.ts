@@ -175,15 +175,21 @@ export interface MasteryRecord {
 
 export interface ReviewSchedule {
   id: string;
-  concept_node_id: string;
   workspace_id: string;
-  scheduled_date: string;
-  recommendation_type: 're_teach' | 'elaborate' | 'compare' | null;
-  reason: string | null;
-  urgency: 'low' | 'medium' | 'high' | null;
+  user_id: string;
+  concept_node_id: string;
+  mastery_record_id: string | null;
+  status: 'not_ready' | 'queued' | 'due' | 'overdue' | 'completed' | 'skipped' | 'suspended';
+  priority: 'low' | 'medium' | 'high' | 'critical';
+  reason_type: 'misconception' | 'needs_review' | 'weak_connection' | 'shallow_explanation' | 'missing_prerequisite' | 'insufficient_evidence' | 'scheduled_reinforcement' | 'new_concept' | 'repeated_failure' | 'improvement_check';
+  reason: string;
+  scheduled_for: string | null;
   completed_at: string | null;
   skipped_at: string | null;
+  attempts_count: number;
+  source_mastery_signal_ids: string[];
   created_at: string;
+  updated_at: string;
 }
 
 export interface AgentRun {

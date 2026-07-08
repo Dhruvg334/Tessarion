@@ -76,7 +76,7 @@ export async function listWorkspaceMastery(workspaceId: string, userId: string):
   return records.map(record => mapRecordToMastery(record, workspaceId, userId));
 }
 
-export async function persistMasteryUpdate(newMastery: ConceptMastery, newSignals: MasterySignalData[]): Promise<void> {
+export async function persistMasteryUpdate(newMastery: ConceptMastery, newSignals: MasterySignalData[]): Promise<string> {
   const supabase = await createServerSupabaseClient();
 
   // Verify workspace ownership before writing
@@ -86,8 +86,40 @@ export async function persistMasteryUpdate(newMastery: ConceptMastery, newSignal
     throw new AppError('Workspace ownership verification failed for mastery update', 403, 'UNAUTHORIZED');
   }
 
-  // Insert historical signals with strict error checking
+  // Verify concept belongs to workspace
+  const { data: concept, error: conceptError } = await supabase
+    .from('concept_nodes').select('id').eq('id', newMastery.conceptId).eq('workspace_id', newMastery.workspaceId).single();
+  if (conceptError || !concept) {
+    throw new AppError('Concept does not belong to workspace', 403, 'UNAUTHORIZED');
+  }
+
+  // Insert historical signals with strict error checking and scope verification
   if (newSignals.length > 0) {
+    // We only need to check the first signal's session/explanation since they share the same source session
+    const firstSignal = newSignals[0];
+    if (firstSignal.sourceSessionId) {
+      // Verify session belongs to workspace
+      const { data: session, error: sessionError } = await supabase
+        .from('teach_back_sessions').select('id').eq('id', firstSignal.sourceSessionId).eq('workspace_id', newMastery.workspaceId).single();
+      if (sessionError || !session) throw new AppError('Session does not belong to workspace', 403, 'UNAUTHORIZED');
+
+      if (firstSignal.sourceExplanationId) {
+        // Verify explanation belongs to session
+        const { data: explanation, error: explanationError } = await supabase
+          .from('student_explanations').select('id').eq('id', firstSignal.sourceExplanationId).eq('session_id', firstSignal.sourceSessionId).single();
+        if (explanationError || !explanation) throw new AppError('Explanation does not belong to session', 403, 'UNAUTHORIZED');
+      }
+
+      // Verify gap_findings belong to session
+      const allGapIds = Array.from(new Set(newSignals.flatMap(s => s.gapFindingIds)));
+      if (allGapIds.length > 0) {
+        const { data: gaps, error: gapsError } = await supabase
+          .from('gap_findings').select('id').in('id', allGapIds).eq('session_id', firstSignal.sourceSessionId);
+        if (gapsError || !gaps || gaps.length !== allGapIds.length) {
+          throw new AppError('One or more gap findings do not belong to the session', 403, 'UNAUTHORIZED');
+        }
+      }
+    }
     const signalsToInsert = newSignals.map(sig => ({
       workspace_id: sig.workspaceId,
       concept_id: sig.conceptId,
@@ -135,19 +167,24 @@ export async function persistMasteryUpdate(newMastery: ConceptMastery, newSignal
     throw new AppError('Failed to check existing mastery record', 500, 'DB_ERROR');
   }
 
+  let masteryRecordId: string;
   if (existing) {
-    const { error: updateError } = await supabase
-      .from('mastery_records').update(recordToUpsert).eq('id', existing.id);
+    const { data: updateData, error: updateError } = await supabase
+      .from('mastery_records').update(recordToUpsert).eq('id', existing.id).select('id').single();
     if (updateError) {
       throw new AppError('Failed to update mastery record', 500, 'DB_ERROR');
     }
+    masteryRecordId = updateData.id;
   } else {
-    const { error: insertError } = await supabase
-      .from('mastery_records').insert([recordToUpsert]);
+    const { data: insertData, error: insertError } = await supabase
+      .from('mastery_records').insert([recordToUpsert]).select('id').single();
     if (insertError) {
       throw new AppError('Failed to insert mastery record', 500, 'DB_ERROR');
     }
+    masteryRecordId = insertData.id;
   }
+  
+  return masteryRecordId;
 }
 
 export async function getMasterySummary(workspaceId: string, userId: string) {

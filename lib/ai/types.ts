@@ -86,11 +86,14 @@ export interface TeachBackSummary {
   followUpQuestion: SocraticQuestionOutput | null;
   evidenceUsed: string[];
   masteryState?: string;
+  reviewRecommendation?: unknown;
+  nextAction?: string;
 }
 
 export interface TeachBackAgentResult {
   runId: string;
-  status: 'completed' | 'failed' | 'insufficient_evidence';
+  status: 'completed' | 'partial_success' | 'failed' | 'insufficient_evidence';
+  masteryStatus?: 'success' | 'failed';
   providerUsed: string;
   fallbackUsed: boolean;
   summary: TeachBackSummary | null;

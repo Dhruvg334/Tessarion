@@ -8,6 +8,8 @@ import { WorkspaceGraphViewer } from '@/components/graph/workspace-graph-viewer'
 import { DocumentList } from '@/components/workspace/document-list';
 import { ProductPanelNav } from '@/components/shell/product-panel-nav';
 import { EmptyState } from '@/components/shell/empty-state';
+import { NextActionPanel } from '@/components/review/next-action-panel';
+import { ReviewQueue } from '@/components/review/review-queue';
 
 const PANELS = [
   { id: 'study', label: 'Study Board' },
@@ -75,6 +77,8 @@ export default async function WorkspacePage(props: { params: Promise<{ id: strin
       {currentPanel === 'study' && (
         <div style={{ display: 'grid', gap: '2rem', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 3fr)' }} className="dashboard-grid-responsive">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            <NextActionPanel workspaceId={id} hasDocuments={documents.length > 0} hasConcepts={(initialGraph?.nodes?.length || 0) > 0} />
+            
             <div className="card" style={{ padding: '1.5rem' }}>
               <h2 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '1rem', color: 'var(--ink)', borderBottom: '1px solid var(--line)', paddingBottom: '0.5rem' }}>Source Summary</h2>
               <div style={{ color: 'var(--ink-soft)' }}>
@@ -179,10 +183,7 @@ export default async function WorkspacePage(props: { params: Promise<{ id: strin
 
       {currentPanel === 'review' && (
         <div style={{ maxWidth: '800px' }}>
-          <EmptyState 
-            title="Next Planned Capability" 
-            description="Review recommendations will use mastery states in the next phase." 
-          />
+          <ReviewQueue workspaceId={id} />
         </div>
       )}
 

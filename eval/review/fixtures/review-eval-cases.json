@@ -1,0 +1,99 @@
+[
+  {
+    "name": "Unassessed concept",
+    "masteryState": "unassessed",
+    "expectedType": null,
+    "expectedPriority": null,
+    "expectedStatus": "not_ready"
+  },
+  {
+    "name": "Insufficient evidence",
+    "masteryState": "insufficient_evidence",
+    "expectedType": null,
+    "expectedPriority": null,
+    "expectedStatus": "not_ready"
+  },
+  {
+    "name": "Understood concept",
+    "masteryState": "understood",
+    "expectedType": "scheduled_reinforcement",
+    "expectedPriority": "low",
+    "expectedOffsetDays": 7,
+    "expectedStatus": "queued"
+  },
+  {
+    "name": "Partial concept",
+    "masteryState": "partial",
+    "expectedType": "shallow_explanation",
+    "expectedPriority": "medium",
+    "expectedOffsetDays": 3,
+    "expectedStatus": "queued"
+  },
+  {
+    "name": "Emerging concept",
+    "masteryState": "emerging",
+    "expectedType": "needs_review",
+    "expectedPriority": "medium",
+    "expectedOffsetDays": 2,
+    "expectedStatus": "queued"
+  },
+  {
+    "name": "Weak connection",
+    "masteryState": "weak_connection",
+    "expectedType": "weak_connection",
+    "expectedPriority": "medium",
+    "expectedOffsetDays": 2,
+    "expectedStatus": "queued"
+  },
+  {
+    "name": "Misconception",
+    "masteryState": "misconception",
+    "expectedType": "misconception",
+    "expectedPriority": "critical",
+    "expectedOffsetDays": 1,
+    "expectedStatus": "queued"
+  },
+  {
+    "name": "Needs review",
+    "masteryState": "needs_review",
+    "expectedType": "needs_review",
+    "expectedPriority": "high",
+    "expectedOffsetDays": 1,
+    "expectedStatus": "queued"
+  },
+  {
+    "name": "Repeated misconception",
+    "masteryState": "misconception",
+    "existingActiveStatus": "queued",
+    "expectedType": "misconception",
+    "expectedPriority": "critical",
+    "expectedStatus": "queued"
+  },
+  {
+    "name": "Improved concept after correction",
+    "masteryState": "understood",
+    "existingActiveStatus": "overdue",
+    "existingActivePriority": "critical",
+    "expectedType": "scheduled_reinforcement",
+    "expectedPriority": "low",
+    "expectedStatus": "queued"
+  },
+  {
+    "name": "Duplicate scheduling (Idempotency)",
+    "masteryState": "needs_review",
+    "existingActiveStatus": "queued",
+    "existingActivePriority": "high",
+    "expectedType": "needs_review",
+    "expectedPriority": "high",
+    "expectedStatus": "queued"
+  },
+  {
+    "name": "Stale recommendation superseded by new mastery state",
+    "masteryState": "understood",
+    "existingActiveStatus": "queued",
+    "existingActivePriority": "medium",
+    "expectedType": "scheduled_reinforcement",
+    "expectedPriority": "low",
+    "expectedStatus": "queued"
+  }
+]

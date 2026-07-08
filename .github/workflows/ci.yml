@@ -30,10 +30,24 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run typecheck
-      - run: npm run test:run
-      - run: npm run eval:rag
-      - run: npm run eval:concepts
-      - run: npm run eval:teachback
-      - run: npm run eval:mastery
-      - run: npm run build
+      - name: Run unit tests
+        run: npm run test:run
+
+      - name: Run RAG evaluation
+        run: npm run eval:rag
+
+      - name: Run Concepts evaluation
+        run: npm run eval:concepts
+
+      - name: Run Teach-Back evaluation
+        run: npm run eval:teachback
+
+      - name: Run Mastery evaluation
+        run: npm run eval:mastery
+
+      - name: Run Review evaluation
+        run: npm run eval:review
+
+      - name: Build Next.js app
+        run: npm run build
       - run: npm audit --audit-level=moderate

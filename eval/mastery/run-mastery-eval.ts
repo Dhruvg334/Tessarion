@@ -137,6 +137,7 @@ function runEval() {
     'Severe Gap Escalation Accuracy': 0.80,
     'Insufficient Evidence Accuracy': 0.90,
     'Idempotency Pass Rate': 1.00,
+    'Recommendation Label Accuracy': 0.65,
     'Run Success Rate': 1.00,
   };
 

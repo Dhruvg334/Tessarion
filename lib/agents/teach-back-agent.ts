@@ -11,6 +11,8 @@ import { getConceptMastery, persistMasteryUpdate } from '../services/mastery';
 import { calculateMastery } from '../mastery/calculate-mastery';
 import { CoveredMasteryEvidence, MasteryGapInput, MasteryUpdateTrace } from '../mastery/types';
 
+
+
 export interface ExecuteTeachBackOptions {
   workspaceId: string;
   sessionId: string;
@@ -171,9 +173,18 @@ export async function executeTeachBack(options: ExecuteTeachBackOptions): Promis
 
     // Attempt mastery persistence — handle failure gracefully
     let masteryWarning: string | undefined;
+    let reviewRec: unknown = null;
     try {
-      await persistMasteryUpdate(newMastery, newSignals);
+      const masteryRecordId = await persistMasteryUpdate(newMastery, newSignals);
       masteryTrace.persisted = true;
+      
+      try {
+        const { scheduleReviewsFromMastery } = await import('@/lib/services/review');
+        reviewRec = await scheduleReviewsFromMastery(workspaceId, userId, newMastery, masteryRecordId);
+      } catch {
+        masteryWarning = 'Mastery saved, but review scheduling failed.';
+        // We don't fail the whole teach-back if only review scheduling fails
+      }
     } catch {
       masteryWarning = 'Mastery update failed after feedback was persisted. Teach-back feedback is saved but mastery state was not updated.';
       masteryTrace.warning = masteryWarning;
@@ -183,6 +194,10 @@ export async function executeTeachBack(options: ExecuteTeachBackOptions): Promis
     // Attach mastery state to summary for client display
     if (masteryTrace.persisted) {
       summary.masteryState = newMastery.state;
+      if (reviewRec) {
+        summary.reviewRecommendation = reviewRec;
+        summary.nextAction = (reviewRec as { recommendedAction?: string }).recommendedAction;
+      }
     }
 
     const warnings: string[] = [];
@@ -196,7 +211,8 @@ export async function executeTeachBack(options: ExecuteTeachBackOptions): Promis
 
     return {
       runId,
-      status: 'completed',
+      status: masteryTrace.persisted ? 'completed' : 'partial_success',
+      masteryStatus: masteryTrace.persisted ? 'success' : 'failed',
       providerUsed: provider,
       fallbackUsed,
       summary,

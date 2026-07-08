@@ -14,7 +14,8 @@
     "eval:rag": "tsx eval/rag/run-rag-eval.ts",
     "eval:concepts": "tsx eval/concepts/run-concept-eval.ts",
     "eval:teachback": "tsx eval/teach-back/run-teach-back-eval.ts",
-    "eval:mastery": "tsx eval/mastery/run-mastery-eval.ts"
+    "eval:mastery": "tsx eval/mastery/run-mastery-eval.ts",
+    "eval:review": "tsx eval/review/run-review-eval.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^4.0.7",
