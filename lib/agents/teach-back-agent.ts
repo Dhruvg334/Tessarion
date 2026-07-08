@@ -175,18 +175,19 @@ export async function executeTeachBack(options: ExecuteTeachBackOptions): Promis
     let masteryWarning: string | undefined;
     let reviewRec: unknown = null;
     try {
-      const masteryRecordId = await persistMasteryUpdate(newMastery, newSignals);
+      const { masteryRecordId, signalIds } = await persistMasteryUpdate(newMastery, newSignals);
       masteryTrace.persisted = true;
       
       try {
         const { scheduleReviewsFromMastery } = await import('@/lib/services/review');
-        reviewRec = await scheduleReviewsFromMastery(workspaceId, userId, newMastery, masteryRecordId);
+        reviewRec = await scheduleReviewsFromMastery(workspaceId, userId, newMastery, masteryRecordId, signalIds);
       } catch {
         masteryWarning = 'Mastery saved, but review scheduling failed.';
-        // We don't fail the whole teach-back if only review scheduling fails
+        fallbackUsed = true;
       }
     } catch {
-      masteryWarning = 'Mastery update failed after feedback was persisted. Teach-back feedback is saved but mastery state was not updated.';
+      masteryWarning = 'Failed to persist mastery updates and review schedule.';
+      fallbackUsed = true;
       masteryTrace.warning = masteryWarning;
       reviewStatus = 'needs_review';
     }
@@ -211,7 +212,7 @@ export async function executeTeachBack(options: ExecuteTeachBackOptions): Promis
 
     return {
       runId,
-      status: masteryTrace.persisted ? 'completed' : 'partial_success',
+      status: (masteryTrace.persisted && !masteryWarning) ? 'completed' : 'partial_success',
       masteryStatus: masteryTrace.persisted ? 'success' : 'failed',
       providerUsed: provider,
       fallbackUsed,

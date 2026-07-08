@@ -76,7 +76,7 @@ export async function listWorkspaceMastery(workspaceId: string, userId: string):
   return records.map(record => mapRecordToMastery(record, workspaceId, userId));
 }
 
-export async function persistMasteryUpdate(newMastery: ConceptMastery, newSignals: MasterySignalData[]): Promise<string> {
+export async function persistMasteryUpdate(newMastery: ConceptMastery, newSignals: MasterySignalData[]): Promise<{ masteryRecordId: string, signalIds: string[] }> {
   const supabase = await createServerSupabaseClient();
 
   // Verify workspace ownership before writing
@@ -92,6 +92,8 @@ export async function persistMasteryUpdate(newMastery: ConceptMastery, newSignal
   if (conceptError || !concept) {
     throw new AppError('Concept does not belong to workspace', 403, 'UNAUTHORIZED');
   }
+
+  let signalIds: string[] = [];
 
   // Insert historical signals with strict error checking and scope verification
   if (newSignals.length > 0) {
@@ -134,13 +136,17 @@ export async function persistMasteryUpdate(newMastery: ConceptMastery, newSignal
       gap_finding_ids: sig.gapFindingIds,
     }));
 
-    const { error: signalError } = await supabase.from('mastery_signals').upsert(signalsToInsert, {
+    const { data: upsertedSignals, error: signalError } = await supabase.from('mastery_signals').upsert(signalsToInsert, {
       onConflict: 'workspace_id, concept_id, source_session_id, source_explanation_id, signal_type',
-      ignoreDuplicates: true
-    });
+      ignoreDuplicates: false
+    }).select('id');
 
     if (signalError) {
       throw new AppError('Failed to persist mastery signals', 500, 'DB_ERROR');
+    }
+    
+    if (upsertedSignals) {
+      signalIds = upsertedSignals.map(s => s.id);
     }
   }
 
@@ -184,7 +190,7 @@ export async function persistMasteryUpdate(newMastery: ConceptMastery, newSignal
     masteryRecordId = insertData.id;
   }
   
-  return masteryRecordId;
+  return { masteryRecordId, signalIds };
 }
 
 export async function getMasterySummary(workspaceId: string, userId: string) {

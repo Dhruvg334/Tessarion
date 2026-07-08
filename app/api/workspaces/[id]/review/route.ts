@@ -1,27 +1,44 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { getWorkspaceReviewQueue } from '@/lib/services/review';
+import { getWorkspaceReviewQueue, scheduleReviewsFromWorkspaceMastery } from '@/lib/services/review';
 import { AppError } from '@/lib/errors/app-error';
 
 export async function GET(
-  request: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await context.params;
+    const { id } = await params;
     const supabase = await createServerSupabaseClient();
     const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    if (!user) throw new AppError('UNAUTHORIZED', 401, 'Unauthorized');
 
     const queue = await getWorkspaceReviewQueue(id, user.id);
     return NextResponse.json({ data: queue });
   } catch (err: unknown) {
-    const error = err instanceof AppError ? err : new Error('Unknown error');
-    const status = (error as AppError).statusCode || 500;
-    const message = status === 500 ? 'Internal Server Error' : error.message;
-    return NextResponse.json({ error: message }, { status });
+    if (err instanceof AppError) {
+      return NextResponse.json({ error: err.message }, { status: err.statusCode });
+    }
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}
+
+export async function POST(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const supabase = await createServerSupabaseClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new AppError('UNAUTHORIZED', 401, 'Unauthorized');
+
+    const result = await scheduleReviewsFromWorkspaceMastery(id, user.id);
+    return NextResponse.json({ data: result });
+  } catch (err: unknown) {
+    if (err instanceof AppError) {
+      return NextResponse.json({ error: err.message }, { status: err.statusCode });
+    }
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

@@ -78,29 +78,32 @@ export function ReviewQueue({ workspaceId }: ReviewQueueProps) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-      {queue.map(item => (
-        <div key={item.id} className="card card-ruled" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--ink)' }}>{item.conceptName}</h3>
-              {!workspaceId && <div style={{ fontSize: '0.85rem', color: 'var(--ink-soft)' }}>Notebook: {item.workspaceName}</div>}
+      {queue.map(item => {
+        const borderStyle = item.priority === 'critical' ? '2px solid var(--ink)' : item.priority === 'high' ? '1px solid var(--ink)' : '1px solid var(--line)';
+        return (
+          <div key={item.id} className="card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', border: borderStyle }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--ink)' }}>{item.conceptName}</h3>
+                {!workspaceId && <div style={{ fontSize: '0.85rem', color: 'var(--ink-soft)' }}>Notebook: {item.workspaceName}</div>}
+              </div>
+              <span style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', padding: '0.2rem 0.5rem', border: '1px solid var(--ink)', borderRadius: '2px' }}>
+                {item.computedStatus}
+              </span>
             </div>
-            <span style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', padding: '0.2rem 0.5rem', border: '1px solid var(--ink)', borderRadius: '2px' }}>
-              {item.computedStatus}
-            </span>
+            <div className="muted" style={{ fontSize: '0.9rem' }}>
+              <strong>Reason:</strong> {item.reason}
+            </div>
+            <div className="muted" style={{ fontSize: '0.9rem' }}>
+              <strong>Priority:</strong> <span style={{ textTransform: 'capitalize', fontWeight: item.priority === 'critical' || item.priority === 'high' ? 700 : 'normal' }}>{item.priority}</span>
+            </div>
+            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+              <button className="btn" onClick={() => handleAction(item.id, 'complete', item.workspace_id)}>Mark Reviewed</button>
+              <button className="btn btn-secondary" onClick={() => handleAction(item.id, 'skip', item.workspace_id)}>Skip for Now</button>
+            </div>
           </div>
-          <div className="muted" style={{ fontSize: '0.9rem' }}>
-            <strong>Reason:</strong> {item.reason}
-          </div>
-          <div className="muted" style={{ fontSize: '0.9rem' }}>
-            <strong>Priority:</strong> <span style={{ textTransform: 'capitalize' }}>{item.priority}</span>
-          </div>
-          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-            <button className="btn" onClick={() => handleAction(item.id, 'complete', item.workspace_id)}>Mark Reviewed</button>
-            <button className="btn btn-secondary" onClick={() => handleAction(item.id, 'skip', item.workspace_id)}>Skip for Now</button>
-          </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

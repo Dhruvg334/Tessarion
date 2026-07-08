@@ -6,9 +6,10 @@ interface NextActionPanelProps {
   workspaceId: string;
   hasDocuments: boolean;
   hasConcepts: boolean;
+  hasDueReviews?: boolean;
 }
 
-export function NextActionPanel({ workspaceId, hasDocuments, hasConcepts }: NextActionPanelProps) {
+export function NextActionPanel({ workspaceId, hasDocuments, hasConcepts, hasDueReviews }: NextActionPanelProps) {
   if (!hasDocuments) {
     return (
       <div className="card card-ruled" style={{ padding: '1.5rem' }}>
@@ -32,10 +33,16 @@ export function NextActionPanel({ workspaceId, hasDocuments, hasConcepts }: Next
   return (
     <div className="card card-ruled" style={{ padding: '1.5rem' }}>
       <h2 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '1rem', color: 'var(--ink)' }}>Next Action</h2>
-      <p className="muted" style={{ marginBottom: '1rem' }}>Your workspace is ready. Select a concept in the Knowledge Graph to start a Teach-Back, or check your Review Queue.</p>
+      {hasDueReviews ? (
+        <p className="muted" style={{ marginBottom: '1rem' }}>You have concepts due for review. Clear your queue to strengthen your mastery.</p>
+      ) : (
+        <p className="muted" style={{ marginBottom: '1rem' }}>Your workspace is ready. Select a concept in the Knowledge Graph to start a Teach-Back, or check your Review Queue.</p>
+      )}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
         <Link href={`/workspace/${workspaceId}?panel=teach-back`} className="btn" style={{ display: 'block', textAlign: 'center' }}>Start Teach-Back</Link>
-        <Link href={`/workspace/${workspaceId}?panel=review`} className="btn btn-secondary" style={{ display: 'block', textAlign: 'center' }}>Check Reviews</Link>
+        <Link href={`/workspace/${workspaceId}?panel=review`} className={`btn ${hasDueReviews ? '' : 'btn-secondary'}`} style={{ display: 'block', textAlign: 'center' }}>
+          Check Reviews
+        </Link>
       </div>
     </div>
   );

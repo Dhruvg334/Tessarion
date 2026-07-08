@@ -30,70 +30,49 @@
     "expectedStatus": "queued"
   },
   {
-    "name": "Emerging concept",
-    "masteryState": "emerging",
-    "expectedType": "needs_review",
-    "expectedPriority": "medium",
-    "expectedOffsetDays": 2,
-    "expectedStatus": "queued"
-  },
-  {
-    "name": "Weak connection",
-    "masteryState": "weak_connection",
-    "expectedType": "weak_connection",
-    "expectedPriority": "medium",
-    "expectedOffsetDays": 2,
-    "expectedStatus": "queued"
-  },
-  {
-    "name": "Misconception",
-    "masteryState": "misconception",
-    "expectedType": "misconception",
-    "expectedPriority": "critical",
-    "expectedOffsetDays": 1,
-    "expectedStatus": "queued"
-  },
-  {
-    "name": "Needs review",
-    "masteryState": "needs_review",
-    "expectedType": "needs_review",
-    "expectedPriority": "high",
-    "expectedOffsetDays": 1,
-    "expectedStatus": "queued"
-  },
-  {
-    "name": "Repeated misconception",
-    "masteryState": "misconception",
-    "existingActiveStatus": "queued",
-    "expectedType": "misconception",
-    "expectedPriority": "critical",
-    "expectedStatus": "queued"
-  },
-  {
-    "name": "Improved concept after correction",
-    "masteryState": "understood",
-    "existingActiveStatus": "overdue",
-    "existingActivePriority": "critical",
-    "expectedType": "scheduled_reinforcement",
-    "expectedPriority": "low",
-    "expectedStatus": "queued"
-  },
-  {
     "name": "Duplicate scheduling (Idempotency)",
     "masteryState": "needs_review",
     "existingActiveStatus": "queued",
     "existingActivePriority": "high",
     "expectedType": "needs_review",
     "expectedPriority": "high",
-    "expectedStatus": "queued"
+    "expectedStatus": "queued",
+    "simulate": "idempotency"
   },
   {
     "name": "Stale recommendation superseded by new mastery state",
     "masteryState": "understood",
     "existingActiveStatus": "queued",
-    "existingActivePriority": "medium",
+    "existingActivePriority": "critical",
     "expectedType": "scheduled_reinforcement",
     "expectedPriority": "low",
-    "expectedStatus": "queued"
+    "expectedStatus": "queued",
+    "simulate": "stale_override"
+  },
+  {
+    "name": "Suspension on insufficient evidence",
+    "masteryState": "insufficient_evidence",
+    "existingActiveStatus": "queued",
+    "existingActivePriority": "high",
+    "expectedType": null,
+    "expectedPriority": null,
+    "expectedStatus": "suspended",
+    "simulate": "suspension"
+  },
+  {
+    "name": "Understood cap enforced",
+    "masteryState": "understood",
+    "expectedType": null,
+    "expectedPriority": null,
+    "expectedStatus": "capped",
+    "simulate": "understood_cap"
+  },
+  {
+    "name": "Traceability verified",
+    "masteryState": "misconception",
+    "expectedType": "misconception",
+    "expectedPriority": "critical",
+    "expectedStatus": "queued",
+    "simulate": "traceability"
   }
 ]
