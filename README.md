@@ -5,7 +5,7 @@
 ### A learning workspace where students understand by teaching.
 
 Tessarion is a source-grounded learning system that helps students turn study material into structured understanding.  
-It combines document ingestion, retrieval, concept mapping, teach-back learning, and measurable retrieval quality into one focused workspace.
+It combines document ingestion, retrieval, concept mapping, teach-back learning, mastery tracking, review scheduling, and guided Socratic tutoring into one focused workspace.
 
 <br />
 
@@ -34,6 +34,8 @@ Instead of behaving like a generic chatbot or flashcard tool, Tessarion treats l
 5. Let students teach concepts back.
 6. Detect gaps, weak links, and misconceptions.
 7. Track mastery over time.
+8. Schedule evidence-backed reviews.
+9. Use guided Socratic tutoring to prepare for another teach-back.
 
 The product is built with a strong emphasis on source grounding, measurable retrieval quality, and explainable learning workflows.
 
@@ -47,7 +49,9 @@ The product is built with a strong emphasis on source grounding, measurable retr
 | Context-Aware Chunking | Study material is split using paragraph-first and heading-aware logic while preserving source traceability. |
 | Hybrid Retrieval | Retrieval combines sparse search, dense search, calibrated fusion, and reranking-ready architecture. |
 | Provider-Pluggable AI | AI providers are abstracted behind clean interfaces for embeddings, reranking, and evaluation. |
-| Local Evaluation Harness | Retrieval quality is evaluated locally with Recall@K, MRR, nDCG, and Context Precision. |
+| Local Evaluation Harness | Retrieval, concept, teach-back, mastery, review, and tutoring behavior are evaluated with deterministic local fixtures. |
+| Evidence-Based Review Scheduling | Review recommendations are derived from mastery records and signal history, with one active review per concept. |
+| Guided Socratic Tutoring | Tutoring uses a deterministic policy to ask one source-grounded question at a time without directly changing mastery. |
 | Workspace Isolation | Supabase Row-Level Security keeps each user's data scoped to their own workspaces. |
 | CI-Safe Testing | Tests and evaluation run without paid AI APIs or external model calls. |
 
@@ -98,6 +102,9 @@ flowchart TD
     L --> M[Teach-Back Learning]
     M --> N[Gap Detection]
     N --> O[Mastery Tracking]
+    O --> R[Review Scheduling]
+    R --> T[Socratic Tutoring]
+    T --> M
 
     C --> P[Supabase Postgres]
     P --> Q[Row-Level Security]
@@ -427,6 +434,36 @@ types/
 
 ---
 
+
+## Learning Workflow
+
+Tessarion now treats learning as an evidence loop:
+
+```mermaid
+flowchart TD
+    A[Source Material] --> B[Concept Graph]
+    B --> C[Teach-Back]
+    C --> D[Gap Findings]
+    D --> E[Mastery Signals]
+    E --> F[Review Queue]
+    F --> G[Guided Socratic Tutoring]
+    G --> C
+```
+
+Tutoring does not directly mark a concept as understood. It prepares the learner to attempt another teach-back, which remains the evidence source for mastery changes.
+
+---
+
+## Public Documentation
+
+- `docs/public-rag-foundation.md`
+- `docs/public-concept-graph-foundation.md`
+- `docs/public-mastery-model.md`
+- `docs/public-review-scheduling.md`
+- `docs/public-socratic-tutoring.md`
+
+---
+
 ## Security Model
 
 Tessarion is designed with a strict separation between public, authenticated, and server-only code.
@@ -447,11 +484,12 @@ Tessarion is designed with a strict separation between public, authenticated, an
 
 - Keep source grounding explicit.
 - Do not generate unsupported learning feedback.
-- Do not create fake live AI behavior.
+- Avoid unsupported live behavior and keep user-visible outputs grounded in stored evidence.
 - Keep provider integrations optional and benchmarkable.
 - Prefer measurable retrieval quality over vague claims.
 - Keep private architecture decisions outside the public repository.
 - Maintain clean CI gates before expanding product capabilities.
+- Keep tutoring separate from mastery updates; learners demonstrate progress through teach-back.
 
 ---
 

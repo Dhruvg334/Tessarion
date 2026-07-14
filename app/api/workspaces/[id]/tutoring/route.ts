@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { listWorkspaceTutoringSessions, startTutoringSession } from '@/lib/services/tutoring';
 import { z } from 'zod';
-import { TutoringFocusType } from '@/lib/tutoring/types';
 
 export async function GET(
   request: NextRequest,
@@ -65,7 +64,7 @@ export async function POST(
       conceptId: parsed.conceptId,
       teachBackSessionId: parsed.teachBackSessionId,
       reviewScheduleId: parsed.reviewScheduleId,
-      focusType: parsed.focusType as TutoringFocusType,
+      focusType: parsed.focusType,
       focusSummary: parsed.focusSummary
     });
 

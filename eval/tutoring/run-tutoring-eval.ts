@@ -48,7 +48,7 @@ async function runEval() {
       userId: 'test-user',
       role: 'tutor',
       turnType: 'socratic_question',
-      content: 'placeholder',
+      content: 'previous tutor turn',
       sourceChunkIds: [],
       gapFindingIds: [],
       masterySignalIds: [],

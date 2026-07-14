@@ -37,6 +37,7 @@ Thumbs.db
 .idea/
 
 # private docs and planning
+docs/project.md
 docs/private/
 docs/drafts/
 docs/**/*.private.md

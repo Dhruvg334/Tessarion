@@ -17,8 +17,6 @@ export async function classifyRelationships(
     return classifyRelationshipsLocal(concepts, chunks);
   }
 
-  // TODO: Implement Gemini-backed extraction
-  // Fallback to local
   return classifyRelationshipsLocal(concepts, chunks);
 }
 
@@ -38,7 +36,6 @@ function classifyRelationshipsLocal(
       const n1 = c1.name.toLowerCase();
       const n2 = c2.name.toLowerCase();
 
-      // Look for causal
       if (fullText.includes(`${n1} causes ${n2}`) || fullText.includes(`${n1} leads to ${n2}`)) {
         relationships.push({
           sourceNodeName: c1.name,
@@ -52,10 +49,9 @@ function classifyRelationshipsLocal(
         });
       }
       
-      // Look for prerequisite
       if (fullText.includes(`${n1} requires ${n2}`) || fullText.includes(`${n1} depends on ${n2}`)) {
         relationships.push({
-          sourceNodeName: c2.name, // n2 is the prerequisite
+          sourceNodeName: c2.name,
           targetNodeName: c1.name,
           relationshipType: 'prerequisite',
           description: `${c2.name} is a prerequisite for ${c1.name}.`,
@@ -66,7 +62,6 @@ function classifyRelationshipsLocal(
         });
       }
 
-      // Look for contrast
       if (fullText.includes(`${n1} however ${n2}`) || fullText.includes(`${n1} unlike ${n2}`)) {
         relationships.push({
           sourceNodeName: c1.name,

@@ -2,7 +2,6 @@ import { describe, it, expect, vi } from 'vitest';
 import { generateTutorMessage } from './generate-tutor-message';
 import { TutoringSession } from './types';
 
-// Mock generateText from 'ai'
 vi.mock('ai', () => ({
   generateText: vi.fn()
 }));
@@ -20,7 +19,6 @@ describe('generateTutorMessage Guardrails', () => {
     (generateText as any).mockResolvedValueOnce({ text: 'What is this? And why did you do that?' });
     
     process.env.GOOGLE_GENERATIVE_AI_API_KEY = 'test-key';
-    // We override CI to allow AI block
     const originalCI = process.env.CI;
     process.env.CI = 'false';
     const originalEnv = process.env.NODE_ENV;

@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createTrace, updateTraceState, completeTrace } from './tracing';
 
-// Mock the service client
 const mockEq = vi.fn();
 const mockInsert = vi.fn();
 const mockUpdate = vi.fn().mockReturnValue({ eq: mockEq });
@@ -42,7 +41,7 @@ describe('tracing', () => {
     mockEq.mockResolvedValueOnce({ error: null });
     await completeTrace(trace, 'success', { warnings: [] }, false);
 
-    expect(trace.steps.length).toBe(2); // completeTrace doesn't push a step itself
+    expect(trace.steps.length).toBe(2);
     const finalArgs = mockUpdate.mock.calls[1][0];
     expect(finalArgs.output_summary.steps.length).toBe(2);
   });

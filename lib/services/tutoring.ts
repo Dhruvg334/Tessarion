@@ -26,7 +26,6 @@ export async function loadTutoringEvidenceContext(params: TutoringEvidenceContex
   const supabase = await createServerSupabaseClient();
   const { workspaceId, userId, conceptId, teachBackSessionId } = params;
 
-  // 1. Fetch Concept
   const { data: concept, error: cError } = await supabase
     .from('concept_nodes')
     .select('id, name, source_chunk_ids')
@@ -40,13 +39,14 @@ export async function loadTutoringEvidenceContext(params: TutoringEvidenceContex
   const gapFindingIds: string[] = [];
   const masterySignalIds: string[] = [];
 
-  // 2. Fetch Gap Findings if teachBackSessionId provided
   if (teachBackSessionId) {
-    const { data: gaps } = await supabase
+    const { data: gaps, error: gapsError } = await supabase
       .from('gap_findings')
       .select('id, source_chunk_ids')
       .eq('session_id', teachBackSessionId);
-    
+
+    if (gapsError) throw new AppError('DB_ERROR', 500, 'Failed to load tutoring gap context');
+
     if (gaps) {
       for (const gap of gaps) {
         gapFindingIds.push(gap.id);
@@ -57,16 +57,17 @@ export async function loadTutoringEvidenceContext(params: TutoringEvidenceContex
     }
   }
 
-  // 3. Fetch Mastery Signals
-  const { data: signals } = await supabase
+  const { data: signals, error: signalsError } = await supabase
     .from('mastery_signals')
     .select('id, source_chunk_ids')
-    .eq('concept_node_id', conceptId)
+    .eq('concept_id', conceptId)
     .eq('workspace_id', workspaceId)
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
     .limit(10);
-  
+
+  if (signalsError) throw new AppError('DB_ERROR', 500, 'Failed to load tutoring mastery context');
+
   if (signals) {
     for (const signal of signals) {
       masterySignalIds.push(signal.id);
@@ -76,29 +77,32 @@ export async function loadTutoringEvidenceContext(params: TutoringEvidenceContex
     }
   }
 
-  const uniqueChunkIds = Array.from(chunkIds);
+  const requestedChunkIds = Array.from(chunkIds);
   let sourceChunksText = '';
-  
-  if (uniqueChunkIds.length > 0) {
+  let resolvedChunkIds: string[] = [];
+
+  if (requestedChunkIds.length > 0) {
     const { data: chunks, error: chunksError } = await supabase
       .from('source_chunks')
-      .select('content')
-      .in('id', uniqueChunkIds);
-      
-    if (chunksError) {
-       console.error('Failed to fetch source chunks:', chunksError);
-    } else if (chunks && chunks.length > 0) {
-      sourceChunksText = chunks.map(c => c.content).join('\n\n');
+      .select('id, content')
+      .eq('workspace_id', workspaceId)
+      .in('id', requestedChunkIds);
+
+    if (chunksError) throw new AppError('DB_ERROR', 500, 'Failed to load tutoring source context');
+
+    if (chunks && chunks.length > 0) {
+      resolvedChunkIds = chunks.map((chunk: { id: string }) => chunk.id);
+      sourceChunksText = chunks.map((chunk: { content: string }) => chunk.content).join('\n\n');
     }
   }
 
   return {
     concept,
-    sourceChunkIds: uniqueChunkIds,
+    sourceChunkIds: resolvedChunkIds,
     sourceChunksText,
     gapFindingIds,
     masterySignalIds,
-    hasSourceEvidence: uniqueChunkIds.length > 0
+    hasSourceEvidence: resolvedChunkIds.length > 0
   };
 }
 
@@ -116,7 +120,6 @@ export async function startTutoringSession(params: StartTutoringSessionParams): 
   const supabase = await createServerSupabaseClient();
   const { workspaceId, userId, conceptId } = params;
 
-  // Verify workspace access
   const { data: ws, error: wsError } = await supabase
     .from('workspaces')
     .select('id')
@@ -126,15 +129,6 @@ export async function startTutoringSession(params: StartTutoringSessionParams): 
 
   if (wsError || !ws) throw new AppError('UNAUTHORIZED', 403, 'Unauthorized');
 
-  // Load Evidence Context (also verifies concept exists)
-  const context = await loadTutoringEvidenceContext({
-    workspaceId,
-    userId,
-    conceptId,
-    teachBackSessionId: params.teachBackSessionId
-  });
-
-  // Verify IDs
   if (params.teachBackSessionId) {
     const { data: tb, error: tbError } = await supabase
       .from('teach_back_sessions')
@@ -150,16 +144,23 @@ export async function startTutoringSession(params: StartTutoringSessionParams): 
   if (params.reviewScheduleId) {
     const { data: rs, error: rsError } = await supabase
       .from('review_schedules')
-      .select('id, reason_type, reason')
+      .select('id, reason_type, reason, concept_node_id')
       .eq('id', params.reviewScheduleId)
       .eq('workspace_id', workspaceId)
       .eq('user_id', userId)
+      .eq('concept_node_id', conceptId)
       .single();
     if (rsError || !rs) throw new AppError('INVALID_SCOPE', 400, 'Invalid review schedule');
     reviewReasonType = rs.reason_type;
   }
 
-  // Determine focus
+  const context = await loadTutoringEvidenceContext({
+    workspaceId,
+    userId,
+    conceptId,
+    teachBackSessionId: params.teachBackSessionId
+  });
+
   let focusType = params.focusType;
   let focusSummary = params.focusSummary;
 
@@ -167,14 +168,14 @@ export async function startTutoringSession(params: StartTutoringSessionParams): 
     if (reviewReasonType) {
       focusType = mapReviewReasonToTutoringFocus(reviewReasonType);
     } else if (params.teachBackSessionId) {
-      // Find latest severe gap
-      const { data: gap } = await supabase
+      const { data: gap, error: gapError } = await supabase
         .from('gap_findings')
         .select('gap_type')
         .eq('session_id', params.teachBackSessionId)
-        .order('severity', { ascending: false }) // Assuming higher severity logic or just get first
+        .order('created_at', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
+      if (gapError) throw new AppError('DB_ERROR', 500, 'Failed to derive tutoring focus');
       if (gap && gap.gap_type) {
          if (gap.gap_type === 'missing_concept') focusType = 'missing_concept';
          else if (gap.gap_type === 'misconception') focusType = 'misconception';
@@ -182,16 +183,18 @@ export async function startTutoringSession(params: StartTutoringSessionParams): 
          else focusType = 'shallow_explanation';
       }
     } else {
-      // Check mastery signals
-      const { data: signal } = await supabase
+      const { data: signal, error: signalError } = await supabase
         .from('mastery_signals')
         .select('signal_type')
-        .eq('concept_node_id', conceptId)
+        .eq('concept_id', conceptId)
         .eq('workspace_id', workspaceId)
+        .eq('user_id', userId)
         .order('created_at', { ascending: false })
         .limit(1)
-        .single();
-      
+        .maybeSingle();
+
+      if (signalError) throw new AppError('DB_ERROR', 500, 'Failed to derive tutoring focus');
+
       if (signal && signal.signal_type) {
          if (signal.signal_type === 'negative') focusType = 'misconception';
          else focusType = 'shallow_explanation';
@@ -228,7 +231,6 @@ export async function startTutoringSession(params: StartTutoringSessionParams): 
   
   const session = mapSession(sessionData);
 
-  // Generate initial tutor turn
   const decision = decideNextMove({
     session,
     previousTurns: [],
@@ -303,7 +305,6 @@ export async function continueTutoringSession(workspaceId: string, userId: strin
     throw new AppError('BAD_REQUEST', 400, 'Tutoring session is not active');
   }
 
-  // Insert student turn
   const { data: studentTurnData, error: stError } = await supabase
     .from('tutoring_turns')
     .insert({
@@ -321,7 +322,6 @@ export async function continueTutoringSession(workspaceId: string, userId: strin
 
   const newTurns = [...turns, mapTurn(studentTurnData)];
 
-  // Load Evidence Context
   const context = await loadTutoringEvidenceContext({
     workspaceId,
     userId,
@@ -329,7 +329,6 @@ export async function continueTutoringSession(workspaceId: string, userId: strin
     teachBackSessionId: session.teachBackSessionId
   });
 
-  // Decide next move
   const decision = decideNextMove({
     session,
     previousTurns: newTurns,
@@ -350,7 +349,6 @@ export async function continueTutoringSession(workspaceId: string, userId: strin
   const nextStatus = decision.shouldCompleteSession ? (decision.nextMove === 'summarize_progress' ? 'needs_review' : 'completed') : 'active';
   const newTurnCount = session.currentTurnCount + 1;
 
-  // Update session
   const { data: updatedSessionData, error: uError } = await supabase
     .from('tutoring_sessions')
     .update({ 
@@ -367,7 +365,6 @@ export async function continueTutoringSession(workspaceId: string, userId: strin
 
   if (uError) throw new AppError('DB_ERROR', 500, uError.message);
 
-  // Insert tutor turn
   const { data: tutorTurnData, error: ttError } = await supabase
     .from('tutoring_turns')
     .insert({
@@ -448,7 +445,6 @@ export async function listWorkspaceTutoringSessions(workspaceId: string, userId:
   return data.map(mapSession);
 }
 
-// Map DB row to application type
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mapSession(row: any): TutoringSession {
   return {

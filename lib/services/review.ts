@@ -38,13 +38,12 @@ export async function scheduleReviewsFromMastery(
     .eq('id', masteryRecordId)
     .eq('workspace_id', workspaceId)
     .eq('user_id', userId)
-    .eq('concept_node_id', mastery.conceptId)
+    .eq('concept_id', mastery.conceptId)
     .single();
 
   if (mError || !mRecord) throw new AppError('INVALID_SCOPE', 400, 'Mastery record does not exist in scope');
 
   // Verify provided signal IDs belong to the same workspace, user, and concept where possible
-  // NOTE: mastery_signals do not explicitly store a mastery_record_id, so filtering by workspace, user, and concept is the strongest available linkage.
   if (signalIds.length > 0) {
     const { data: validSignals, error: sigError } = await supabase
       .from('mastery_signals')
@@ -52,7 +51,7 @@ export async function scheduleReviewsFromMastery(
       .in('id', signalIds)
       .eq('workspace_id', workspaceId)
       .eq('user_id', userId)
-      .eq('concept_node_id', mastery.conceptId);
+      .eq('concept_id', mastery.conceptId);
       
     if (sigError || !validSignals || validSignals.length !== signalIds.length) {
       throw new AppError('INVALID_SCOPE', 400, 'One or more source signal IDs are invalid or belong to a different scope');
@@ -67,7 +66,7 @@ export async function scheduleReviewsFromMastery(
     .select('id, status, reason_type')
     .eq('workspace_id', workspaceId)
     .eq('user_id', userId)
-    .eq('concept_node_id', mastery.conceptId)
+    .eq('concept_id', mastery.conceptId)
     .in('status', ['queued', 'due', 'overdue'])
     .maybeSingle();
 
@@ -353,7 +352,7 @@ export async function scheduleReviewsFromWorkspaceMastery(workspaceId: string, u
       .select('id')
       .eq('workspace_id', workspaceId)
       .eq('user_id', userId)
-      .eq('concept_node_id', record.concept_node_id)
+      .eq('concept_id', record.concept_node_id)
       .order('created_at', { ascending: false })
       .limit(3);
       
@@ -361,13 +360,10 @@ export async function scheduleReviewsFromWorkspaceMastery(workspaceId: string, u
       
     const signalIds = signals ? signals.map(s => s.id) : [];
 
-    // Legacy fallback behavior: If no signals exist for this concept, we only allow scheduling
-    // if there is prior evidence or attempts. We track this as legacyTraceFallback.
     if (signalIds.length === 0) {
       if (record.evidence_count > 0 || record.attempts_count > 0) {
         summary.legacyTraceFallback++;
       } else {
-        // Not enough legacy evidence to justify scheduling without signals
         summary.skippedNotReady++;
         summary.processed++;
         continue;
