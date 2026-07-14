@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { LoadingState } from '@/components/shell/loading-state';
 import { EmptyState } from '@/components/shell/empty-state';
 import { StartTutoringButton } from '@/components/tutoring/start-tutoring-button';
+import { mapReviewReasonToTutoringFocus } from '@/lib/tutoring/types';
 
 interface ReviewQueueProps {
   workspaceId?: string;
@@ -17,6 +18,7 @@ interface ReviewQueueItem {
   workspaceName?: string;
   computedStatus: string;
   reason: string;
+  reason_type: string;
   priority: string;
 }
 
@@ -106,6 +108,7 @@ export function ReviewQueue({ workspaceId }: ReviewQueueProps) {
                   workspaceId={item.workspace_id}
                   conceptId={item.concept_node_id}
                   reviewScheduleId={item.id}
+                  focusType={mapReviewReasonToTutoringFocus(item.reason_type)}
                   focusSummary={item.reason}
                   className="btn bg-neutral-900 text-white"
                 />

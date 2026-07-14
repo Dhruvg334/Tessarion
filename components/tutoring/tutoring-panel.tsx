@@ -95,7 +95,7 @@ export function TutoringPanel({ workspaceId, session: initialSession, initialTur
         {isLoading && (
           <div className="text-left py-3">
             <div className="inline-block px-4 py-2 rounded-sm border bg-white border-neutral-300 text-neutral-400 text-sm italic">
-              Thinking...
+              Saving your response...
             </div>
           </div>
         )}

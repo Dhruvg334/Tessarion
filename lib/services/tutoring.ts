@@ -4,6 +4,8 @@ import { TutoringSession, TutoringTurn, TutoringFocusType } from '@/lib/tutoring
 import { decideNextMove } from '@/lib/tutoring/decide-next-move';
 import { generateTutorMessage } from '@/lib/tutoring/generate-tutor-message';
 
+import { mapReviewReasonToTutoringFocus } from '@/lib/tutoring/types';
+
 export interface StartTutoringSessionParams {
   workspaceId: string;
   userId: string;
@@ -31,7 +33,7 @@ export async function startTutoringSession(params: StartTutoringSessionParams): 
   // Verify concept exists in workspace
   const { data: concept, error: cError } = await supabase
     .from('concept_nodes')
-    .select('id')
+    .select('id, name')
     .eq('id', conceptId)
     .eq('workspace_id', workspaceId)
     .single();
@@ -50,22 +52,56 @@ export async function startTutoringSession(params: StartTutoringSessionParams): 
     if (tbError || !tb) throw new AppError('INVALID_SCOPE', 400, 'Invalid teach back session');
   }
 
+  let reviewReasonType: string | undefined;
   if (params.reviewScheduleId) {
     const { data: rs, error: rsError } = await supabase
       .from('review_schedules')
-      .select('id')
+      .select('id, reason_type, reason')
       .eq('id', params.reviewScheduleId)
       .eq('workspace_id', workspaceId)
       .eq('user_id', userId)
       .single();
     if (rsError || !rs) throw new AppError('INVALID_SCOPE', 400, 'Invalid review schedule');
+    reviewReasonType = rs.reason_type;
   }
 
   // Determine focus
-  const focusType = params.focusType || 'misconception';
-  const focusSummary = params.focusSummary || 'General concept review and clarification.';
+  let focusType = params.focusType;
+  let focusSummary = params.focusSummary;
 
-  // If focus not provided, could fetch latest gap or mastery state... (for now, default applies)
+  if (!focusType) {
+    if (reviewReasonType) {
+      focusType = mapReviewReasonToTutoringFocus(reviewReasonType);
+    } else {
+      // If we had time, we could query the latest mastery_records.
+      // For now, default to shallow_explanation
+      focusType = 'shallow_explanation';
+    }
+  }
+
+  if (!focusSummary) {
+    focusSummary = 'Guided concept review and clarification.';
+  }
+
+  // Fetch Source Grounding Context
+  const { data: rels } = await supabase
+    .from('concept_source_relationships')
+    .select('source_chunk_id')
+    .eq('concept_node_id', conceptId);
+    
+  const chunkIds = (rels || []).map(r => r.source_chunk_id);
+  
+  let sourceChunksText = '';
+  if (chunkIds.length > 0) {
+    const { data: chunks } = await supabase
+      .from('source_chunks')
+      .select('content')
+      .in('id', chunkIds);
+      
+    if (chunks && chunks.length > 0) {
+      sourceChunksText = chunks.map(c => c.content).join('\n\n');
+    }
+  }
 
   const { data: sessionData, error: sError } = await supabase
     .from('tutoring_sessions')
@@ -92,14 +128,14 @@ export async function startTutoringSession(params: StartTutoringSessionParams): 
   const decision = decideNextMove({
     session,
     previousTurns: [],
-    availableSourceChunkIds: [], // We could fetch concept sources here
+    availableSourceChunkIds: chunkIds,
   });
 
   const question = await generateTutorMessage({
     session,
     decision,
     previousTurns: [],
-    sourceChunksText: '' // No sources for turn 1 unless fetched
+    sourceChunksText
   });
 
   const { data: turnData, error: tError } = await supabase
@@ -111,6 +147,7 @@ export async function startTutoringSession(params: StartTutoringSessionParams): 
       role: 'tutor',
       turn_type: 'socratic_question',
       content: question,
+      source_chunk_ids: chunkIds,
       tutor_move: decision.nextMove,
     })
     .select()
@@ -174,18 +211,38 @@ export async function continueTutoringSession(workspaceId: string, userId: strin
 
   const newTurns = [...turns, mapTurn(studentTurnData)];
 
+  // Fetch Source Grounding Context
+  const { data: rels } = await supabase
+    .from('concept_source_relationships')
+    .select('source_chunk_id')
+    .eq('concept_node_id', session.conceptId);
+    
+  const chunkIds = (rels || []).map(r => r.source_chunk_id);
+  
+  let sourceChunksText = '';
+  if (chunkIds.length > 0) {
+    const { data: chunks } = await supabase
+      .from('source_chunks')
+      .select('content')
+      .in('id', chunkIds);
+      
+    if (chunks && chunks.length > 0) {
+      sourceChunksText = chunks.map(c => c.content).join('\n\n');
+    }
+  }
+
   // Decide next move
   const decision = decideNextMove({
     session,
     previousTurns: newTurns,
-    availableSourceChunkIds: [],
+    availableSourceChunkIds: chunkIds,
   });
 
   const question = await generateTutorMessage({
     session,
     decision,
     previousTurns: newTurns,
-    sourceChunksText: '' // Fetch source chunks if mapped
+    sourceChunksText
   });
 
   const nextStatus = decision.shouldCompleteSession ? (decision.nextMove === 'summarize_progress' ? 'needs_review' : 'completed') : 'active';
@@ -218,6 +275,7 @@ export async function continueTutoringSession(workspaceId: string, userId: strin
       role: 'tutor',
       turn_type: decision.nextMove === 'ask_correction' ? 'correction_prompt' : decision.nextMove === 'provide_small_hint' ? 'hint' : decision.nextMove === 'summarize_progress' ? 'summary' : 'socratic_question',
       content: question,
+      source_chunk_ids: chunkIds,
       tutor_move: decision.nextMove,
     })
     .select()
@@ -245,12 +303,32 @@ export async function completeTutoringSession(workspaceId: string, userId: strin
     .eq('id', sessionId)
     .eq('workspace_id', workspaceId)
     .eq('user_id', userId)
-    .select();
+    .select('id, status');
 
   if (error) throw new AppError('DB_ERROR', 500, error.message);
   if (!data || data.length === 0) throw new AppError('NOT_FOUND', 404, 'Session not found or unauthorized');
 
-  return mapSession(data[0]);
+  return data[0];
+}
+
+export async function abandonTutoringSession(workspaceId: string, userId: string, sessionId: string) {
+  const supabase = await createServerSupabaseClient();
+  
+  const { data, error } = await supabase
+    .from('tutoring_sessions')
+    .update({ 
+      status: 'abandoned',
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', sessionId)
+    .eq('workspace_id', workspaceId)
+    .eq('user_id', userId)
+    .select('id, status');
+
+  if (error) throw new AppError('DB_ERROR', 500, error.message);
+  if (!data || data.length === 0) throw new AppError('NOT_FOUND', 404, 'Session not found or unauthorized');
+
+  return data[0];
 }
 
 export async function listWorkspaceTutoringSessions(workspaceId: string, userId: string) {

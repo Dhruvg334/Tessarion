@@ -28,7 +28,22 @@ describe('decideNextMove', () => {
     });
 
     expect(decision.nextMove).toBe('ask_contrast_question');
+    expect(decision.shouldUpdateMastery).toBe(false);
     expect(decision.shouldCompleteSession).toBe(false);
+  });
+  
+  it('escalates to ask_evidence_question for misconception', () => {
+    const session = { ...baseSession, currentTurnCount: 1 };
+    const decision = decideNextMove({
+      session,
+      previousTurns: [
+        { role: 'tutor', tutorMove: 'ask_contrast_question' } as TutoringTurn,
+      ],
+      availableSourceChunkIds: []
+    });
+
+    expect(decision.nextMove).toBe('ask_evidence_question');
+    expect(decision.shouldUpdateMastery).toBe(false);
   });
 
   it('summarizes and completes when max turns are reached', () => {
@@ -44,5 +59,25 @@ describe('decideNextMove', () => {
 
     expect(decision.nextMove).toBe('summarize_progress');
     expect(decision.shouldCompleteSession).toBe(true);
+    expect(decision.shouldUpdateMastery).toBe(false);
   });
+
+  it('starts with asking evidence for unsupported claim', () => {
+    const decision = decideNextMove({
+      session: { ...baseSession, focusType: 'unsupported_claim' },
+      previousTurns: [],
+      availableSourceChunkIds: []
+    });
+    expect(decision.nextMove).toBe('ask_evidence_question');
+  });
+
+  it('starts with asking example for shallow explanation', () => {
+    const decision = decideNextMove({
+      session: { ...baseSession, focusType: 'shallow_explanation' },
+      previousTurns: [],
+      availableSourceChunkIds: []
+    });
+    expect(decision.nextMove).toBe('ask_example_question');
+  });
+
 });

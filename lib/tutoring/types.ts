@@ -81,3 +81,16 @@ export interface TutoringDecision {
   reason: string;
   confidenceScore: number;
 }
+
+export function mapReviewReasonToTutoringFocus(reasonType: string): TutoringFocusType {
+  switch (reasonType) {
+    case 'misconception': return 'misconception';
+    case 'needs_review': return 'missing_concept'; // Default to missing_concept, can be overridden by signals
+    case 'weak_connection': return 'weak_connection';
+    case 'unsupported_claim': return 'unsupported_claim';
+    case 'missing_prerequisite': return 'prerequisite_gap';
+    case 'scheduled_reinforcement': return 'review_reinforcement';
+    case 'insufficient_evidence': return 'shallow_explanation';
+    default: return 'shallow_explanation';
+  }
+}

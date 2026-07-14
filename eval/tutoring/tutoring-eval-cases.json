@@ -1,58 +1,75 @@
 [
   {
     "description": "Misconception escalation - Turn 0",
-    "session": {
-      "focusType": "misconception",
-      "focusSummary": "Student believes binary search only works on strings.",
-      "currentTurnCount": 0,
-      "maxTurns": 6
-    },
+    "session": { "focusType": "misconception", "focusSummary": "", "currentTurnCount": 0, "maxTurns": 6 },
     "previousTutorMoves": [],
     "expectedNextMove": "ask_contrast_question"
   },
   {
     "description": "Misconception escalation - Turn 1",
-    "session": {
-      "focusType": "misconception",
-      "focusSummary": "Student believes binary search only works on strings.",
-      "currentTurnCount": 1,
-      "maxTurns": 6
-    },
+    "session": { "focusType": "misconception", "focusSummary": "", "currentTurnCount": 1, "maxTurns": 6 },
     "previousTutorMoves": ["ask_contrast_question"],
     "expectedNextMove": "ask_evidence_question"
   },
   {
     "description": "Misconception escalation - Max turns reached",
-    "session": {
-      "focusType": "misconception",
-      "focusSummary": "Student believes binary search only works on strings.",
-      "currentTurnCount": 6,
-      "maxTurns": 6
-    },
+    "session": { "focusType": "misconception", "focusSummary": "", "currentTurnCount": 6, "maxTurns": 6 },
     "previousTutorMoves": ["ask_contrast_question", "ask_evidence_question", "provide_small_hint", "ask_correction", "request_teach_back_again", "ask_contrast_question"],
     "expectedNextMove": "summarize_progress",
     "expectedToComplete": true
   },
   {
     "description": "Missing concept escalation - Turn 0",
-    "session": {
-      "focusType": "missing_concept",
-      "focusSummary": "Student missed mentioning O(log n) time complexity.",
-      "currentTurnCount": 0,
-      "maxTurns": 6
-    },
+    "session": { "focusType": "missing_concept", "focusSummary": "", "currentTurnCount": 0, "maxTurns": 6 },
     "previousTutorMoves": [],
     "expectedNextMove": "ask_prerequisite_question"
   },
   {
     "description": "Review reinforcement - Turn 3",
-    "session": {
-      "focusType": "review_reinforcement",
-      "focusSummary": "Testing spaced repetition.",
-      "currentTurnCount": 3,
-      "maxTurns": 6
-    },
+    "session": { "focusType": "review_reinforcement", "focusSummary": "", "currentTurnCount": 3, "maxTurns": 6 },
     "previousTutorMoves": ["ask_clarifying_question", "ask_example_question", "provide_small_hint"],
+    "expectedNextMove": "ask_correction"
+  },
+  {
+    "description": "Unsupported claim escalation - Turn 0",
+    "session": { "focusType": "unsupported_claim", "focusSummary": "", "currentTurnCount": 0, "maxTurns": 6 },
+    "previousTutorMoves": [],
+    "expectedNextMove": "ask_evidence_question"
+  },
+  {
+    "description": "Prerequisite gap escalation - Turn 0",
+    "session": { "focusType": "prerequisite_gap", "focusSummary": "", "currentTurnCount": 0, "maxTurns": 6 },
+    "previousTutorMoves": [],
+    "expectedNextMove": "ask_prerequisite_question"
+  },
+  {
+    "description": "Shallow explanation escalation - Turn 0",
+    "session": { "focusType": "shallow_explanation", "focusSummary": "", "currentTurnCount": 0, "maxTurns": 6 },
+    "previousTutorMoves": [],
+    "expectedNextMove": "ask_example_question"
+  },
+  {
+    "description": "Weak connection escalation - Turn 0",
+    "session": { "focusType": "weak_connection", "focusSummary": "", "currentTurnCount": 0, "maxTurns": 6 },
+    "previousTutorMoves": [],
+    "expectedNextMove": "ask_clarifying_question"
+  },
+  {
+    "description": "Review reinforcement - Turn 0",
+    "session": { "focusType": "review_reinforcement", "focusSummary": "", "currentTurnCount": 0, "maxTurns": 6 },
+    "previousTutorMoves": [],
+    "expectedNextMove": "ask_clarifying_question"
+  },
+  {
+    "description": "Repeated wrong response escalates to hint",
+    "session": { "focusType": "shallow_explanation", "focusSummary": "", "currentTurnCount": 2, "maxTurns": 6 },
+    "previousTutorMoves": ["ask_example_question", "ask_clarifying_question"],
+    "expectedNextMove": "provide_small_hint"
+  },
+  {
+    "description": "Repeated confusion escalates to correction prompt",
+    "session": { "focusType": "shallow_explanation", "focusSummary": "", "currentTurnCount": 3, "maxTurns": 6 },
+    "previousTutorMoves": ["ask_example_question", "ask_clarifying_question", "provide_small_hint"],
     "expectedNextMove": "ask_correction"
   }
 ]

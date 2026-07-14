@@ -90,3 +90,8 @@ CREATE POLICY "Users can delete their own tutoring turns"
   FOR DELETE
   TO authenticated
   USING (user_id = auth.uid());
+-- Grants
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.tutoring_sessions TO authenticated;
+GRANT ALL ON public.tutoring_sessions TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.tutoring_turns TO authenticated;
+GRANT ALL ON public.tutoring_turns TO service_role;

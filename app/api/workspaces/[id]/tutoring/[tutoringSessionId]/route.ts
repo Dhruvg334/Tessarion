@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { getTutoringSession, completeTutoringSession } from '@/lib/services/tutoring';
+import { getTutoringSession, completeTutoringSession, abandonTutoringSession } from '@/lib/services/tutoring';
 import { z } from 'zod';
 
 export async function GET(
@@ -51,17 +51,8 @@ export async function PATCH(
       return NextResponse.json(result);
     } else {
       // Abandon
-      const { data, error } = await supabase
-        .from('tutoring_sessions')
-        .update({ status: 'abandoned', updated_at: new Date().toISOString() })
-        .eq('id', tutoringSessionId)
-        .eq('workspace_id', id)
-        .eq('user_id', user.id)
-        .select()
-        .single();
-        
-      if (error) throw new Error(error.message); // Will return 500
-      return NextResponse.json(data);
+      const result = await abandonTutoringSession(id, user.id, tutoringSessionId);
+      return NextResponse.json(result);
     }
   } catch (err: unknown) {
     if (err instanceof z.ZodError) {

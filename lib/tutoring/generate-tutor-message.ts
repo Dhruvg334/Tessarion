@@ -69,7 +69,32 @@ ${sourceChunksText || 'No source material provided.'}
       temperature: 0.2, // Low temperature for consistent adherence to policy
     });
 
-    return text.trim();
+    const result = text.trim();
+    
+    // Guardrail 1: One-question rule
+    const questionMarks = (result.match(/\?/g) || []).length;
+    if (questionMarks > 1) {
+      console.warn('AI Output rejected: Multiple questions detected. Falling back to deterministic.', result);
+      return decision.question;
+    }
+
+    // Guardrail 2: Long lecture check
+    if (result.split(/\s+/).length > 80) {
+      console.warn('AI Output rejected: Response too long. Falling back to deterministic.', result);
+      return decision.question;
+    }
+
+    // Guardrail 3: No full answer early
+    // Very rudimentary check: If not ask_correction or summarize, and sounds like giving the answer
+    if (decision.nextMove !== 'ask_correction' && decision.nextMove !== 'summarize_progress' && decision.nextMove !== 'complete_session') {
+      const lower = result.toLowerCase();
+      if (lower.includes('the correct answer is') || lower.includes('actually, it is')) {
+         console.warn('AI Output rejected: Full answer pattern detected early. Falling back.', result);
+         return decision.question;
+      }
+    }
+
+    return result;
   } catch (error) {
     console.error('Failed to generate tutor message via AI, falling back to deterministic:', error);
     return decision.question;
