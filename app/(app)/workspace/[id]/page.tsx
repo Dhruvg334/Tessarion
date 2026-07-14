@@ -3,6 +3,7 @@ import { getWorkspace } from '@/lib/services/workspaces';
 import { listDocuments } from '@/lib/services/documents';
 import { getWorkspaceGraph } from '@/lib/services/graph';
 import { getWorkspaceReviewQueue } from '@/lib/services/review';
+import { getTutoringSession } from '@/lib/services/tutoring';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { WorkspaceGraphViewer } from '@/components/graph/workspace-graph-viewer';
@@ -11,6 +12,7 @@ import { ProductPanelNav } from '@/components/shell/product-panel-nav';
 import { EmptyState } from '@/components/shell/empty-state';
 import { NextActionPanel } from '@/components/review/next-action-panel';
 import { ReviewQueue } from '@/components/review/review-queue';
+import { TutoringPanel } from '@/components/tutoring/tutoring-panel';
 
 const PANELS = [
   { id: 'study', label: 'Study Board' },
@@ -20,10 +22,10 @@ const PANELS = [
   { id: 'review', label: 'Review' }
 ];
 
-export default async function WorkspacePage(props: { params: Promise<{ id: string }>, searchParams: Promise<{ panel?: string }> }) {
+export default async function WorkspacePage(props: { params: Promise<{ id: string }>, searchParams: Promise<{ panel?: string; tutoring?: string }> }) {
   const { id } = await props.params;
-  const { panel } = await props.searchParams;
-  const currentPanel = panel || 'study';
+  const { panel, tutoring: tutoringSessionId } = await props.searchParams;
+  const currentPanel = tutoringSessionId ? 'tutoring' : (panel || 'study');
   
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -36,12 +38,18 @@ export default async function WorkspacePage(props: { params: Promise<{ id: strin
   let documents: import('@/types/database').SourceDocument[] = [];
   let initialGraph = null;
   let hasDueReviews = false;
+  let tutoringSessionObj = null;
+  
   try {
     workspace = await getWorkspace(id, user.id);
     documents = await listDocuments(id, user.id);
     initialGraph = await getWorkspaceGraph(id, user.id);
     const queue = await getWorkspaceReviewQueue(id, user.id);
     hasDueReviews = queue.some(r => r.computedStatus === 'due' || r.computedStatus === 'overdue');
+    
+    if (tutoringSessionId) {
+      tutoringSessionObj = await getTutoringSession(id, user.id, tutoringSessionId);
+    }
   } catch {
     return (
       <div className="container" style={{ padding: '0 2rem' }}>
@@ -188,6 +196,16 @@ export default async function WorkspacePage(props: { params: Promise<{ id: strin
       {currentPanel === 'review' && (
         <div style={{ maxWidth: '800px' }}>
           <ReviewQueue workspaceId={id} />
+        </div>
+      )}
+
+      {currentPanel === 'tutoring' && tutoringSessionObj && (
+        <div style={{ maxWidth: '800px' }}>
+          <TutoringPanel 
+            workspaceId={id} 
+            session={tutoringSessionObj.session} 
+            initialTurns={tutoringSessionObj.turns} 
+          />
         </div>
       )}
 

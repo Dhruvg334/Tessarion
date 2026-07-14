@@ -5,6 +5,7 @@ import { GapFeedback } from './gap-feedback';
 import { SocraticQuestionCard } from './socratic-question-card';
 import { TeachBackAgentResult } from '@/lib/ai/types';
 import { LoadingState } from '@/components/shell/loading-state';
+import { StartTutoringButton } from '@/components/tutoring/start-tutoring-button';
 
 interface TeachBackPanelProps {
   workspaceId: string;
@@ -18,6 +19,7 @@ export function TeachBackPanel({ workspaceId, conceptId, conceptName, conceptDef
   const [explanation, setExplanation] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<TeachBackAgentResult | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async () => {
@@ -33,6 +35,7 @@ export function TeachBackPanel({ workspaceId, conceptId, conceptName, conceptDef
       
       if (!startRes.ok) throw new Error('Failed to start session');
       const session = await startRes.json();
+      setSessionId(session.id);
 
       // 2. Submit Explanation
       const submitRes = await fetch(`/api/workspaces/${workspaceId}/teach-back/${session.id}/explanations`, {
@@ -160,10 +163,23 @@ export function TeachBackPanel({ workspaceId, conceptId, conceptName, conceptDef
                   <SocraticQuestionCard question={result.summary.followUpQuestion} />
                 )}
 
+                {['misconception', 'weak_connection', 'needs_review', 'partial'].includes(result.summary.masteryState || '') && (
+                  <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+                    <StartTutoringButton
+                      workspaceId={workspaceId}
+                      conceptId={conceptId}
+                      teachBackSessionId={sessionId || undefined}
+                      focusType={result.summary.masteryState === 'misconception' ? 'misconception' : result.summary.masteryState === 'weak_connection' ? 'weak_connection' : 'shallow_explanation'}
+                      focusSummary={result.summary.gaps?.[0]?.description || result.summary.unsupportedClaims?.[0]?.description || 'Guided practice needed.'}
+                      className="btn bg-neutral-900 text-white w-full"
+                    />
+                  </div>
+                )}
+
                 <button 
                   className="btn btn-secondary" 
                   onClick={onClose} 
-                  style={{ width: '100%', marginTop: '2rem' }}
+                  style={{ width: '100%', marginTop: '1rem' }}
                 >
                   Return to Workspace
                 </button>

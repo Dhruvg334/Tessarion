@@ -1,0 +1,58 @@
+[
+  {
+    "description": "Misconception escalation - Turn 0",
+    "session": {
+      "focusType": "misconception",
+      "focusSummary": "Student believes binary search only works on strings.",
+      "currentTurnCount": 0,
+      "maxTurns": 6
+    },
+    "previousTutorMoves": [],
+    "expectedNextMove": "ask_contrast_question"
+  },
+  {
+    "description": "Misconception escalation - Turn 1",
+    "session": {
+      "focusType": "misconception",
+      "focusSummary": "Student believes binary search only works on strings.",
+      "currentTurnCount": 1,
+      "maxTurns": 6
+    },
+    "previousTutorMoves": ["ask_contrast_question"],
+    "expectedNextMove": "ask_evidence_question"
+  },
+  {
+    "description": "Misconception escalation - Max turns reached",
+    "session": {
+      "focusType": "misconception",
+      "focusSummary": "Student believes binary search only works on strings.",
+      "currentTurnCount": 6,
+      "maxTurns": 6
+    },
+    "previousTutorMoves": ["ask_contrast_question", "ask_evidence_question", "provide_small_hint", "ask_correction", "request_teach_back_again", "ask_contrast_question"],
+    "expectedNextMove": "summarize_progress",
+    "expectedToComplete": true
+  },
+  {
+    "description": "Missing concept escalation - Turn 0",
+    "session": {
+      "focusType": "missing_concept",
+      "focusSummary": "Student missed mentioning O(log n) time complexity.",
+      "currentTurnCount": 0,
+      "maxTurns": 6
+    },
+    "previousTutorMoves": [],
+    "expectedNextMove": "ask_prerequisite_question"
+  },
+  {
+    "description": "Review reinforcement - Turn 3",
+    "session": {
+      "focusType": "review_reinforcement",
+      "focusSummary": "Testing spaced repetition.",
+      "currentTurnCount": 3,
+      "maxTurns": 6
+    },
+    "previousTutorMoves": ["ask_clarifying_question", "ask_example_question", "provide_small_hint"],
+    "expectedNextMove": "ask_correction"
+  }
+]

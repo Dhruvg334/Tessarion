@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { LoadingState } from '@/components/shell/loading-state';
 import { EmptyState } from '@/components/shell/empty-state';
+import { StartTutoringButton } from '@/components/tutoring/start-tutoring-button';
 
 interface ReviewQueueProps {
   workspaceId?: string;
@@ -11,6 +12,7 @@ interface ReviewQueueProps {
 interface ReviewQueueItem {
   id: string;
   workspace_id: string;
+  concept_node_id: string;
   conceptName: string;
   workspaceName?: string;
   computedStatus: string;
@@ -80,6 +82,7 @@ export function ReviewQueue({ workspaceId }: ReviewQueueProps) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       {queue.map(item => {
         const borderStyle = item.priority === 'critical' ? '2px solid var(--ink)' : item.priority === 'high' ? '1px solid var(--ink)' : '1px solid var(--line)';
+        const showTutoring = item.priority === 'high' || item.priority === 'critical';
         return (
           <div key={item.id} className="card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', border: borderStyle }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -98,6 +101,15 @@ export function ReviewQueue({ workspaceId }: ReviewQueueProps) {
               <strong>Priority:</strong> <span style={{ textTransform: 'capitalize', fontWeight: item.priority === 'critical' || item.priority === 'high' ? 700 : 'normal' }}>{item.priority}</span>
             </div>
             <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+              {showTutoring && (
+                <StartTutoringButton
+                  workspaceId={item.workspace_id}
+                  conceptId={item.concept_node_id}
+                  reviewScheduleId={item.id}
+                  focusSummary={item.reason}
+                  className="btn bg-neutral-900 text-white"
+                />
+              )}
               <button className="btn" onClick={() => handleAction(item.id, 'complete', item.workspace_id)}>Mark Reviewed</button>
               <button className="btn btn-secondary" onClick={() => handleAction(item.id, 'skip', item.workspace_id)}>Skip for Now</button>
             </div>

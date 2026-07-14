@@ -219,3 +219,35 @@ export interface AuditLog {
   details: Record<string, unknown>;
   created_at: string;
 }
+
+export interface TutoringSession {
+  id: string;
+  workspace_id: string;
+  user_id: string;
+  concept_node_id: string;
+  teach_back_session_id: string | null;
+  review_schedule_id: string | null;
+  focus_type: string;
+  focus_summary: string;
+  status: string;
+  max_turns: number;
+  current_turn_count: number;
+  created_at: string;
+  updated_at: string;
+  completed_at: string | null;
+}
+
+export interface TutoringTurn {
+  id: string;
+  tutoring_session_id: string;
+  workspace_id: string;
+  user_id: string;
+  role: string;
+  turn_type: string;
+  content: string;
+  source_chunk_ids: string[];
+  gap_finding_ids: string[];
+  mastery_signal_ids: string[];
+  tutor_move: string | null;
+  created_at: string;
+}

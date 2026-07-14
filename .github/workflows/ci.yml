@@ -48,6 +48,9 @@ jobs:
       - name: Run Review evaluation
         run: npm run eval:review
 
+      - name: Run Tutoring evaluation
+        run: npm run eval:tutoring
+
       - name: Build Next.js app
         run: npm run build
       - run: npm audit --audit-level=moderate
