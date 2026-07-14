@@ -1,5 +1,6 @@
 -- Create review_schedules table
-CREATE TABLE IF NOT EXISTS public.review_schedules (
+DROP TABLE IF EXISTS public.review_schedules CASCADE;
+CREATE TABLE public.review_schedules (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     workspace_id uuid NOT NULL REFERENCES public.workspaces(id) ON DELETE CASCADE,
     user_id uuid NOT NULL, -- references auth.users implicitly
@@ -52,4 +53,4 @@ CREATE POLICY "Users can delete their own review schedules"
 CREATE TRIGGER update_review_schedules_updated_at
 BEFORE UPDATE ON public.review_schedules
 FOR EACH ROW
-EXECUTE FUNCTION update_updated_at_column();
+EXECUTE FUNCTION public.set_current_timestamp_updated_at();

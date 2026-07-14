@@ -1,75 +1,134 @@
 [
   {
-    "description": "Misconception escalation - Turn 0",
+    "description": "Misconception escalation - Turn 0 (Source Grounded)",
     "session": { "focusType": "misconception", "focusSummary": "", "currentTurnCount": 0, "maxTurns": 6 },
     "previousTutorMoves": [],
-    "expectedNextMove": "ask_contrast_question"
+    "availableSourceChunkIds": ["chunk-1"],
+    "expectedNextMove": "ask_contrast_question",
+    "expectedCompletion": false,
+    "expectedSourceGrounded": true,
+    "expectedNoFullAnswerEarly": true,
+    "expectedOneQuestionOnly": true
   },
   {
-    "description": "Misconception escalation - Turn 1",
+    "description": "Misconception escalation - Turn 1 (Source Grounded)",
     "session": { "focusType": "misconception", "focusSummary": "", "currentTurnCount": 1, "maxTurns": 6 },
     "previousTutorMoves": ["ask_contrast_question"],
-    "expectedNextMove": "ask_evidence_question"
+    "availableSourceChunkIds": ["chunk-1"],
+    "expectedNextMove": "ask_evidence_question",
+    "expectedCompletion": false,
+    "expectedSourceGrounded": true,
+    "expectedNoFullAnswerEarly": true,
+    "expectedOneQuestionOnly": true
   },
   {
-    "description": "Misconception escalation - Max turns reached",
+    "description": "Misconception escalation - Max turns reached (Source Grounded)",
     "session": { "focusType": "misconception", "focusSummary": "", "currentTurnCount": 6, "maxTurns": 6 },
     "previousTutorMoves": ["ask_contrast_question", "ask_evidence_question", "provide_small_hint", "ask_correction", "request_teach_back_again", "ask_contrast_question"],
+    "availableSourceChunkIds": ["chunk-1"],
     "expectedNextMove": "summarize_progress",
-    "expectedToComplete": true
+    "expectedCompletion": true,
+    "expectedSourceGrounded": true,
+    "expectedNoFullAnswerEarly": true,
+    "expectedOneQuestionOnly": true
   },
   {
-    "description": "Missing concept escalation - Turn 0",
+    "description": "Missing concept escalation - Turn 0 (No Source)",
     "session": { "focusType": "missing_concept", "focusSummary": "", "currentTurnCount": 0, "maxTurns": 6 },
     "previousTutorMoves": [],
-    "expectedNextMove": "ask_prerequisite_question"
+    "availableSourceChunkIds": [],
+    "expectedNextMove": "ask_prerequisite_question",
+    "expectedCompletion": false,
+    "expectedSourceGrounded": false,
+    "expectedNoFullAnswerEarly": true,
+    "expectedOneQuestionOnly": true
   },
   {
-    "description": "Review reinforcement - Turn 3",
+    "description": "Review reinforcement - Turn 3 (Source Grounded)",
     "session": { "focusType": "review_reinforcement", "focusSummary": "", "currentTurnCount": 3, "maxTurns": 6 },
     "previousTutorMoves": ["ask_clarifying_question", "ask_example_question", "provide_small_hint"],
-    "expectedNextMove": "ask_correction"
+    "availableSourceChunkIds": ["chunk-2"],
+    "expectedNextMove": "ask_correction",
+    "expectedCompletion": false,
+    "expectedSourceGrounded": true,
+    "expectedNoFullAnswerEarly": true,
+    "expectedOneQuestionOnly": true
   },
   {
-    "description": "Unsupported claim escalation - Turn 0",
+    "description": "Unsupported claim escalation - Turn 0 (No Source)",
     "session": { "focusType": "unsupported_claim", "focusSummary": "", "currentTurnCount": 0, "maxTurns": 6 },
     "previousTutorMoves": [],
-    "expectedNextMove": "ask_evidence_question"
+    "availableSourceChunkIds": [],
+    "expectedNextMove": "ask_evidence_question",
+    "expectedCompletion": false,
+    "expectedSourceGrounded": false,
+    "expectedNoFullAnswerEarly": true,
+    "expectedOneQuestionOnly": true
   },
   {
-    "description": "Prerequisite gap escalation - Turn 0",
+    "description": "Prerequisite gap escalation - Turn 0 (Source Grounded)",
     "session": { "focusType": "prerequisite_gap", "focusSummary": "", "currentTurnCount": 0, "maxTurns": 6 },
     "previousTutorMoves": [],
-    "expectedNextMove": "ask_prerequisite_question"
+    "availableSourceChunkIds": ["chunk-3"],
+    "expectedNextMove": "ask_prerequisite_question",
+    "expectedCompletion": false,
+    "expectedSourceGrounded": true,
+    "expectedNoFullAnswerEarly": true,
+    "expectedOneQuestionOnly": true
   },
   {
-    "description": "Shallow explanation escalation - Turn 0",
+    "description": "Shallow explanation escalation - Turn 0 (Source Grounded)",
     "session": { "focusType": "shallow_explanation", "focusSummary": "", "currentTurnCount": 0, "maxTurns": 6 },
     "previousTutorMoves": [],
-    "expectedNextMove": "ask_example_question"
+    "availableSourceChunkIds": ["chunk-4"],
+    "expectedNextMove": "ask_example_question",
+    "expectedCompletion": false,
+    "expectedSourceGrounded": true,
+    "expectedNoFullAnswerEarly": true,
+    "expectedOneQuestionOnly": true
   },
   {
-    "description": "Weak connection escalation - Turn 0",
+    "description": "Weak connection escalation - Turn 0 (No Source)",
     "session": { "focusType": "weak_connection", "focusSummary": "", "currentTurnCount": 0, "maxTurns": 6 },
     "previousTutorMoves": [],
-    "expectedNextMove": "ask_clarifying_question"
+    "availableSourceChunkIds": [],
+    "expectedNextMove": "ask_clarifying_question",
+    "expectedCompletion": false,
+    "expectedSourceGrounded": false,
+    "expectedNoFullAnswerEarly": true,
+    "expectedOneQuestionOnly": true
   },
   {
-    "description": "Review reinforcement - Turn 0",
+    "description": "Review reinforcement - Turn 0 (Source Grounded)",
     "session": { "focusType": "review_reinforcement", "focusSummary": "", "currentTurnCount": 0, "maxTurns": 6 },
     "previousTutorMoves": [],
-    "expectedNextMove": "ask_clarifying_question"
+    "availableSourceChunkIds": ["chunk-5"],
+    "expectedNextMove": "ask_clarifying_question",
+    "expectedCompletion": false,
+    "expectedSourceGrounded": true,
+    "expectedNoFullAnswerEarly": true,
+    "expectedOneQuestionOnly": true
   },
   {
-    "description": "Repeated wrong response escalates to hint",
+    "description": "Repeated wrong response escalates to hint (Source Grounded)",
     "session": { "focusType": "shallow_explanation", "focusSummary": "", "currentTurnCount": 2, "maxTurns": 6 },
     "previousTutorMoves": ["ask_example_question", "ask_clarifying_question"],
-    "expectedNextMove": "provide_small_hint"
+    "availableSourceChunkIds": ["chunk-6"],
+    "expectedNextMove": "provide_small_hint",
+    "expectedCompletion": false,
+    "expectedSourceGrounded": true,
+    "expectedNoFullAnswerEarly": true,
+    "expectedOneQuestionOnly": true
   },
   {
-    "description": "Repeated confusion escalates to correction prompt",
+    "description": "Repeated confusion escalates to correction prompt (Source Grounded)",
     "session": { "focusType": "shallow_explanation", "focusSummary": "", "currentTurnCount": 3, "maxTurns": 6 },
     "previousTutorMoves": ["ask_example_question", "ask_clarifying_question", "provide_small_hint"],
-    "expectedNextMove": "ask_correction"
+    "availableSourceChunkIds": ["chunk-7"],
+    "expectedNextMove": "ask_correction",
+    "expectedCompletion": false,
+    "expectedSourceGrounded": true,
+    "expectedNoFullAnswerEarly": true,
+    "expectedOneQuestionOnly": true
   }
 ]

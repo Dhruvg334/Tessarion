@@ -1,11 +1,10 @@
-import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { AppError } from '@/lib/errors/app-error';
-import { TutoringSession, TutoringTurn, TutoringFocusType } from '@/lib/tutoring/types';
-import { decideNextMove } from '@/lib/tutoring/decide-next-move';
-import { generateTutorMessage } from '@/lib/tutoring/generate-tutor-message';
+const fs = require('fs');
+const path = require('path');
 
-import { mapReviewReasonToTutoringFocus } from '@/lib/tutoring/types';
+let content = fs.readFileSync('lib/services/tutoring.ts', 'utf8');
 
+// Insert loadTutoringEvidenceContext before startTutoringSession
+const helperCode = \
 interface TutoringEvidenceContextParams {
   workspaceId: string;
   userId: string;
@@ -36,7 +35,7 @@ export async function loadTutoringEvidenceContext(params: TutoringEvidenceContex
 
   if (cError || !concept) throw new AppError('INVALID_SCOPE', 400, 'Concept not found in workspace');
 
-  const chunkIds = new Set<string>(concept.source_chunk_ids || []);
+  let chunkIds = new Set<string>(concept.source_chunk_ids || []);
   const gapFindingIds: string[] = [];
   const masterySignalIds: string[] = [];
 
@@ -88,7 +87,7 @@ export async function loadTutoringEvidenceContext(params: TutoringEvidenceContex
     if (chunksError) {
        console.error('Failed to fetch source chunks:', chunksError);
     } else if (chunks && chunks.length > 0) {
-      sourceChunksText = chunks.map(c => c.content).join('\n\n');
+      sourceChunksText = chunks.map(c => c.content).join('\\n\\n');
     }
   }
 
@@ -101,17 +100,13 @@ export async function loadTutoringEvidenceContext(params: TutoringEvidenceContex
     hasSourceEvidence: uniqueChunkIds.length > 0
   };
 }
+\;
 
-export interface StartTutoringSessionParams {
-  workspaceId: string;
-  userId: string;
-  conceptId: string;
-  teachBackSessionId?: string;
-  reviewScheduleId?: string;
-  focusType?: TutoringFocusType;
-  focusSummary?: string;
-}
+// We will find export interface StartTutoringSessionParams and insert the helper right above it.
+content = content.replace('export interface StartTutoringSessionParams', helperCode + '\\nexport interface StartTutoringSessionParams');
 
+// Now, replace startTutoringSession completely
+const startSessionReplacement = \
 export async function startTutoringSession(params: StartTutoringSessionParams): Promise<{ session: TutoringSession; turn: TutoringTurn }> {
   const supabase = await createServerSupabaseClient();
   const { workspaceId, userId, conceptId } = params;
@@ -236,7 +231,7 @@ export async function startTutoringSession(params: StartTutoringSessionParams): 
   });
   
   if (!context.hasSourceEvidence) {
-     decision.question = 'I don\'t have enough source material available to guide you on this concept. Could you provide more notes or documents for us to work from?';
+     decision.question = 'I don\\'t have enough source material available to guide you on this concept. Could you provide more notes or documents for us to work from?';
   }
 
   const question = context.hasSourceEvidence ? await generateTutorMessage({
@@ -267,34 +262,12 @@ export async function startTutoringSession(params: StartTutoringSessionParams): 
 
   return { session, turn: mapTurn(turnData) };
 }
+\;
 
-export async function getTutoringSession(workspaceId: string, userId: string, sessionId: string) {
-  const supabase = await createServerSupabaseClient();
-  
-  const { data: sessionData, error: sError } = await supabase
-    .from('tutoring_sessions')
-    .select('*')
-    .eq('id', sessionId)
-    .eq('workspace_id', workspaceId)
-    .eq('user_id', userId)
-    .single();
+content = content.replace(/export async function startTutoringSession[\\s\\S]*?return \\{ session, turn: mapTurn\\(turnData\\) \\};\n}/, startSessionReplacement);
 
-  if (sError || !sessionData) throw new AppError('NOT_FOUND', 404, 'Session not found');
-
-  const { data: turnsData, error: tError } = await supabase
-    .from('tutoring_turns')
-    .select('*')
-    .eq('tutoring_session_id', sessionId)
-    .order('created_at', { ascending: true });
-
-  if (tError) throw new AppError('DB_ERROR', 500, tError.message);
-
-  return {
-    session: mapSession(sessionData),
-    turns: turnsData.map(mapTurn)
-  };
-}
-
+// Now, replace continueTutoringSession completely
+const continueSessionReplacement = \
 export async function continueTutoringSession(workspaceId: string, userId: string, sessionId: string, studentResponse: string) {
   const supabase = await createServerSupabaseClient();
   const { session, turns } = await getTutoringSession(workspaceId, userId, sessionId);
@@ -337,7 +310,7 @@ export async function continueTutoringSession(workspaceId: string, userId: strin
   });
   
   if (!context.hasSourceEvidence) {
-     decision.question = 'I don\'t have enough source material available to guide you on this concept. Could you provide more notes or documents for us to work from?';
+     decision.question = 'I don\\'t have enough source material available to guide you on this concept. Could you provide more notes or documents for us to work from?';
   }
 
   const question = context.hasSourceEvidence ? await generateTutorMessage({
@@ -393,96 +366,9 @@ export async function continueTutoringSession(workspaceId: string, userId: strin
     decision
   };
 }
+\;
 
-export async function completeTutoringSession(workspaceId: string, userId: string, sessionId: string) {
-  const supabase = await createServerSupabaseClient();
-  
-  const { data, error } = await supabase
-    .from('tutoring_sessions')
-    .update({ 
-      status: 'completed',
-      updated_at: new Date().toISOString(),
-      completed_at: new Date().toISOString()
-    })
-    .eq('id', sessionId)
-    .eq('workspace_id', workspaceId)
-    .eq('user_id', userId)
-    .select('id, status');
+content = content.replace(/export async function continueTutoringSession[\\s\\S]*?return \\{\n    session: mapSession\\(updatedSessionData\\),\n    newTurns: \\[mapTurn\\(studentTurnData\\), mapTurn\\(tutorTurnData\\)\\],\n    decision\n  \\};\n}/, continueSessionReplacement);
 
-  if (error) throw new AppError('DB_ERROR', 500, error.message);
-  if (!data || data.length === 0) throw new AppError('NOT_FOUND', 404, 'Session not found or unauthorized');
-
-  return data[0];
-}
-
-export async function abandonTutoringSession(workspaceId: string, userId: string, sessionId: string) {
-  const supabase = await createServerSupabaseClient();
-  
-  const { data, error } = await supabase
-    .from('tutoring_sessions')
-    .update({ 
-      status: 'abandoned',
-      updated_at: new Date().toISOString()
-    })
-    .eq('id', sessionId)
-    .eq('workspace_id', workspaceId)
-    .eq('user_id', userId)
-    .select('id, status');
-
-  if (error) throw new AppError('DB_ERROR', 500, error.message);
-  if (!data || data.length === 0) throw new AppError('NOT_FOUND', 404, 'Session not found or unauthorized');
-
-  return data[0];
-}
-
-export async function listWorkspaceTutoringSessions(workspaceId: string, userId: string) {
-  const supabase = await createServerSupabaseClient();
-  const { data, error } = await supabase
-    .from('tutoring_sessions')
-    .select('*')
-    .eq('workspace_id', workspaceId)
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false });
-
-  if (error) throw new AppError('DB_ERROR', 500, error.message);
-  return data.map(mapSession);
-}
-
-// Map DB row to application type
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function mapSession(row: any): TutoringSession {
-  return {
-    id: row.id,
-    workspaceId: row.workspace_id,
-    userId: row.user_id,
-    conceptId: row.concept_node_id,
-    teachBackSessionId: row.teach_back_session_id,
-    reviewScheduleId: row.review_schedule_id,
-    focusType: row.focus_type as TutoringFocusType,
-    focusSummary: row.focus_summary,
-    status: row.status,
-    maxTurns: row.max_turns,
-    currentTurnCount: row.current_turn_count,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
-    completedAt: row.completed_at
-  };
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function mapTurn(row: any): TutoringTurn {
-  return {
-    id: row.id,
-    tutoringSessionId: row.tutoring_session_id,
-    workspaceId: row.workspace_id,
-    userId: row.user_id,
-    role: row.role,
-    turnType: row.turn_type,
-    content: row.content,
-    sourceChunkIds: row.source_chunk_ids || [],
-    gapFindingIds: row.gap_finding_ids || [],
-    masterySignalIds: row.mastery_signal_ids || [],
-    tutorMove: row.tutor_move,
-    createdAt: row.created_at
-  };
-}
+fs.writeFileSync('lib/services/tutoring.ts', content, 'utf8');
+console.log('Updated tutoring.ts');

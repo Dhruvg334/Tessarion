@@ -24,12 +24,13 @@ describe('decideNextMove', () => {
     const decision = decideNextMove({
       session: baseSession,
       previousTurns: [],
-      availableSourceChunkIds: []
+      availableSourceChunkIds: ['chunk-1']
     });
 
     expect(decision.nextMove).toBe('ask_contrast_question');
     expect(decision.shouldUpdateMastery).toBe(false);
     expect(decision.shouldCompleteSession).toBe(false);
+    expect(decision.sourceChunkIds).toEqual(['chunk-1']);
   });
   
   it('escalates to ask_evidence_question for misconception', () => {
@@ -39,11 +40,12 @@ describe('decideNextMove', () => {
       previousTurns: [
         { role: 'tutor', tutorMove: 'ask_contrast_question' } as TutoringTurn,
       ],
-      availableSourceChunkIds: []
+      availableSourceChunkIds: ['chunk-2']
     });
 
     expect(decision.nextMove).toBe('ask_evidence_question');
     expect(decision.shouldUpdateMastery).toBe(false);
+    expect(decision.sourceChunkIds).toEqual(['chunk-2']);
   });
 
   it('summarizes and completes when max turns are reached', () => {
@@ -60,6 +62,7 @@ describe('decideNextMove', () => {
     expect(decision.nextMove).toBe('summarize_progress');
     expect(decision.shouldCompleteSession).toBe(true);
     expect(decision.shouldUpdateMastery).toBe(false);
+    expect(decision.sourceChunkIds).toEqual([]);
   });
 
   it('starts with asking evidence for unsupported claim', () => {
@@ -69,15 +72,17 @@ describe('decideNextMove', () => {
       availableSourceChunkIds: []
     });
     expect(decision.nextMove).toBe('ask_evidence_question');
+    expect(decision.sourceChunkIds).toEqual([]);
   });
 
   it('starts with asking example for shallow explanation', () => {
     const decision = decideNextMove({
       session: { ...baseSession, focusType: 'shallow_explanation' },
       previousTurns: [],
-      availableSourceChunkIds: []
+      availableSourceChunkIds: ['chunk-4']
     });
     expect(decision.nextMove).toBe('ask_example_question');
+    expect(decision.sourceChunkIds).toEqual(['chunk-4']);
   });
 
 });
