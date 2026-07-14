@@ -1,7 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 import { decideNextMove } from '../../lib/tutoring/decide-next-move';
-import { generateTutorMessage } from '../../lib/tutoring/generate-tutor-message';
 import { assertLocalEvalMode } from '../../lib/config/ci-guards';
 import { TutoringTurn, TutoringSession } from '../../lib/tutoring/types';
 
