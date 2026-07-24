@@ -31,3 +31,6 @@ All API boundaries employ strict runtime validation using Zod schemas. Invalid p
 ## Data Retention
 - Source materials and mastery records are scoped by workspace and hard-deleted when a workspace is deleted.
 - Soft deletes (`archived_at`) are used for workspaces to allow recovery, but data within them remains isolated via RLS.
+
+## Observability
+For details on how Tessarion logs operational events securely and transparently, refer to the [Observability Model](public-observability-model.md).

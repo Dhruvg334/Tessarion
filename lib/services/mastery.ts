@@ -1,6 +1,7 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { AppError } from '@/lib/errors/app-error';
 import { ConceptMastery, MasterySignalData, MasteryState } from '../mastery/types';
+import { recordOperationalEvent } from '@/lib/services/observability';
 
 const VALID_MASTERY_STATES: MasteryState[] = [
   'unassessed', 'insufficient_evidence', 'emerging', 'partial',
@@ -184,13 +185,23 @@ export async function persistMasteryUpdate(newMastery: ConceptMastery, newSignal
   } else {
     const { data: insertData, error: insertError } = await supabase
       .from('mastery_records').insert([recordToUpsert]).select('id').single();
-    if (insertError) {
-      throw new AppError('Failed to insert mastery record', 500, 'DB_ERROR');
+      if (insertError) {
+        throw new AppError('Failed to insert mastery record', 500, 'DB_ERROR');
+      }
+      masteryRecordId = insertData.id;
     }
-    masteryRecordId = insertData.id;
-  }
   
-  return { masteryRecordId, signalIds };
+    await recordOperationalEvent({
+      workspaceId: newMastery.workspaceId,
+      userId: newMastery.userId,
+      eventType: 'mastery_updated',
+      safeMessage: `Concept mastery updated to ${newMastery.state}`,
+      entityType: 'mastery_record',
+      entityId: masteryRecordId,
+      metadata: { conceptId: newMastery.conceptId, level: newMastery.state, score: newMastery.score }
+    });
+
+    return { masteryRecordId, signalIds };
 }
 
 export async function getMasterySummary(workspaceId: string, userId: string) {

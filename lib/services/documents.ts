@@ -2,6 +2,7 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { SourceDocument } from '@/types/database';
 import { chunkText } from '@/lib/rag/chunking';
+import { recordOperationalEvent } from '@/lib/services/observability';
 
 export async function listDocuments(workspaceId: string, _userId: string): Promise<SourceDocument[]> {
   const supabase = await createServerSupabaseClient();
@@ -46,9 +47,33 @@ export async function createPastedDocument(workspaceId: string, userId: string, 
 
   if (docError) throw docError;
 
+  await recordOperationalEvent({
+    workspaceId,
+    userId,
+    eventType: 'source_added',
+    safeMessage: `Source document added: ${input.file_name}`,
+    entityType: 'source_document',
+    entityId: doc.id,
+    metadata: {
+      fileName: input.file_name,
+      fileSize: doc.file_size
+    }
+  });
+
   try {
     const chunksData = chunkText(input.content);
     await createSourceChunks(doc.id, workspaceId, chunksData);
+    
+    await recordOperationalEvent({
+      workspaceId,
+      userId,
+      eventType: 'source_chunked',
+      safeMessage: `Source document chunked into ${chunksData.length} pieces`,
+      entityType: 'source_document',
+      entityId: doc.id,
+      metadata: { chunkCount: chunksData.length }
+    });
+    
     await updateDocumentProcessingStatus(doc.id, workspaceId, userId, {
       status: 'ready',
       chunk_count: chunksData.length

@@ -5,6 +5,7 @@ import { decideNextMove } from '@/lib/tutoring/decide-next-move';
 import { generateTutorMessage } from '@/lib/tutoring/generate-tutor-message';
 
 import { mapReviewReasonToTutoringFocus } from '@/lib/tutoring/types';
+import { recordOperationalEvent } from './observability';
 
 interface TutoringEvidenceContextParams {
   workspaceId: string;
@@ -281,6 +282,16 @@ export async function startTutoringSession(params: StartTutoringSessionParams): 
 
   if (tError) throw new AppError('DB_ERROR', 500, tError.message);
 
+  await recordOperationalEvent({
+    workspaceId,
+    userId,
+    eventType: 'tutoring_started',
+    safeMessage: 'Started Socratic tutoring session',
+    entityType: 'tutoring_session',
+    entityId: session.id,
+    metadata: { conceptId, focusType, teachBackSessionId: params.teachBackSessionId }
+  });
+
   return { session, turn: mapTurn(turnData) };
 }
 
@@ -398,6 +409,20 @@ export async function continueTutoringSession(workspaceId: string, userId: strin
 
   if (ttError) throw new AppError('DB_ERROR', 500, ttError.message);
 
+  await recordOperationalEvent({
+    workspaceId,
+    userId,
+    eventType: 'tutoring_turn_submitted',
+    safeMessage: 'Student responded to tutoring',
+    entityType: 'tutoring_session',
+    entityId: sessionId,
+    metadata: { 
+      turnCount: newTurnCount, 
+      tutorMove: decision.nextMove,
+      willComplete: decision.shouldCompleteSession 
+    }
+  });
+
   return {
     session: mapSession(updatedSessionData),
     newTurns: [mapTurn(studentTurnData), mapTurn(tutorTurnData)],
@@ -423,6 +448,15 @@ export async function completeTutoringSession(workspaceId: string, userId: strin
   if (error) throw new AppError('DB_ERROR', 500, error.message);
   if (!data || data.length === 0) throw new AppError('NOT_FOUND', 404, 'Session not found or unauthorized');
 
+  await recordOperationalEvent({
+    workspaceId,
+    userId,
+    eventType: 'tutoring_completed',
+    safeMessage: 'Tutoring session completed successfully',
+    entityType: 'tutoring_session',
+    entityId: sessionId
+  });
+
   return data[0];
 }
 
@@ -442,6 +476,15 @@ export async function abandonTutoringSession(workspaceId: string, userId: string
 
   if (error) throw new AppError('DB_ERROR', 500, error.message);
   if (!data || data.length === 0) throw new AppError('NOT_FOUND', 404, 'Session not found or unauthorized');
+
+  await recordOperationalEvent({
+    workspaceId,
+    userId,
+    eventType: 'tutoring_abandoned',
+    safeMessage: 'Tutoring session was abandoned',
+    entityType: 'tutoring_session',
+    entityId: sessionId
+  });
 
   return data[0];
 }

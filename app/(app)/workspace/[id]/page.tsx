@@ -13,6 +13,7 @@ import { EmptyState } from '@/components/shell/empty-state';
 import { NextActionPanel } from '@/components/review/next-action-panel';
 import { ReviewQueue } from '@/components/review/review-queue';
 import { TutoringPanel } from '@/components/tutoring/tutoring-panel';
+import { ActivityLog } from '@/components/workspace/activity-log';
 import { resolveNextAction, NextActionContext } from '@/lib/product/next-action';
 
 const PANELS = [
@@ -20,7 +21,8 @@ const PANELS = [
   { id: 'sources', label: 'Source Materials' },
   { id: 'graph', label: 'Knowledge Graph' },
   { id: 'teach-back', label: 'Teach-Back' },
-  { id: 'review', label: 'Review' }
+  { id: 'review', label: 'Review' },
+  { id: 'activity', label: 'Activity' }
 ];
 
 export default async function WorkspacePage(props: { params: Promise<{ id: string }>, searchParams: Promise<{ panel?: string; tutoring?: string }> }) {
@@ -225,6 +227,12 @@ export default async function WorkspacePage(props: { params: Promise<{ id: strin
             session={tutoringSessionObj.session} 
             initialTurns={tutoringSessionObj.turns} 
           />
+        </div>
+      )}
+
+      {currentPanel === 'activity' && (
+        <div style={{ maxWidth: '800px' }}>
+          <ActivityLog workspaceId={id} />
         </div>
       )}
 

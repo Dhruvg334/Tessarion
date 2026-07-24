@@ -5,6 +5,7 @@ import { generateFeedbackSummary } from '../ai/tasks/reflection-summary';
 import { validateTeachBackFeedback } from '../ai/tasks/feedback-validation';
 import { TeachBackAgentResult } from '../ai/types';
 import { persistTeachBackFeedback } from '../services/sessions';
+import { recordOperationalEvent } from '../services/observability';
 import { createTrace, updateTraceState, completeTrace } from './tracing';
 import { AppError } from '../errors/app-error';
 import { getConceptMastery, persistMasteryUpdate } from '../services/mastery';
@@ -125,6 +126,16 @@ export async function executeTeachBack(options: ExecuteTeachBackOptions): Promis
     // 6. Persist Feedback — returns real persisted gap IDs
     await updateTraceState(trace, 'persisting_feedback');
     const { persistedGapIds } = await persistTeachBackFeedback(sessionId, summary);
+    
+    await recordOperationalEvent({
+      workspaceId,
+      userId,
+      eventType: 'teach_back_feedback_generated',
+      safeMessage: 'Teach-back feedback generated successfully',
+      entityType: 'teach_back_session',
+      entityId: sessionId,
+      metadata: { gapCount: summary.gaps.length, hasFollowUp: !!summary.followUpQuestion }
+    });
 
     // 7. Calculate and Persist Mastery
     await updateTraceState(trace, 'updating_mastery');

@@ -1,6 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { scheduleReviewsFromMastery } from './review';
+import { recordOperationalEvent } from './observability';
 import { ConceptMastery } from '../mastery/types';
+
+vi.mock('./observability', () => ({
+  recordOperationalEvent: vi.fn(),
+}));
 
 const mockSingle = vi.fn();
 const mockEq = vi.fn();
@@ -175,6 +180,12 @@ describe('review service', () => {
       expect(result.action).toBe('updated');
       expect(mockUpdate).toHaveBeenCalled();
       expect(mockInsert).not.toHaveBeenCalled();
+      
+      expect(recordOperationalEvent).toHaveBeenCalledWith(expect.objectContaining({
+        eventType: 'review_scheduled',
+        workspaceId: 'ws1',
+        userId: 'user1'
+      }));
     });
 
     it('should skip scheduling reinforcement if understood cap is reached', async () => {

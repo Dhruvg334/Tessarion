@@ -1,6 +1,7 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { retrieveRelevantChunks } from '@/lib/services/retrieval';
 import { successResponse, errorResponse, unauthorizedResponse } from '@/lib/validation/api-response';
+import { safeErrorResponse } from '@/lib/errors/safe-error';
 
 import { z } from 'zod';
 import { SECURITY_LIMITS } from '@/lib/security/limits';
@@ -17,7 +18,7 @@ const RetrievalSchema = z.object({
   options: RetrievalOptionsSchema,
 });
 
-export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id: workspaceId } = await params;
     const supabase = await createServerSupabaseClient();
@@ -26,7 +27,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
 
     enforceRateLimit(user.id, 'retrieval', RATE_LIMITS.RETRIEVAL);
 
-    const body = await _request.json();
+    const body = await request.json();
     const parsed = RetrievalSchema.safeParse(body);
     if (!parsed.success) {
       return errorResponse(parsed.error.issues[0]?.message || 'Validation error', 400);
@@ -37,7 +38,6 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     const chunks = await retrieveRelevantChunks(workspaceId, user.id, query, options);
     return successResponse(chunks);
   } catch (err: unknown) {
-    console.error(err);
-    return errorResponse('Retrieval failed');
+    return safeErrorResponse(err);
   }
 }

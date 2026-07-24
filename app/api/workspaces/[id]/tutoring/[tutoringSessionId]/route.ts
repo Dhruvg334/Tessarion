@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getTutoringSession, completeTutoringSession, abandonTutoringSession } from '@/lib/services/tutoring';
+import { safeErrorResponse } from '@/lib/errors/safe-error';
 import { z } from 'zod';
 
 export async function GET(
@@ -19,10 +20,7 @@ export async function GET(
     const session = await getTutoringSession(id, user.id, tutoringSessionId);
     return NextResponse.json(session);
   } catch (err: unknown) {
-    const error = err instanceof Error ? err : new Error('Unknown error');
-    const status = (error as { statusCode?: number }).statusCode || 500;
-    const message = status === 500 ? 'Internal Server Error' : error.message;
-    return NextResponse.json({ error: message }, { status });
+    return safeErrorResponse(err);
   }
 }
 
@@ -55,12 +53,6 @@ export async function PATCH(
       return NextResponse.json(result);
     }
   } catch (err: unknown) {
-    if (err instanceof z.ZodError) {
-      return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
-    }
-    const error = err instanceof Error ? err : new Error('Unknown error');
-    const status = (error as { statusCode?: number }).statusCode || 500;
-    const message = status === 500 ? 'Internal Server Error' : error.message;
-    return NextResponse.json({ error: message }, { status });
+    return safeErrorResponse(err);
   }
 }

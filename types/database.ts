@@ -251,3 +251,19 @@ export interface TutoringTurn {
   tutor_move: string | null;
   created_at: string;
 }
+
+export interface OperationalEventRow {
+  id: string;
+  workspace_id: string;
+  user_id: string;
+  event_type: string;
+  severity: string;
+  entity_type: string | null;
+  entity_id: string | null;
+  request_id: string | null;
+  trace_id: string | null;
+  safe_message: string;
+  metadata: Record<string, unknown>;
+  created_at: string;
+}
+

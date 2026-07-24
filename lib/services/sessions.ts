@@ -3,6 +3,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/service';
 import { TeachBackSession, StudentExplanation, GapFinding, SocraticQuestion } from '@/types/database';
 import { TeachBackSummary } from '@/lib/ai/types';
+import { recordOperationalEvent } from '@/lib/services/observability';
 
 export async function startTeachBackSession(workspaceId: string, conceptNodeId: string, userId: string) {
   const supabase = await createServerSupabaseClient();
@@ -42,6 +43,17 @@ export async function startTeachBackSession(workspaceId: string, conceptNodeId: 
     .single();
 
   if (error) throw new AppError('DB_ERROR', 500, error.message);
+  
+  await recordOperationalEvent({
+    workspaceId,
+    userId,
+    eventType: 'teach_back_started',
+    safeMessage: 'Teach-back session started',
+    entityType: 'teach_back_session',
+    entityId: session.id,
+    metadata: { conceptNodeId }
+  });
+
   return session as TeachBackSession;
 }
 
@@ -121,6 +133,17 @@ export async function submitExplanation(workspaceId: string, sessionId: string, 
     .single();
 
   if (error) throw new AppError('DB_ERROR', 500, error.message);
+  
+  await recordOperationalEvent({
+    workspaceId,
+    userId,
+    eventType: 'teach_back_submitted',
+    safeMessage: 'Student submitted explanation for teach-back',
+    entityType: 'teach_back_session',
+    entityId: sessionId,
+    metadata: { explanationLength: content.length, sequenceIndex: explanation.sequence_index }
+  });
+
   return explanation as StudentExplanation;
 }
 

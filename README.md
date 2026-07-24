@@ -108,3 +108,6 @@ npm audit --audit-level=moderate
 ## Status
 
 The core product loop is integrated: source ingestion, concept graph, teach-back, mastery evidence, review scheduling, and guided tutoring. Current work focuses on reliability, security hardening, deployment readiness, and final product polish.
+
+- **Observability:** Strict, privacy-focused operational event logging for debugging and workspace transparency. See [Observability Model](docs/public-observability-model.md).
+- **Security:** Rate limiting and payload constraints on all high-risk routes. See [Security Model](docs/public-security-model.md).

@@ -3,6 +3,7 @@ import { AppError } from '@/lib/errors/app-error';
 import { ConceptMastery, MasteryState } from '../mastery/types';
 import { ReviewRecommendation } from '../review/types';
 import { calculateReviewRecommendation } from '../review/calculate-review';
+import { recordOperationalEvent } from '@/lib/services/observability';
 
 export async function scheduleReviewsFromMastery(
   workspaceId: string, 
@@ -113,9 +114,20 @@ export async function scheduleReviewsFromMastery(
       .select('id');
     if (updError) throw new AppError('DB_ERROR', 500, updError.message);
     if (!updData || updData.length === 0) throw new AppError('NOT_FOUND', 404, 'Review schedule not found or unauthorized');
+    
+    await recordOperationalEvent({
+      workspaceId,
+      userId,
+      eventType: 'review_scheduled',
+      safeMessage: `Review schedule updated (Reason: ${rec.reasonType})`,
+      entityType: 'review_schedule',
+      entityId: existingActive.id,
+      metadata: { conceptId: mastery.conceptId, reasonType: rec.reasonType, priority: rec.priority }
+    });
+    
     return { recommendation: rec, action: 'updated' };
   } else {
-    const { error: insError } = await supabase.from('review_schedules').insert({
+    const { data: insData, error: insError } = await supabase.from('review_schedules').insert({
       workspace_id: workspaceId,
       user_id: userId,
       concept_node_id: mastery.conceptId,
@@ -126,8 +138,19 @@ export async function scheduleReviewsFromMastery(
       reason: rec.reason,
       scheduled_for: rec.suggestedReviewAt!.toISOString(),
       source_mastery_signal_ids: signalIds
+    }).select('id').single();
+    if (insError || !insData) throw new AppError('DB_ERROR', 500, insError?.message || 'Insert failed');
+    
+    await recordOperationalEvent({
+      workspaceId,
+      userId,
+      eventType: 'review_scheduled',
+      safeMessage: `New review scheduled (Reason: ${rec.reasonType})`,
+      entityType: 'review_schedule',
+      entityId: insData.id,
+      metadata: { conceptId: mastery.conceptId, reasonType: rec.reasonType, priority: rec.priority }
     });
-    if (insError) throw new AppError('DB_ERROR', 500, insError.message);
+    
     return { recommendation: rec, action: 'created' };
   }
 }
@@ -237,6 +260,15 @@ export async function markReviewCompleted(workspaceId: string, reviewId: string,
     .single();
 
   if (error || !data) throw new AppError('Review schedule not found or unauthorized', 404, 'NOT_FOUND');
+
+  await recordOperationalEvent({
+    workspaceId,
+    userId,
+    eventType: 'review_completed',
+    safeMessage: 'Review schedule marked as completed',
+    entityType: 'review_schedule',
+    entityId: reviewId
+  });
 }
 
 export async function skipReview(workspaceId: string, reviewId: string, userId: string) {
@@ -256,6 +288,15 @@ export async function skipReview(workspaceId: string, reviewId: string, userId: 
     .single();
 
   if (error || !data) throw new AppError('Review schedule not found or unauthorized', 404, 'NOT_FOUND');
+
+  await recordOperationalEvent({
+    workspaceId,
+    userId,
+    eventType: 'review_skipped',
+    safeMessage: 'Review schedule marked as skipped',
+    entityType: 'review_schedule',
+    entityId: reviewId
+  });
 }
 
 export async function getConceptReviewRecommendation(workspaceId: string, conceptId: string, userId: string): Promise<ReviewRecommendation | null> {
