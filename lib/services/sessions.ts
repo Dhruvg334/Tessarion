@@ -161,13 +161,15 @@ export async function abandonTeachBackSession(workspaceId: string, sessionId: st
   const { data: ws } = await supabase.from('workspaces').select('id').eq('id', workspaceId).eq('user_id', userId).single();
   if (!ws) throw new AppError('UNAUTHORIZED', 403, 'Unauthorized');
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('teach_back_sessions')
     .update({ status: 'abandoned' })
     .eq('id', sessionId)
-    .eq('workspace_id', workspaceId);
+    .eq('workspace_id', workspaceId)
+    .select('id')
+    .single();
 
-  if (error) throw new AppError('DB_ERROR', 500, error.message);
+  if (error || !data) throw new AppError('Session not found or unauthorized', 404, 'NOT_FOUND');
   return { success: true };
 }
 

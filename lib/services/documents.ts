@@ -68,6 +68,8 @@ export async function createUploadedDocumentRecord(_workspaceId: string, _userId
   throw new Error("501: File uploads to Supabase Storage are not implemented in Phase 3. Please use paste text.");
 }
 
+import { AppError } from '@/lib/errors/app-error';
+
 export async function updateDocumentProcessingStatus(
   documentId: string, 
   workspaceId: string, 
@@ -83,24 +85,28 @@ export async function updateDocumentProcessingStatus(
   if (statusInput.chunk_count !== undefined) updateData.chunk_count = statusInput.chunk_count;
   if (statusInput.error_message !== undefined) updateData.error_message = statusInput.error_message;
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('source_documents')
     .update(updateData)
     .eq('id', documentId)
-    .eq('workspace_id', workspaceId);
+    .eq('workspace_id', workspaceId)
+    .select('id')
+    .single();
 
-  if (error) throw error;
+  if (error || !data) throw new AppError('Document not found or unauthorized', 404, 'NOT_FOUND');
 }
 
 export async function deleteDocument(documentId: string, workspaceId: string, _userId: string): Promise<void> {
   const supabase = await createServerSupabaseClient();
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('source_documents')
     .delete()
     .eq('id', documentId)
-    .eq('workspace_id', workspaceId);
+    .eq('workspace_id', workspaceId)
+    .select('id')
+    .single();
 
-  if (error) throw error;
+  if (error || !data) throw new AppError('Document not found or unauthorized', 404, 'NOT_FOUND');
 }
 
 export async function createSourceChunks(documentId: string, workspaceId: string, chunks: import("@/lib/rag/chunking").ChunkResult[]): Promise<void> {

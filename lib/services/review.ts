@@ -233,10 +233,10 @@ export async function markReviewCompleted(workspaceId: string, reviewId: string,
     .eq('id', reviewId)
     .eq('workspace_id', workspaceId)
     .eq('user_id', userId)
-    .select('id');
+    .select('id')
+    .single();
 
-  if (error) throw new AppError('DB_ERROR', 500, error.message);
-  if (!data || data.length === 0) throw new AppError('NOT_FOUND', 404, 'Review schedule not found or unauthorized');
+  if (error || !data) throw new AppError('Review schedule not found or unauthorized', 404, 'NOT_FOUND');
 }
 
 export async function skipReview(workspaceId: string, reviewId: string, userId: string) {
@@ -252,10 +252,10 @@ export async function skipReview(workspaceId: string, reviewId: string, userId: 
     .eq('id', reviewId)
     .eq('workspace_id', workspaceId)
     .eq('user_id', userId)
-    .select('id');
+    .select('id')
+    .single();
 
-  if (error) throw new AppError('DB_ERROR', 500, error.message);
-  if (!data || data.length === 0) throw new AppError('NOT_FOUND', 404, 'Review schedule not found or unauthorized');
+  if (error || !data) throw new AppError('Review schedule not found or unauthorized', 404, 'NOT_FOUND');
 }
 
 export async function getConceptReviewRecommendation(workspaceId: string, conceptId: string, userId: string): Promise<ReviewRecommendation | null> {

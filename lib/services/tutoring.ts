@@ -106,6 +106,8 @@ export async function loadTutoringEvidenceContext(params: TutoringEvidenceContex
   };
 }
 
+import { SECURITY_LIMITS } from '@/lib/security/limits';
+
 export interface StartTutoringSessionParams {
   workspaceId: string;
   userId: string;
@@ -128,6 +130,18 @@ export async function startTutoringSession(params: StartTutoringSessionParams): 
     .single();
 
   if (wsError || !ws) throw new AppError('UNAUTHORIZED', 403, 'Unauthorized');
+
+  const { count: activeCount, error: activeError } = await supabase
+    .from('tutoring_sessions')
+    .select('*', { count: 'exact', head: true })
+    .eq('workspace_id', workspaceId)
+    .eq('user_id', userId)
+    .eq('status', 'active');
+    
+  if (activeError) throw new AppError('DB_ERROR', 500, 'Failed to check active sessions');
+  if (activeCount !== null && activeCount >= SECURITY_LIMITS.MAX_ACTIVE_TUTORING_SESSIONS) {
+    throw new AppError('Too many active tutoring sessions', 400, 'LIMIT_EXCEEDED');
+  }
 
   if (params.teachBackSessionId) {
     const { data: tb, error: tbError } = await supabase
@@ -363,7 +377,7 @@ export async function continueTutoringSession(workspaceId: string, userId: strin
     .select()
     .single();
 
-  if (uError) throw new AppError('DB_ERROR', 500, uError.message);
+  if (uError || !updatedSessionData) throw new AppError('Session not found or unauthorized', 404, 'NOT_FOUND');
 
   const { data: tutorTurnData, error: ttError } = await supabase
     .from('tutoring_turns')

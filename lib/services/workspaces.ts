@@ -116,17 +116,19 @@ export async function updateWorkspace(workspaceId: string, userId: string, input
     .select()
     .single();
 
-  if (error) throw error;
+  if (error || !data) throw new AppError('Workspace not found or unauthorized', 404, 'NOT_FOUND');
   return data as Workspace;
 }
 
 export async function archiveWorkspace(workspaceId: string, userId: string): Promise<void> {
   const supabase = await createServerSupabaseClient();
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('workspaces')
     .update({ archived_at: new Date().toISOString() })
     .eq('id', workspaceId)
-    .eq('user_id', userId);
+    .eq('user_id', userId)
+    .select('id')
+    .single();
 
-  if (error) throw error;
+  if (error || !data) throw new AppError('Workspace not found or unauthorized', 404, 'NOT_FOUND');
 }

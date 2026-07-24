@@ -15,7 +15,7 @@ const mockBuilder = {
   in: mockIn, 
   single: mockSingle, 
   maybeSingle: mockSingle, 
-  select: mockSelectTerminal,
+  select: mockSelect,
   order: mockOrder,
   limit: mockLimit,
   then: function(resolve: (value: unknown) => void, reject: (reason?: unknown) => void) {
@@ -59,6 +59,7 @@ describe('review service', () => {
     mockOrder.mockReturnValue(mockBuilder);
     mockSelect.mockReturnValue(mockBuilder);
     mockUpdate.mockReturnValue(mockBuilder);
+    mockSingle.mockReturnValue(mockBuilder);
     mockLimit.mockImplementation(() => mockBuilder);
     
     mockInsert.mockResolvedValue({ error: null });
@@ -212,7 +213,7 @@ describe('review service', () => {
 
   describe('markReviewCompleted', () => {
     it('should throw NOT_FOUND if zero rows are updated', async () => {
-      mockSelectTerminal.mockResolvedValueOnce({ data: [], error: null });
+      mockSelectTerminal.mockResolvedValueOnce({ data: null, error: { message: 'Not Found' } });
       try {
         await markReviewCompleted('ws1', 'rev1', 'user1');
         expect.fail('Should have thrown');
@@ -224,7 +225,7 @@ describe('review service', () => {
   
   describe('skipReview', () => {
     it('should throw NOT_FOUND if zero rows are updated', async () => {
-      mockSelectTerminal.mockResolvedValueOnce({ data: [], error: null });
+      mockSelectTerminal.mockResolvedValueOnce({ data: null, error: { message: 'Not Found' } });
       try {
         await skipReview('ws1', 'rev1', 'user1');
         expect.fail('Should have thrown');

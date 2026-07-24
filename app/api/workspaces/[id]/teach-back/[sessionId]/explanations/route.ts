@@ -4,8 +4,11 @@ import { submitExplanation } from '@/lib/services/sessions';
 import { executeTeachBack } from '@/lib/agents/teach-back-agent';
 import { z } from 'zod';
 
+import { SECURITY_LIMITS } from '@/lib/security/limits';
+import { enforceRateLimit, RATE_LIMITS } from '@/lib/security/rate-limit';
+
 const RequestSchema = z.object({
-  content: z.string().min(1, 'Explanation cannot be empty'),
+  content: z.string().min(1, 'Explanation cannot be empty').max(SECURITY_LIMITS.MAX_TEACH_BACK_LENGTH, 'Explanation is too long'),
   provider: z.enum(['local', 'gemini']).default('local')
 });
 
@@ -28,6 +31,8 @@ export async function POST(
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    enforceRateLimit(user.id, 'teach-back', RATE_LIMITS.TEACH_BACK);
 
     // This records the explanation in the DB and ensures no duplicates
     // Returns the persisted explanation row with its real DB id
