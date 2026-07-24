@@ -39,7 +39,7 @@
     "framer-motion": "^12.42.2",
     "inngest": "^4.11.0",
     "lucide-react": "^1.23.0",
-    "next": "16.2.10",
+    "next": "16.2.11",
     "pino": "^10.3.1",
     "react": "19.2.4",
     "react-dom": "19.2.4",
@@ -60,13 +60,25 @@
     "@types/react-dom": "^19",
     "@vitest/coverage-v8": "^4.1.9",
     "eslint": "^9",
-    "eslint-config-next": "16.2.10",
+    "eslint-config-next": "16.2.11",
     "jsdom": "^29.1.1",
     "tsx": "^4.22.5",
     "typescript": "^5",
     "vitest": "^4.1.9"
   },
   "overrides": {
-    "postcss": "^8.5.10"
+    "postcss": "^8.5.10",
+    "@opentelemetry/propagator-jaeger": "2.9.0",
+    "protobufjs": "7.6.5",
+    "eslint": {
+      "minimatch": {
+        "brace-expansion": "1.1.16"
+      }
+    },
+    "glob": {
+      "minimatch": {
+        "brace-expansion": "2.1.2"
+      }
+    }
   }
 }
