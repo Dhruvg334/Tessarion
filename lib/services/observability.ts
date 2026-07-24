@@ -20,6 +20,21 @@ export interface RecordEventParams {
 
 const MAX_METADATA_SIZE = 5000;
 
+interface OperationalEventRow {
+  id: string;
+  workspace_id: string;
+  user_id: string;
+  event_type: OperationalEventType;
+  severity: OperationalSeverity;
+  entity_type: string | null;
+  entity_id: string | null;
+  request_id: string | null;
+  trace_id: string | null;
+  safe_message: string;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+}
+
 function truncateMetadata(metadata: Record<string, unknown>): Record<string, unknown> {
   const str = JSON.stringify(metadata);
   if (str.length <= MAX_METADATA_SIZE) return metadata;
@@ -55,8 +70,7 @@ export async function recordOperationalEvent(params: RecordEventParams): Promise
     if (params.strict) {
       throw err instanceof AppError ? err : new AppError('Failed to record operational event', 500, 'INTERNAL_ERROR', err);
     }
-    // In non-strict mode, we silently swallow errors so logging doesn't break product flow.
-    console.error('Failed to record operational event:', err);
+    console.error('Failed to record operational event.');
   }
 }
 
@@ -76,18 +90,18 @@ export async function listWorkspaceOperationalEvents(workspaceId: string, userId
     throw new AppError('Failed to list operational events', 500, 'DB_ERROR', error);
   }
 
-  return (data || []).map((row: Record<string, unknown>) => ({
+  return ((data || []) as OperationalEventRow[]).map((row) => ({
     id: row.id,
     workspaceId: row.workspace_id,
     userId: row.user_id,
-    eventType: row.event_type as OperationalEventType,
-    severity: row.severity as OperationalSeverity,
+    eventType: row.event_type,
+    severity: row.severity,
     entityType: row.entity_type || undefined,
     entityId: row.entity_id || undefined,
     requestId: row.request_id || undefined,
     traceId: row.trace_id || undefined,
     safeMessage: row.safe_message,
-    metadata: row.metadata as Record<string, unknown>,
+    metadata: row.metadata || {},
     createdAt: row.created_at
   }));
 }
