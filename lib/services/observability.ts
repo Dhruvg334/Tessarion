@@ -63,8 +63,12 @@ export async function recordOperationalEvent(params: RecordEventParams): Promise
       metadata: sanitizedMetadata
     });
 
-    if (error && params.strict) {
-      throw new AppError('Failed to record operational event', 500, 'DB_ERROR', error);
+    if (error) {
+      if (params.strict) {
+        throw new AppError('Failed to record operational event', 500, 'DB_ERROR', error);
+      }
+
+      console.error('Failed to record operational event.');
     }
   } catch (err) {
     if (params.strict) {
