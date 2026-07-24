@@ -141,14 +141,21 @@ export function TutoringPanel({ workspaceId, session: initialSession, initialTur
             </div>
           </form>
         ) : (
-          <div className="flex justify-end">
+          <div className="flex flex-col items-center justify-center gap-3 py-2">
              <button 
                 type="button" 
                 onClick={() => { if (onComplete) onComplete(); }}
-                className="btn bg-neutral-900 text-white hover:bg-neutral-800"
+                className="btn bg-neutral-900 text-white hover:bg-neutral-800 w-full"
               >
-                Return to Workspace
+                {session.status === 'completed' || session.status === 'needs_review' 
+                  ? 'Try Teach-Back Again' 
+                  : 'Return to Workspace'}
               </button>
+              {(session.status === 'completed' || session.status === 'needs_review') && (
+                <p className="text-xs text-neutral-500 text-center">
+                  Tutoring doesn&apos;t prove mastery&mdash;teaching it back does.
+                </p>
+              )}
           </div>
         )}
       </div>

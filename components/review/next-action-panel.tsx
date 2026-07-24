@@ -1,48 +1,38 @@
 'use client';
 
 import Link from 'next/link';
+import { NextAction } from '@/lib/product/next-action';
 
 interface NextActionPanelProps {
-  workspaceId: string;
-  hasDocuments: boolean;
-  hasConcepts: boolean;
-  hasDueReviews?: boolean;
+  action: NextAction;
 }
 
-export function NextActionPanel({ workspaceId, hasDocuments, hasConcepts, hasDueReviews }: NextActionPanelProps) {
-  if (!hasDocuments) {
-    return (
-      <div className="card card-ruled" style={{ padding: '1.5rem' }}>
-        <h2 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '1rem', color: 'var(--ink)' }}>Next Action</h2>
-        <p className="muted" style={{ marginBottom: '1rem' }}>Add source materials to begin your learning journey.</p>
-        <Link href={`/workspace/${workspaceId}/upload`} className="btn" style={{ display: 'block', textAlign: 'center' }}>Add Source Material</Link>
-      </div>
-    );
-  }
-
-  if (!hasConcepts) {
-    return (
-      <div className="card card-ruled" style={{ padding: '1.5rem' }}>
-        <h2 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '1rem', color: 'var(--ink)' }}>Next Action</h2>
-        <p className="muted" style={{ marginBottom: '1rem' }}>Extract concepts from your documents to build a knowledge graph.</p>
-        <Link href={`/workspace/${workspaceId}?panel=graph`} className="btn" style={{ display: 'block', textAlign: 'center' }}>Go to Graph</Link>
-      </div>
-    );
-  }
-
+export function NextActionPanel({ action }: NextActionPanelProps) {
   return (
     <div className="card card-ruled" style={{ padding: '1.5rem' }}>
-      <h2 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '1rem', color: 'var(--ink)' }}>Next Action</h2>
-      {hasDueReviews ? (
-        <p className="muted" style={{ marginBottom: '1rem' }}>You have concepts due for review. Clear your queue to strengthen your mastery.</p>
-      ) : (
-        <p className="muted" style={{ marginBottom: '1rem' }}>Your workspace is ready. Select a concept in the Knowledge Graph to start a Teach-Back, or check your Review Queue.</p>
-      )}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+        <h2 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--ink)' }}>Next Action: {action.title}</h2>
+        {action.priority === 'critical' && (
+          <span style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', padding: '0.2rem 0.5rem', border: '2px solid var(--ink)', borderRadius: '2px' }}>
+            Critical
+          </span>
+        )}
+      </div>
+      <p className="muted" style={{ marginBottom: '1rem' }}>{action.description}</p>
+      
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-        <Link href={`/workspace/${workspaceId}?panel=teach-back`} className="btn" style={{ display: 'block', textAlign: 'center' }}>Start Teach-Back</Link>
-        <Link href={`/workspace/${workspaceId}?panel=review`} className={`btn ${hasDueReviews ? '' : 'btn-secondary'}`} style={{ display: 'block', textAlign: 'center' }}>
-          Check Reviews
-        </Link>
+        {action.primaryActionHref ? (
+          <Link href={action.primaryActionHref} className="btn" style={{ display: 'block', textAlign: 'center' }}>
+            {action.primaryActionLabel}
+          </Link>
+        ) : (
+          <button className="btn" style={{ display: 'block', width: '100%' }}>
+            {action.primaryActionLabel}
+          </button>
+        )}
+      </div>
+      <div style={{ marginTop: '1rem', fontSize: '0.8rem', color: 'var(--ink-soft)' }}>
+        <strong>Why?</strong> {action.reason}
       </div>
     </div>
   );

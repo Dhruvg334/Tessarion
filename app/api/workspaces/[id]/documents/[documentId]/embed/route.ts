@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
- 
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { embedMissingChunksForWorkspace } from '@/lib/services/embeddings';
 import { successResponse, errorResponse, unauthorizedResponse } from '@/lib/validation/api-response';
@@ -13,7 +11,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
     const result = await embedMissingChunksForWorkspace(workspaceId, user.id);
     return successResponse(result);
-  } catch (err: any) {
-    return errorResponse(err.message || 'Failed to embed');
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Failed to embed';
+    return errorResponse(msg);
   }
 }

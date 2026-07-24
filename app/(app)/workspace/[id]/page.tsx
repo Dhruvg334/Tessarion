@@ -13,6 +13,7 @@ import { EmptyState } from '@/components/shell/empty-state';
 import { NextActionPanel } from '@/components/review/next-action-panel';
 import { ReviewQueue } from '@/components/review/review-queue';
 import { TutoringPanel } from '@/components/tutoring/tutoring-panel';
+import { resolveNextAction, NextActionContext } from '@/lib/product/next-action';
 
 const PANELS = [
   { id: 'study', label: 'Study Board' },
@@ -37,19 +38,37 @@ export default async function WorkspacePage(props: { params: Promise<{ id: strin
   let workspace;
   let documents: import('@/types/database').SourceDocument[] = [];
   let initialGraph = null;
-  let hasDueReviews = false;
   let tutoringSessionObj = null;
+  let nextAction = null;
   
   try {
     workspace = await getWorkspace(id, user.id);
     documents = await listDocuments(id, user.id);
     initialGraph = await getWorkspaceGraph(id, user.id);
     const queue = await getWorkspaceReviewQueue(id, user.id);
-    hasDueReviews = queue.some(r => r.computedStatus === 'due' || r.computedStatus === 'overdue');
     
     if (tutoringSessionId) {
       tutoringSessionObj = await getTutoringSession(id, user.id, tutoringSessionId);
     }
+
+    const { data: tbData } = await supabase.from('teach_back_sessions').select('id, status').eq('workspace_id', id);
+    const { data: tutoringData } = await supabase.from('tutoring_sessions').select('id, status').eq('workspace_id', id);
+
+    const activeTutoringSessions = tutoringData?.filter(t => t.status === 'active') || [];
+    const completedTutoringSessionsThisSession = tutoringData?.filter(t => t.status === 'completed' || t.status === 'needs_review') || [];
+
+    const ctx: NextActionContext = {
+      workspaceId: id,
+      sourceDocumentCount: documents.length,
+      conceptCount: initialGraph?.nodes?.length || 0,
+      teachBackSessionCount: tbData?.length || 0,
+      activeTutoringSessions,
+      completedTutoringSessionsThisSession,
+      reviewQueue: queue,
+      masterySummary: [] // Could pull this from mastery state if needed, but queue and concepts is usually enough
+    };
+    nextAction = resolveNextAction(ctx);
+
   } catch {
     return (
       <div className="container" style={{ padding: '0 2rem' }}>
@@ -89,7 +108,7 @@ export default async function WorkspacePage(props: { params: Promise<{ id: strin
       {currentPanel === 'study' && (
         <div style={{ display: 'grid', gap: '2rem', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 3fr)' }} className="dashboard-grid-responsive">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-            <NextActionPanel workspaceId={id} hasDocuments={documents.length > 0} hasConcepts={(initialGraph?.nodes?.length || 0) > 0} hasDueReviews={hasDueReviews} />
+            {nextAction && <NextActionPanel action={nextAction} />}
             
             <div className="card" style={{ padding: '1.5rem' }}>
               <h2 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '1rem', color: 'var(--ink)', borderBottom: '1px solid var(--line)', paddingBottom: '0.5rem' }}>Source Summary</h2>

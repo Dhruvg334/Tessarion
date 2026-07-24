@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
- 
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { retrieveRelevantChunks } from '@/lib/services/retrieval';
 import { successResponse, errorResponse, unauthorizedResponse } from '@/lib/validation/api-response';
@@ -16,7 +14,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
     const chunks = await retrieveRelevantChunks(workspaceId, user.id, body.query, body.options);
     return successResponse(chunks);
-  } catch (err: any) {
-    return errorResponse(err.message || 'Retrieval failed');
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Retrieval failed';
+    return errorResponse(msg);
   }
 }
