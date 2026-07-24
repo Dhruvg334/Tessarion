@@ -6,9 +6,15 @@ import { z } from 'zod';
 import { SECURITY_LIMITS } from '@/lib/security/limits';
 import { enforceRateLimit, RATE_LIMITS } from '@/lib/security/rate-limit';
 
+const RetrievalOptionsSchema = z.object({
+  mode: z.enum(['dense', 'sparse', 'hybrid']).optional(),
+  limit: z.number().int().min(1).max(20).optional(),
+  confidenceThreshold: z.number().min(0).max(1).optional(),
+}).optional();
+
 const RetrievalSchema = z.object({
   query: z.string().min(1, 'Query is required').max(SECURITY_LIMITS.MAX_RETRIEVAL_QUERY_LENGTH, 'Query is too long'),
-  options: z.any().optional() // simplified for now
+  options: RetrievalOptionsSchema,
 });
 
 export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {

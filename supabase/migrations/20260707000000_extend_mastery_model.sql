@@ -68,3 +68,8 @@ UPDATE public.mastery_records SET mastery_level = 'understood' WHERE mastery_lev
 ALTER TABLE public.mastery_records 
   ADD CONSTRAINT mastery_records_mastery_level_check 
   CHECK (mastery_level IN ('unassessed', 'insufficient_evidence', 'emerging', 'partial', 'understood', 'weak_connection', 'misconception', 'needs_review'));
+
+
+-- Explicit grants for tables created after the base grants migration.
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.mastery_signals TO authenticated;
+GRANT ALL ON public.mastery_signals TO service_role;

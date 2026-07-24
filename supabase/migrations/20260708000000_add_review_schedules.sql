@@ -54,3 +54,8 @@ CREATE TRIGGER update_review_schedules_updated_at
 BEFORE UPDATE ON public.review_schedules
 FOR EACH ROW
 EXECUTE FUNCTION public.set_current_timestamp_updated_at();
+
+
+-- Explicit grants for tables created after the base grants migration.
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.review_schedules TO authenticated;
+GRANT ALL ON public.review_schedules TO service_role;

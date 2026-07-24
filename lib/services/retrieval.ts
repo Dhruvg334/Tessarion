@@ -63,8 +63,7 @@ export async function retrieveHybridChunks(workspaceId: string, userId: string, 
   try {
     embedding = await generateQueryEmbedding(query);
   } catch (err) {
-    // If Gemini fails, fallback to sparse only
-    console.warn('Gemini embedding failed, falling back to sparse', err);
+    console.warn('Embedding generation failed; using sparse retrieval fallback', err);
     return retrieveSparseChunks(workspaceId, userId, query, options);
   }
 

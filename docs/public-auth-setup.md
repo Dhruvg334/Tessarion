@@ -13,8 +13,8 @@ Create `.env.local` and add the following keys. Do NOT commit your actual secret
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGci...
-SUPABASE_SERVICE_ROLE_KEY=eyJhbGci...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<your anon key>
+SUPABASE_SERVICE_ROLE_KEY=<your service role key>
 ```
 *(Note: `SUPABASE_SERVICE_ROLE_KEY` is server-only. Do not leak it into `NEXT_PUBLIC_`)*
 
@@ -43,5 +43,3 @@ To verify auth works properly:
 6. Create a workspace, open it, paste source material, extract concepts, and start a teach-back session.
 7. Click the **Log out** button in the header. You should be redirected to `/login` and unable to access `/dashboard`.
 
-### Profile Repair (Phase 6.3)
-Note that in local testing without the Supabase profile trigger enabled, createWorkspace explicitly handles profiles insertion via the service role to ensure a user profile exists, averting foreign key errors.
