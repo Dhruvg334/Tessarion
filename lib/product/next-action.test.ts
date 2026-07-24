@@ -39,7 +39,7 @@ describe('next-action resolver', () => {
   it('prioritizes continue_tutoring over everything else if session is active', () => {
     const action = resolveNextAction({
       ...baseCtx,
-      activeTutoringSessions: [{ id: 't1' }],
+      activeTutoringSessions: [{ id: 't1', status: 'active' }],
       reviewQueue: [{ id: 'r1', reason_type: 'misconception', priority: 'critical', status: 'due' }]
     });
     expect(action.type).toBe('continue_tutoring');
@@ -48,7 +48,7 @@ describe('next-action resolver', () => {
   it('returns retry_teach_back when tutoring just completed', () => {
     const action = resolveNextAction({
       ...baseCtx,
-      completedTutoringSessionsThisSession: [{ id: 't1' }]
+      completedTutoringSessionsThisSession: [{ id: 't1', status: 'completed' }]
     });
     expect(action.type).toBe('retry_teach_back');
   });

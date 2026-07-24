@@ -14,7 +14,7 @@ export const embeddingProviders: Record<string, EmbeddingProvider> = {
 };
 
 export const rerankProviders: Record<string, RerankProvider> = {
-  gemini: geminiProvider as unknown as RerankProvider, // Gemini doesn't have a direct rerank endpoint natively yet, we can build a stub
+  gemini: geminiProvider as unknown as RerankProvider,
   local: localProvider as unknown as RerankProvider,
   jina: jinaProvider,
   cohere: cohereProvider,

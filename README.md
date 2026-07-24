@@ -1,83 +1,110 @@
 # Tessarion
 
-Tessarion is an agent-driven learning platform designed to help users build a mastery of subjects through source-grounded concept extraction, teach-back sessions, and Socratic tutoring.
+Tessarion is a source-grounded learning workspace for building durable understanding from study material. Learners add source content, inspect an extracted concept graph, explain ideas through teach-back, receive evidence-backed feedback, and use guided review or Socratic tutoring to close gaps.
 
 ## Core Learning Loop
 
-1. **Source Ingestion:** Users upload or paste raw text documents. The system parses and chunks this content.
-2. **Concept Extraction:** An agent reads the chunks and extracts a semantic knowledge graph of core concepts and prerequisites.
-3. **Teach-Back:** The learner selects a concept and explains it in their own words. The system evaluates the explanation strictly against the source material.
-4. **Mastery & Review:** Successful explanations generate evidence of understanding, triggering a spaced-repetition review schedule.
-5. **Tutoring:** If the learner has misconceptions, a guided, multi-turn Socratic tutoring session helps them discover the right answer without spoon-feeding facts.
+1. **Add source material** — paste or upload study content into a notebook.
+2. **Build the concept graph** — extract concepts, prerequisites, and relationships from the source.
+3. **Teach back a concept** — explain the concept in your own words.
+4. **Detect gaps** — compare the explanation against source evidence and identify missing ideas, unsupported claims, or misconceptions.
+5. **Update mastery evidence** — record traceable mastery signals from teach-back feedback.
+6. **Schedule review** — create deterministic review recommendations from mastery state and signal history.
+7. **Use Socratic tutoring** — work through misconceptions or weak links one question at a time.
+8. **Retry teach-back** — tutoring prepares the learner; teach-back remains the evidence source for mastery.
 
-## Architecture & Tech Stack
+## Architecture
 
-- **Framework:** Next.js (App Router, React 19)
-- **Database:** Supabase (PostgreSQL, pgvector)
-- **AI/LLM Provider:** Google Gemini via Vercel AI SDK
-- **Styling:** CSS Modules / Vanilla CSS (strictly neutral palette: ink, paper, canvas)
+- **Frontend:** Next.js App Router, React, TypeScript
+- **Database:** Supabase PostgreSQL with RLS and pgvector-ready retrieval foundations
+- **AI orchestration:** Vercel AI SDK with provider-pluggable task boundaries
+- **Evaluation:** Offline deterministic eval harnesses for retrieval, concept extraction, teach-back, mastery, review, and tutoring
+- **UI system:** neutral notebook interface using paper, ink, and ruled-line styling
 
-## Agentic Workflow
+## Learning Systems
 
-Tessarion uses specialized agents for different tasks to ensure reliability and strict source-grounding:
-- **Concept Graph Builder:** Extracts nodes and edges from text.
-- **Teach-Back Evaluator:** Detects gaps, misconceptions, and missing prerequisites in student explanations.
-- **Socratic Tutor:** Decides the pedagogical "next move" (hint, question, summarize) based on the conversation history and concept state, then formulates a response grounded in the source text.
+### Source-grounded concept graph
+
+Tessarion chunks source material and extracts concepts with source references. The graph is used to help learners inspect the structure of a topic before teaching it back.
+
+### Teach-back evaluator
+
+The teach-back flow asks the learner to explain a concept. Feedback is grounded in available source chunks and records gaps, unsupported claims, and misconceptions.
+
+### Mastery ledger
+
+Mastery is not a simple score. Tessarion stores traceable mastery signals and derives a current state such as `partial`, `understood`, `needs_review`, or `misconception` from evidence.
+
+### Review scheduling
+
+Review items are generated from mastery evidence. The queue is deterministic and idempotent: one active review per concept, with stale items updated or suspended instead of duplicated.
+
+### Socratic tutoring
+
+Tutoring is guided practice, not a shortcut to mastery. The tutoring policy chooses a pedagogical move, then asks one source-grounded question at a time. Completing tutoring prompts the learner to retry teach-back instead of directly marking mastery as understood.
 
 ## Evaluation Harnesses
 
-Tessarion includes offline evaluation scripts to measure agent performance against deterministic baselines. These scripts do not call external APIs by default in CI environments:
+The repository includes local scripts for checking core behavior without external provider calls in CI:
 
-- \
-pm run eval:rag\: Tests vector retrieval accuracy.
-- \
-pm run eval:concepts\: Tests concept extraction coverage and graph validity.
-- \
-pm run eval:teachback\: Tests evaluation strictness on known good/bad explanations.
-- \
-pm run eval:mastery\: Verifies the deterministic ledger of mastery signals.
-- \
-pm run eval:review\: Tests spaced repetition scheduling logic.
-- \
-pm run eval:tutoring\: Validates the multi-turn tutor state machine and grounding.
+```bash
+npm run eval:rag
+npm run eval:concepts
+npm run eval:teachback
+npm run eval:mastery
+npm run eval:review
+npm run eval:tutoring
+```
+
+These scripts measure retrieval quality, concept extraction, feedback strictness, mastery-state behavior, review lifecycle behavior, and tutoring policy behavior against deterministic fixtures and thresholds.
 
 ## Local Setup
 
-1. **Install dependencies:**
-   \\\ash
-   npm install
-   \\\
+Install dependencies:
 
-2. **Database (Docker required):**
-   \\\ash
-   npx supabase start
-   \\\
+```bash
+npm install
+```
 
-3. **Environment Variables:**
-   Copy \.env.example\ to \.env.local\ and fill in the required keys.
-   - \NEXT_PUBLIC_SUPABASE_URL\
-   - \NEXT_PUBLIC_SUPABASE_ANON_KEY\
-   - \SUPABASE_SERVICE_ROLE_KEY\
-   - \GOOGLE_GENERATIVE_AI_API_KEY\
+Copy the environment template:
 
-4. **Run Development Server:**
-   \\\ash
-   npm run dev
-   \\\
+```bash
+copy .env.example .env.local
+```
 
-## Available Scripts
+Required environment variables include:
 
-- \
-pm run dev\: Starts the Next.js development server.
-- \
-pm run build\: Builds the production application.
-- \
-pm run lint\: Runs ESLint.
-- \
-pm run typecheck\: Runs TypeScript compiler checks.
-- \
-pm run test:run\: Runs unit tests via Vitest.
+```text
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+GOOGLE_GENERATIVE_AI_API_KEY=
+```
 
-## Current Status
+Start the local database when running Supabase-backed flows:
 
-Tessarion is actively developed. The core learning loop (Ingestion -> Graph -> Teach-Back -> Mastery -> Review -> Tutoring) is fully integrated.
+```bash
+npx supabase start
+npx supabase db reset
+npx supabase status
+```
+
+Run the development server:
+
+```bash
+npm run dev
+```
+
+## Scripts
+
+```bash
+npm run lint
+npm run typecheck
+npm run test:run
+npm run build
+npm audit --audit-level=moderate
+```
+
+## Status
+
+The core product loop is integrated: source ingestion, concept graph, teach-back, mastery evidence, review scheduling, and guided tutoring. Current work focuses on reliability, security hardening, deployment readiness, and final product polish.

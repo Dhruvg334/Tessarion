@@ -2,7 +2,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { retrieveRelevantChunks } from '@/lib/services/retrieval';
 import { successResponse, errorResponse, unauthorizedResponse } from '@/lib/validation/api-response';
 
-export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id: workspaceId } = await params;
     const supabase = await createServerSupabaseClient();
@@ -15,7 +15,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const chunks = await retrieveRelevantChunks(workspaceId, user.id, body.query, body.options);
     return successResponse(chunks);
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : 'Retrieval failed';
-    return errorResponse(msg);
+    console.error(err);
+    return errorResponse('Retrieval failed');
   }
 }

@@ -1,8 +1,23 @@
 import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { AppError } from '@/lib/errors/app-error';
 import * as documentService from '@/lib/services/documents';
 
-export async function GET(request: Request, { params }: { params: Promise<{ id: string, documentId: string }> }) {
+function documentRouteError(err: unknown) {
+  if (err instanceof AppError) {
+    const message = err.statusCode === 500 ? 'Internal Server Error' : err.message;
+    return NextResponse.json({ error: message }, { status: err.statusCode });
+  }
+
+  if (err instanceof Error && err.message.toLowerCase().includes('not found')) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+
+  console.error(err);
+  return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+}
+
+export async function GET(_request: Request, { params }: { params: Promise<{ id: string, documentId: string }> }) {
   try {
     const { id: workspaceId, documentId } = await params;
     const supabase = await createServerSupabaseClient();
@@ -11,14 +26,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
     const doc = await documentService.getDocument(documentId, workspaceId, user.id);
     return NextResponse.json({ data: doc });
-  } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : 'Unknown error';
-    if (msg.includes('not found')) return NextResponse.json({ error: 'Not found' }, { status: 404 });
-    return NextResponse.json({ error: msg }, { status: 500 });
+  } catch (err: unknown) {
+    return documentRouteError(err);
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: Promise<{ id: string, documentId: string }> }) {
+export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string, documentId: string }> }) {
   try {
     const { id: workspaceId, documentId } = await params;
     const supabase = await createServerSupabaseClient();
@@ -27,8 +40,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
 
     await documentService.deleteDocument(documentId, workspaceId, user.id);
     return new NextResponse(null, { status: 204 });
-  } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : 'Unknown error';
-    return NextResponse.json({ error: msg }, { status: 500 });
+  } catch (err: unknown) {
+    return documentRouteError(err);
   }
 }

@@ -13,7 +13,6 @@ export async function scheduleReviewsFromMastery(
 ): Promise<{ recommendation: ReviewRecommendation; action: 'created' | 'updated' | 'suspended' | 'skippedNotReady' | 'skippedUnderstoodCap' }> {
   const supabase = await createServerSupabaseClient();
 
-  // Scope validation
   const { data: ws, error: wsError } = await supabase
     .from('workspaces').select('id').eq('id', workspaceId).eq('user_id', userId).single();
   if (wsError || !ws) throw new AppError('UNAUTHORIZED', 403, 'Unauthorized');
@@ -22,7 +21,6 @@ export async function scheduleReviewsFromMastery(
     throw new AppError('INVALID_SCOPE', 400, 'Mastery does not belong to workspace or user');
   }
 
-  // Validate concept node belongs to workspace
   const { data: cNode, error: cError } = await supabase
     .from('concept_nodes')
     .select('id')
@@ -31,19 +29,15 @@ export async function scheduleReviewsFromMastery(
     .single();
   if (cError || !cNode) throw new AppError('INVALID_SCOPE', 400, 'Concept node does not belong to workspace');
 
-  // Validate mastery record exists in this scope
   const { data: mRecord, error: mError } = await supabase
     .from('mastery_records')
     .select('id')
     .eq('id', masteryRecordId)
-    .eq('workspace_id', workspaceId)
-    .eq('user_id', userId)
-    .eq('concept_id', mastery.conceptId)
+    .eq('concept_node_id', mastery.conceptId)
     .single();
 
   if (mError || !mRecord) throw new AppError('INVALID_SCOPE', 400, 'Mastery record does not exist in scope');
 
-  // Verify provided signal IDs belong to the same workspace, user, and concept where possible
   if (signalIds.length > 0) {
     const { data: validSignals, error: sigError } = await supabase
       .from('mastery_signals')
@@ -60,13 +54,12 @@ export async function scheduleReviewsFromMastery(
 
   const rec = calculateReviewRecommendation(mastery);
 
-  // Find existing active review for this concept
   const { data: existingActive, error: searchError } = await supabase
     .from('review_schedules')
     .select('id, status, reason_type')
     .eq('workspace_id', workspaceId)
     .eq('user_id', userId)
-    .eq('concept_id', mastery.conceptId)
+    .eq('concept_node_id', mastery.conceptId)
     .in('status', ['queued', 'due', 'overdue'])
     .maybeSingle();
 
@@ -75,7 +68,6 @@ export async function scheduleReviewsFromMastery(
   const isScheduleable = rec.suggestedReviewAt !== null && rec.priority !== null && rec.reasonType !== null;
 
   if (!isScheduleable) {
-    // If not scheduleable (e.g. unassessed, insufficient_evidence) and there is an active review, suspend it
     if (existingActive) {
       const { data: updData, error: updError } = await supabase.from('review_schedules')
         .update({ status: 'suspended', updated_at: new Date().toISOString() })
@@ -90,7 +82,6 @@ export async function scheduleReviewsFromMastery(
     return { recommendation: rec, action: 'skippedNotReady' };
   }
 
-  // Handle Understood cap
   if (rec.masteryState === 'understood') {
     const builder = supabase.from('review_schedules')
       .select('id', { count: 'exact', head: true })
@@ -101,7 +92,6 @@ export async function scheduleReviewsFromMastery(
     const { count, error: countError } = await builder;
     if (countError) throw new AppError('DB_ERROR', 500, countError.message);
     
-    // If we are at or above cap, and this concept does NOT already have an active scheduled_reinforcement review, skip it.
     const alreadyReinforcement = existingActive && existingActive.reason_type === 'scheduled_reinforcement';
     if (count !== null && count >= 3 && !alreadyReinforcement) {
       return { recommendation: rec, action: 'skippedUnderstoodCap' };
@@ -109,7 +99,6 @@ export async function scheduleReviewsFromMastery(
   }
 
   if (existingActive) {
-    // Update existing active
     const { data: updData, error: updError } = await supabase.from('review_schedules').update({
       mastery_record_id: masteryRecordId,
       priority: rec.priority,
@@ -126,7 +115,6 @@ export async function scheduleReviewsFromMastery(
     if (!updData || updData.length === 0) throw new AppError('NOT_FOUND', 404, 'Review schedule not found or unauthorized');
     return { recommendation: rec, action: 'updated' };
   } else {
-    // Insert new
     const { error: insError } = await supabase.from('review_schedules').insert({
       workspace_id: workspaceId,
       user_id: userId,
@@ -160,7 +148,6 @@ export async function getWorkspaceReviewQueue(workspaceId: string, userId: strin
     .eq('workspace_id', workspaceId)
     .eq('user_id', userId)
     .in('status', ['queued', 'due', 'overdue'])
-    .order('priority', { ascending: false }) // Postgres sorts strings, wait we need custom sort
     .order('scheduled_for', { ascending: true });
 
   if (error) throw new AppError('DB_ERROR', 500, error.message);
@@ -273,19 +260,34 @@ export async function skipReview(workspaceId: string, reviewId: string, userId: 
 
 export async function getConceptReviewRecommendation(workspaceId: string, conceptId: string, userId: string): Promise<ReviewRecommendation | null> {
   const supabase = await createServerSupabaseClient();
-  
+
+  const { data: concept, error: conceptError } = await supabase
+    .from('concept_nodes')
+    .select('id')
+    .eq('id', conceptId)
+    .eq('workspace_id', workspaceId)
+    .single();
+
+  if (conceptError || !concept) return null;
+
+  const { data: workspace, error: workspaceError } = await supabase
+    .from('workspaces')
+    .select('id')
+    .eq('id', workspaceId)
+    .eq('user_id', userId)
+    .single();
+
+  if (workspaceError || !workspace) return null;
+
   const { data: record, error } = await supabase
     .from('mastery_records')
     .select('mastery_level, evidence_count, attempts_count')
     .eq('concept_node_id', conceptId)
-    .eq('workspace_id', workspaceId)
-    .eq('user_id', userId)
     .maybeSingle();
 
   if (error || !record) return null;
 
-  // We can construct a mock ConceptMastery to pass into calculateReviewRecommendation
-  const mockMastery: ConceptMastery = {
+  const masteryForReview: ConceptMastery = {
     workspaceId,
     userId,
     conceptId,
@@ -301,7 +303,7 @@ export async function getConceptReviewRecommendation(workspaceId: string, concep
     explanation: ''
   };
 
-  return calculateReviewRecommendation(mockMastery);
+  return calculateReviewRecommendation(masteryForReview);
 }
 
 export async function scheduleReviewsFromWorkspaceMastery(workspaceId: string, userId: string) {
@@ -311,11 +313,20 @@ export async function scheduleReviewsFromWorkspaceMastery(workspaceId: string, u
     .from('workspaces').select('id').eq('id', workspaceId).eq('user_id', userId).single();
   if (wsError || !ws) throw new AppError('UNAUTHORIZED', 403, 'Unauthorized');
 
-  const { data: records, error: mError } = await supabase
-    .from('mastery_records')
-    .select('*')
-    .eq('workspace_id', workspaceId)
-    .eq('user_id', userId);
+  const { data: concepts, error: conceptsError } = await supabase
+    .from('concept_nodes')
+    .select('id')
+    .eq('workspace_id', workspaceId);
+
+  if (conceptsError) throw new AppError('DB_ERROR', 500, conceptsError.message);
+
+  const conceptIds = (concepts || []).map((concept) => concept.id);
+  const { data: records, error: mError } = conceptIds.length > 0
+    ? await supabase
+        .from('mastery_records')
+        .select('*')
+        .in('concept_node_id', conceptIds)
+    : { data: [], error: null };
     
   if (mError) throw new AppError('DB_ERROR', 500, mError.message);
   
@@ -330,7 +341,7 @@ export async function scheduleReviewsFromWorkspaceMastery(workspaceId: string, u
   };
 
   for (const record of records || []) {
-    const mockMastery: ConceptMastery = {
+    const masteryForReview: ConceptMastery = {
       workspaceId,
       userId,
       conceptId: record.concept_node_id,
@@ -346,7 +357,6 @@ export async function scheduleReviewsFromWorkspaceMastery(workspaceId: string, u
       explanation: ''
     };
     
-    // Fetch recent mastery signals for traceability
     const { data: signals, error: sigError } = await supabase
       .from('mastery_signals')
       .select('id')
@@ -370,7 +380,7 @@ export async function scheduleReviewsFromWorkspaceMastery(workspaceId: string, u
       }
     }
 
-    const { action } = await scheduleReviewsFromMastery(workspaceId, userId, mockMastery, record.id, signalIds);
+    const { action } = await scheduleReviewsFromMastery(workspaceId, userId, masteryForReview, record.id, signalIds);
     if (action === 'created') summary.created++;
     else if (action === 'updated') summary.updated++;
     else if (action === 'suspended') summary.suspended++;

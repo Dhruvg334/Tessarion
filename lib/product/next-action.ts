@@ -18,7 +18,7 @@ export interface NextAction {
   description: string;
   primaryActionLabel: string;
   primaryActionHref?: string;
-  action?: string; // used for frontend triggers if href is not applicable
+  action?: string;
   reason: string;
   priority: 'low' | 'medium' | 'high' | 'critical';
 }
@@ -28,9 +28,9 @@ export interface NextActionContext {
   sourceDocumentCount: number;
   conceptCount: number;
   teachBackSessionCount: number;
-  activeTutoringSessions: { id: string; status: string }[];
-  completedTutoringSessionsThisSession: { id: string; status: string }[]; // Or derive from tutoring status
-  reviewQueue: { status?: string; computedStatus?: string; priority: string; reason_type: string }[]; // queued or due
+  activeTutoringSessions: { id: string; status?: string }[];
+  completedTutoringSessionsThisSession: { id: string; status?: string }[];
+  reviewQueue: { id?: string; status?: string; computedStatus?: string; priority: string; reason_type?: string }[];
   masterySummary: { state: string; conceptId: string }[];
 }
 
