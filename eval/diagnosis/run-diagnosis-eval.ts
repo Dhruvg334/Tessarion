@@ -3,6 +3,7 @@ import { runLearningDiagnosis } from '@/lib/workflows/learning-diagnosis';
 
 interface DiagnosisEvalCase {
   id: string;
+  category: string;
   conceptName: string;
   conceptDefinition: string;
   learnerExplanation: string;
@@ -11,13 +12,16 @@ interface DiagnosisEvalCase {
   expectedStatus: string;
   expectedMastery: string | null;
   expectedNextAction: string;
+  expectedGapTypes: string[];
 }
 
 interface DiagnosisEvalResult {
   id: string;
+  category: string;
   routeMatch: boolean;
   masteryMatch: boolean;
   nextActionMatch: boolean;
+  gapTypesMatch: boolean;
   deterministic: boolean;
 }
 
@@ -31,11 +35,19 @@ const IDS = {
   conceptId: '77777777-7777-4777-8777-777777777777',
 };
 
+function normalizedGapTypes(gaps: Array<{ gapType: string }>): string[] {
+  return gaps.map((gap) => gap.gapType).sort();
+}
+
+function arraysEqual(left: string[], right: string[]): boolean {
+  return left.length === right.length && left.every((value, index) => value === right[index]);
+}
+
 async function main(): Promise<void> {
   const results: DiagnosisEvalResult[] = [];
 
   for (const testCase of cases as DiagnosisEvalCase[]) {
-    const first = await runLearningDiagnosis({
+    const input = {
       ...IDS,
       conceptName: testCase.conceptName,
       conceptDefinition: testCase.conceptDefinition,
@@ -43,46 +55,56 @@ async function main(): Promise<void> {
       sourceChunks: testCase.sourceChunks,
       prerequisiteConcepts: testCase.prerequisiteConcepts,
       existingMastery: null,
-    });
+    };
 
-    const second = await runLearningDiagnosis({
-      ...IDS,
-      conceptName: testCase.conceptName,
-      conceptDefinition: testCase.conceptDefinition,
-      learnerExplanation: testCase.learnerExplanation,
-      sourceChunks: testCase.sourceChunks,
-      prerequisiteConcepts: testCase.prerequisiteConcepts,
-      existingMastery: null,
-    });
+    const first = await runLearningDiagnosis(input);
+    const second = await runLearningDiagnosis(input);
+    const actualGapTypes = normalizedGapTypes(first.gaps);
+    const expectedGapTypes = [...testCase.expectedGapTypes].sort();
 
     results.push({
       id: testCase.id,
+      category: testCase.category,
       routeMatch: first.status === testCase.expectedStatus,
       masteryMatch: (first.mastery?.state ?? null) === testCase.expectedMastery,
       nextActionMatch: first.nextAction === testCase.expectedNextAction,
+      gapTypesMatch: arraysEqual(actualGapTypes, expectedGapTypes),
       deterministic:
         first.status === second.status &&
         first.mastery?.state === second.mastery?.state &&
         first.nextAction === second.nextAction &&
-        first.gaps.map((gap) => gap.gapType).join('|') === second.gaps.map((gap) => gap.gapType).join('|'),
+        arraysEqual(actualGapTypes, normalizedGapTypes(second.gaps)),
     });
   }
 
-  const rate = (key: keyof (typeof results)[number]) =>
+  const rate = (key: keyof DiagnosisEvalResult): number =>
     results.filter((result) => result[key] === true).length / results.length;
 
   const metrics = {
+    caseCount: results.length,
     routeAccuracy: rate('routeMatch'),
     masteryAccuracy: rate('masteryMatch'),
     nextActionAccuracy: rate('nextActionMatch'),
+    gapTypeAccuracy: rate('gapTypesMatch'),
     deterministicRepeatability: rate('deterministic'),
   };
 
   console.table(results);
   console.table(metrics);
 
-  const failed = Object.values(metrics).some((value) => value < 1);
-  if (failed) process.exitCode = 1;
+  const failedCases = results.filter(
+    (result) =>
+      !result.routeMatch ||
+      !result.masteryMatch ||
+      !result.nextActionMatch ||
+      !result.gapTypesMatch ||
+      !result.deterministic
+  );
+
+  if (failedCases.length > 0) {
+    console.error(`Diagnosis evaluation failed for ${failedCases.length} of ${results.length} cases.`);
+    process.exitCode = 1;
+  }
 }
 
 void main();

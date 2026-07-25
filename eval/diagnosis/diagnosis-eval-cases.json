@@ -1,61 +1,272 @@
 [
   {
-    "id": "diagnosis-grounded-understood",
+    "id": "diagnosis-grounded-first-attempt",
+    "category": "grounded_coverage",
     "conceptName": "Binary Search",
     "conceptDefinition": "Binary search repeatedly halves a sorted search interval.",
     "learnerExplanation": "Binary search repeatedly halves a sorted search interval until the target is found.",
-    "sourceChunks": [{ "id": "chunk-1", "content": "Binary search repeatedly halves a sorted search interval until the target is found." }],
+    "sourceChunks": [
+      {
+        "id": "chunk-1",
+        "content": "Binary search repeatedly halves a sorted search interval until the target is found."
+      }
+    ],
     "prerequisiteConcepts": [],
     "expectedStatus": "completed",
     "expectedMastery": "insufficient_evidence",
-    "expectedNextAction": "teach_back_again"
+    "expectedNextAction": "teach_back_again",
+    "expectedGapTypes": []
   },
   {
-    "id": "diagnosis-shallow",
+    "id": "diagnosis-shallow-name-only",
+    "category": "shallow_explanation",
     "conceptName": "Binary Search",
     "conceptDefinition": "Binary search repeatedly halves a sorted search interval.",
     "learnerExplanation": "Binary search.",
-    "sourceChunks": [{ "id": "chunk-1", "content": "Binary search repeatedly halves a sorted search interval until the target is found." }],
+    "sourceChunks": [
+      {
+        "id": "chunk-1",
+        "content": "Binary search repeatedly halves a sorted search interval until the target is found."
+      }
+    ],
     "prerequisiteConcepts": [],
     "expectedStatus": "completed",
     "expectedMastery": "partial",
-    "expectedNextAction": "teach_back_again"
+    "expectedNextAction": "teach_back_again",
+    "expectedGapTypes": [
+      "shallow_explanation"
+    ]
   },
   {
-    "id": "diagnosis-missing-core-concept",
+    "id": "diagnosis-shallow-short-phrase",
+    "category": "shallow_explanation",
+    "conceptName": "Hash Table",
+    "conceptDefinition": "A hash table maps keys to buckets using a hash function.",
+    "learnerExplanation": "It stores values.",
+    "sourceChunks": [
+      {
+        "id": "chunk-2",
+        "content": "A hash table maps keys to buckets using a hash function."
+      }
+    ],
+    "prerequisiteConcepts": [],
+    "expectedStatus": "completed",
+    "expectedMastery": "partial",
+    "expectedNextAction": "teach_back_again",
+    "expectedGapTypes": [
+      "shallow_explanation"
+    ]
+  },
+  {
+    "id": "diagnosis-missing-core-and-depth",
+    "category": "missing_concept",
     "conceptName": "Binary Search",
     "conceptDefinition": "Binary search repeatedly halves a sorted search interval.",
     "learnerExplanation": "The algorithm checks values and continues until it finds the target.",
-    "sourceChunks": [{ "id": "chunk-1", "content": "Binary search repeatedly halves a sorted search interval until the target is found." }],
+    "sourceChunks": [
+      {
+        "id": "chunk-1",
+        "content": "Binary search repeatedly halves a sorted search interval until the target is found."
+      }
+    ],
+    "prerequisiteConcepts": [],
+    "expectedStatus": "completed",
+    "expectedMastery": "emerging",
+    "expectedNextAction": "teach_back_again",
+    "expectedGapTypes": [
+      "missing_concept",
+      "shallow_explanation"
+    ]
+  },
+  {
+    "id": "diagnosis-missing-core-long-explanation",
+    "category": "missing_concept",
+    "conceptName": "Binary Search",
+    "conceptDefinition": "Binary search repeatedly halves a sorted search interval.",
+    "learnerExplanation": "The procedure examines a collection, compares the target with a current value, changes the remaining region after each comparison, and continues until the value is found or no candidates remain.",
+    "sourceChunks": [
+      {
+        "id": "chunk-1",
+        "content": "Binary search repeatedly halves a sorted search interval until the target is found."
+      }
+    ],
     "prerequisiteConcepts": [],
     "expectedStatus": "completed",
     "expectedMastery": "insufficient_evidence",
-    "expectedNextAction": "teach_back_again"
+    "expectedNextAction": "teach_back_again",
+    "expectedGapTypes": [
+      "missing_concept"
+    ]
   },
   {
     "id": "diagnosis-missing-prerequisite",
+    "category": "prerequisite",
     "conceptName": "Binary Search",
     "conceptDefinition": "Binary search repeatedly halves a sorted search interval.",
     "learnerExplanation": "Binary search repeatedly halves the interval to find a target.",
-    "sourceChunks": [{ "id": "chunk-1", "content": "Binary search requires a sorted collection and repeatedly halves the search interval." }],
-    "prerequisiteConcepts": ["sorted collection"],
+    "sourceChunks": [
+      {
+        "id": "chunk-1",
+        "content": "Binary search requires a sorted collection and repeatedly halves the search interval."
+      }
+    ],
+    "prerequisiteConcepts": [
+      "sorted collection"
+    ],
     "expectedStatus": "completed",
     "expectedMastery": "needs_review",
-    "expectedNextAction": "start_tutoring"
+    "expectedNextAction": "start_tutoring",
+    "expectedGapTypes": [
+      "missing_prerequisite"
+    ]
   },
   {
-    "id": "diagnosis-unsupported-absolute",
+    "id": "diagnosis-prerequisite-covered",
+    "category": "prerequisite",
+    "conceptName": "Binary Search",
+    "conceptDefinition": "Binary search repeatedly halves a sorted search interval.",
+    "learnerExplanation": "Binary search needs a sorted collection and repeatedly halves the search interval around the target.",
+    "sourceChunks": [
+      {
+        "id": "chunk-1",
+        "content": "Binary search requires a sorted collection and repeatedly halves the search interval."
+      }
+    ],
+    "prerequisiteConcepts": [
+      "sorted collection"
+    ],
+    "expectedStatus": "completed",
+    "expectedMastery": "insufficient_evidence",
+    "expectedNextAction": "teach_back_again",
+    "expectedGapTypes": []
+  },
+  {
+    "id": "diagnosis-unsupported-always",
+    "category": "unsupported_claim",
     "conceptName": "Binary Search",
     "conceptDefinition": "Binary search repeatedly halves a sorted search interval.",
     "learnerExplanation": "Binary search always works perfectly on every collection because it halves the interval.",
-    "sourceChunks": [{ "id": "chunk-1", "content": "Binary search requires a sorted collection and repeatedly halves the search interval." }],
+    "sourceChunks": [
+      {
+        "id": "chunk-1",
+        "content": "Binary search requires a sorted collection and repeatedly halves the search interval."
+      }
+    ],
     "prerequisiteConcepts": [],
     "expectedStatus": "completed",
     "expectedMastery": "needs_review",
-    "expectedNextAction": "start_tutoring"
+    "expectedNextAction": "start_tutoring",
+    "expectedGapTypes": [
+      "unsupported_claim"
+    ]
   },
   {
-    "id": "diagnosis-no-source-evidence",
+    "id": "diagnosis-unsupported-never",
+    "category": "unsupported_claim",
+    "conceptName": "Linked List",
+    "conceptDefinition": "A linked list stores values in nodes connected by references.",
+    "learnerExplanation": "A linked list never needs traversal because every node can be accessed directly by an index.",
+    "sourceChunks": [
+      {
+        "id": "chunk-3",
+        "content": "A linked list stores values in nodes connected by references and is traversed node by node."
+      }
+    ],
+    "prerequisiteConcepts": [],
+    "expectedStatus": "completed",
+    "expectedMastery": "needs_review",
+    "expectedNextAction": "start_tutoring",
+    "expectedGapTypes": [
+      "unsupported_claim"
+    ]
+  },
+  {
+    "id": "diagnosis-contradiction-unlike",
+    "category": "misconception",
+    "conceptName": "Queue",
+    "conceptDefinition": "A queue follows first-in, first-out ordering.",
+    "learnerExplanation": "A queue uses first-in, first-out ordering, unlike a queue where the newest item is removed first.",
+    "sourceChunks": [
+      {
+        "id": "chunk-4",
+        "content": "A queue follows first-in, first-out ordering."
+      }
+    ],
+    "prerequisiteConcepts": [],
+    "expectedStatus": "completed",
+    "expectedMastery": "needs_review",
+    "expectedNextAction": "start_tutoring",
+    "expectedGapTypes": [
+      "misconception"
+    ]
+  },
+  {
+    "id": "diagnosis-missing-core-plus-misconception",
+    "category": "mixed_gaps",
+    "conceptName": "Binary Search",
+    "conceptDefinition": "Binary search repeatedly halves a sorted search interval.",
+    "learnerExplanation": "This procedure scans through many values in sequence and keeps moving forward, unlike methods that divide a sorted region into smaller halves after each comparison with the target value.",
+    "sourceChunks": [
+      {
+        "id": "chunk-1",
+        "content": "Binary search requires a sorted collection and repeatedly halves the search interval."
+      }
+    ],
+    "prerequisiteConcepts": [],
+    "expectedStatus": "completed",
+    "expectedMastery": "needs_review",
+    "expectedNextAction": "start_tutoring",
+    "expectedGapTypes": [
+      "missing_concept",
+      "misconception"
+    ]
+  },
+  {
+    "id": "diagnosis-definition-only-grounding",
+    "category": "definition_only",
+    "conceptName": "Stack",
+    "conceptDefinition": "A stack follows last-in, first-out ordering.",
+    "learnerExplanation": "A stack follows last-in, first-out ordering, so the most recently added item is removed first.",
+    "sourceChunks": [],
+    "prerequisiteConcepts": [],
+    "expectedStatus": "completed",
+    "expectedMastery": "insufficient_evidence",
+    "expectedNextAction": "teach_back_again",
+    "expectedGapTypes": []
+  },
+  {
+    "id": "diagnosis-definition-only-shallow",
+    "category": "definition_only",
+    "conceptName": "Stack",
+    "conceptDefinition": "A stack follows last-in, first-out ordering.",
+    "learnerExplanation": "Stack.",
+    "sourceChunks": [],
+    "prerequisiteConcepts": [],
+    "expectedStatus": "completed",
+    "expectedMastery": "partial",
+    "expectedNextAction": "teach_back_again",
+    "expectedGapTypes": [
+      "shallow_explanation"
+    ]
+  },
+  {
+    "id": "diagnosis-definition-only-unsupported",
+    "category": "definition_only",
+    "conceptName": "Stack",
+    "conceptDefinition": "A stack follows last-in, first-out ordering.",
+    "learnerExplanation": "A stack follows last-in, first-out ordering and always removes the newest item, so it can never support any other operation.",
+    "sourceChunks": [],
+    "prerequisiteConcepts": [],
+    "expectedStatus": "completed",
+    "expectedMastery": "needs_review",
+    "expectedNextAction": "start_tutoring",
+    "expectedGapTypes": [
+      "unsupported_claim"
+    ]
+  },
+  {
+    "id": "diagnosis-no-source-or-definition",
+    "category": "insufficient_evidence",
     "conceptName": "Binary Search",
     "conceptDefinition": "",
     "learnerExplanation": "Binary search repeatedly halves an interval.",
@@ -63,6 +274,64 @@
     "prerequisiteConcepts": [],
     "expectedStatus": "insufficient_evidence",
     "expectedMastery": null,
-    "expectedNextAction": "continue_learning"
+    "expectedNextAction": "continue_learning",
+    "expectedGapTypes": []
+  },
+  {
+    "id": "diagnosis-whitespace-definition-no-source",
+    "category": "insufficient_evidence",
+    "conceptName": "Tree Traversal",
+    "conceptDefinition": "   ",
+    "learnerExplanation": "Tree traversal visits nodes in a defined order.",
+    "sourceChunks": [],
+    "prerequisiteConcepts": [],
+    "expectedStatus": "insufficient_evidence",
+    "expectedMastery": null,
+    "expectedNextAction": "continue_learning",
+    "expectedGapTypes": []
+  },
+  {
+    "id": "diagnosis-multiple-prerequisites-first-missing",
+    "category": "prerequisite",
+    "conceptName": "Dijkstra Algorithm",
+    "conceptDefinition": "Dijkstra's algorithm finds shortest paths from a source in a graph with non-negative edge weights.",
+    "learnerExplanation": "Dijkstra algorithm finds shortest paths from a source by repeatedly selecting the nearest unvisited node and relaxing its outgoing edges.",
+    "sourceChunks": [
+      {
+        "id": "chunk-5",
+        "content": "Dijkstra's algorithm requires a weighted graph with non-negative edge weights."
+      }
+    ],
+    "prerequisiteConcepts": [
+      "weighted graph",
+      "non-negative edge weights"
+    ],
+    "expectedStatus": "completed",
+    "expectedMastery": "needs_review",
+    "expectedNextAction": "start_tutoring",
+    "expectedGapTypes": [
+      "missing_prerequisite"
+    ]
+  },
+  {
+    "id": "diagnosis-multiple-prerequisites-covered",
+    "category": "prerequisite",
+    "conceptName": "Dijkstra Algorithm",
+    "conceptDefinition": "Dijkstra's algorithm finds shortest paths from a source in a graph with non-negative edge weights.",
+    "learnerExplanation": "Dijkstra algorithm works on a weighted graph with non-negative edge weights, repeatedly selecting the nearest unvisited node and relaxing its outgoing edges.",
+    "sourceChunks": [
+      {
+        "id": "chunk-5",
+        "content": "Dijkstra's algorithm requires a weighted graph with non-negative edge weights."
+      }
+    ],
+    "prerequisiteConcepts": [
+      "weighted graph",
+      "non-negative edge weights"
+    ],
+    "expectedStatus": "completed",
+    "expectedMastery": "insufficient_evidence",
+    "expectedNextAction": "teach_back_again",
+    "expectedGapTypes": []
   }
 ]
