@@ -1,0 +1,38 @@
+[
+  {
+    "id": "prerequisite-arrays",
+    "seedConceptIds": ["arrays"],
+    "relationshipTypes": ["prerequisite"],
+    "direction": "incoming",
+    "maxDepth": 1,
+    "expectedConceptIds": ["contiguous-memory"],
+    "expectedEvidenceChunkIds": ["chunk-memory"]
+  },
+  {
+    "id": "array-effects",
+    "seedConceptIds": ["arrays"],
+    "relationshipTypes": ["causal"],
+    "direction": "outgoing",
+    "maxDepth": 1,
+    "expectedConceptIds": ["index-access"],
+    "expectedEvidenceChunkIds": ["chunk-index"]
+  },
+  {
+    "id": "linked-list-prerequisite",
+    "seedConceptIds": ["linked-lists"],
+    "relationshipTypes": ["prerequisite"],
+    "direction": "incoming",
+    "maxDepth": 1,
+    "expectedConceptIds": ["node-reference"],
+    "expectedEvidenceChunkIds": ["chunk-reference"]
+  },
+  {
+    "id": "bounded-two-hop",
+    "seedConceptIds": ["index-access"],
+    "relationshipTypes": ["causal", "prerequisite"],
+    "direction": "incoming",
+    "maxDepth": 2,
+    "expectedConceptIds": ["arrays", "contiguous-memory"],
+    "expectedEvidenceChunkIds": ["chunk-index", "chunk-memory"]
+  }
+]

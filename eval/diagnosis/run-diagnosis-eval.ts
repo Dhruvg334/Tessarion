@@ -13,6 +13,14 @@ interface DiagnosisEvalCase {
   expectedNextAction: string;
 }
 
+interface DiagnosisEvalResult {
+  id: string;
+  routeMatch: boolean;
+  masteryMatch: boolean;
+  nextActionMatch: boolean;
+  deterministic: boolean;
+}
+
 const IDS = {
   runId: '11111111-1111-4111-8111-111111111111',
   traceId: '22222222-2222-4222-8222-222222222222',
@@ -24,7 +32,7 @@ const IDS = {
 };
 
 async function main(): Promise<void> {
-  const results = [];
+  const results: DiagnosisEvalResult[] = [];
 
   for (const testCase of cases as DiagnosisEvalCase[]) {
     const first = await runLearningDiagnosis({

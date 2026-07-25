@@ -17,8 +17,10 @@ Tessarion is a source-grounded learning workspace for building durable understan
 
 - **Frontend:** Next.js App Router, React, TypeScript
 - **Database:** Supabase PostgreSQL with RLS and pgvector-ready retrieval foundations
-- **AI orchestration:** Vercel AI SDK with provider-pluggable task boundaries
-- **Evaluation:** Offline deterministic eval harnesses for retrieval, concept extraction, teach-back, mastery, review, and tutoring
+- **AI orchestration:** Provider-pluggable task boundaries plus typed rebuild workflow contracts; production LangGraph integration remains planned
+- **Retrieval:** Local deterministic hybrid retrieval with Qdrant projection contracts; Postgres remains canonical
+- **Knowledge graph:** Canonical Postgres concepts with a bounded local graph engine and a derived Neo4j projection adapter
+- **Evaluation:** Offline deterministic harnesses for retrieval, diagnosis, graph traversal, concept extraction, teach-back, mastery, review, and tutoring
 - **UI system:** neutral notebook interface using paper, ink, and ruled-line styling
 
 ## Learning Systems
@@ -54,9 +56,13 @@ npm run eval:teachback
 npm run eval:mastery
 npm run eval:review
 npm run eval:tutoring
+npm run eval:foundation
+npm run eval:diagnosis
+npm run eval:retrieval-v2
+npm run eval:graph-v2
 ```
 
-These scripts measure retrieval quality, concept extraction, feedback strictness, mastery-state behavior, review lifecycle behavior, and tutoring policy behavior against deterministic fixtures and thresholds.
+These scripts measure retrieval quality, workflow routing, diagnosis behavior, graph-path and evidence recall, concept extraction, feedback strictness, mastery-state behavior, review lifecycle behavior, and tutoring policy behavior against deterministic fixtures and thresholds.
 
 ## Local Setup
 
@@ -107,11 +113,7 @@ npm audit --audit-level=moderate
 
 ## Status
 
-The core product loop is integrated: source ingestion, concept graph, teach-back, mastery evidence, review scheduling, and guided tutoring. Current work focuses on reliability, security hardening, deployment readiness, and final product polish.
+The original product loop remains integrated. Rebuild B has added versioned prompt and workflow contracts, typed internal tools, deterministic learning diagnosis, hybrid retrieval foundations, and a bounded graph projection layer. Qdrant, Neo4j, LangGraph, MCP, and trace-export infrastructure are not yet presented as production-complete integrations.
 
 - **Observability:** Strict, privacy-focused operational event logging for debugging and workspace transparency. See [Observability Model](docs/public-observability-model.md).
 - **Security:** Rate limiting and payload constraints on all high-risk routes. See [Security Model](docs/public-security-model.md).
-
-## Rebuild status
-
-Tessarion is undergoing a controlled architecture and product rebuild. Rebuild B1 establishes versioned prompt contracts, typed workflow and tool boundaries, a safe trace model, and versioned evaluation datasets. Planned integrations such as LangGraph, Qdrant, Neo4j, MCP, and Phoenix are not described as production-complete until their implementation phases pass their quality gates.
