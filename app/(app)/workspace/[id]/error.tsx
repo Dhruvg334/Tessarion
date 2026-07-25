@@ -17,7 +17,7 @@ export default function WorkspaceError({
     <div className="container" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
       <h2 style={{ fontSize: '1.5rem', fontWeight: 600, color: 'var(--error)', marginBottom: '1rem' }}>Something went wrong!</h2>
       <p style={{ color: 'var(--ink-soft)', marginBottom: '2rem' }}>
-        We encountered a problem loading this workspace.
+        Tessarion could not connect to Supabase. Check your local Supabase service and environment variables.
       </p>
       <button
         onClick={() => reset()}
