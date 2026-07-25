@@ -1,0 +1,68 @@
+[
+  {
+    "id": "diagnosis-grounded-understood",
+    "conceptName": "Binary Search",
+    "conceptDefinition": "Binary search repeatedly halves a sorted search interval.",
+    "learnerExplanation": "Binary search repeatedly halves a sorted search interval until the target is found.",
+    "sourceChunks": [{ "id": "chunk-1", "content": "Binary search repeatedly halves a sorted search interval until the target is found." }],
+    "prerequisiteConcepts": [],
+    "expectedStatus": "completed",
+    "expectedMastery": "insufficient_evidence",
+    "expectedNextAction": "teach_back_again"
+  },
+  {
+    "id": "diagnosis-shallow",
+    "conceptName": "Binary Search",
+    "conceptDefinition": "Binary search repeatedly halves a sorted search interval.",
+    "learnerExplanation": "Binary search.",
+    "sourceChunks": [{ "id": "chunk-1", "content": "Binary search repeatedly halves a sorted search interval until the target is found." }],
+    "prerequisiteConcepts": [],
+    "expectedStatus": "completed",
+    "expectedMastery": "partial",
+    "expectedNextAction": "teach_back_again"
+  },
+  {
+    "id": "diagnosis-missing-core-concept",
+    "conceptName": "Binary Search",
+    "conceptDefinition": "Binary search repeatedly halves a sorted search interval.",
+    "learnerExplanation": "The algorithm checks values and continues until it finds the target.",
+    "sourceChunks": [{ "id": "chunk-1", "content": "Binary search repeatedly halves a sorted search interval until the target is found." }],
+    "prerequisiteConcepts": [],
+    "expectedStatus": "completed",
+    "expectedMastery": "insufficient_evidence",
+    "expectedNextAction": "teach_back_again"
+  },
+  {
+    "id": "diagnosis-missing-prerequisite",
+    "conceptName": "Binary Search",
+    "conceptDefinition": "Binary search repeatedly halves a sorted search interval.",
+    "learnerExplanation": "Binary search repeatedly halves the interval to find a target.",
+    "sourceChunks": [{ "id": "chunk-1", "content": "Binary search requires a sorted collection and repeatedly halves the search interval." }],
+    "prerequisiteConcepts": ["sorted collection"],
+    "expectedStatus": "completed",
+    "expectedMastery": "needs_review",
+    "expectedNextAction": "start_tutoring"
+  },
+  {
+    "id": "diagnosis-unsupported-absolute",
+    "conceptName": "Binary Search",
+    "conceptDefinition": "Binary search repeatedly halves a sorted search interval.",
+    "learnerExplanation": "Binary search always works perfectly on every collection because it halves the interval.",
+    "sourceChunks": [{ "id": "chunk-1", "content": "Binary search requires a sorted collection and repeatedly halves the search interval." }],
+    "prerequisiteConcepts": [],
+    "expectedStatus": "completed",
+    "expectedMastery": "needs_review",
+    "expectedNextAction": "start_tutoring"
+  },
+  {
+    "id": "diagnosis-no-source-evidence",
+    "conceptName": "Binary Search",
+    "conceptDefinition": "",
+    "learnerExplanation": "Binary search repeatedly halves an interval.",
+    "sourceChunks": [],
+    "prerequisiteConcepts": [],
+    "expectedStatus": "insufficient_evidence",
+    "expectedMastery": null,
+    "expectedNextAction": "continue_learning"
+  }
+]

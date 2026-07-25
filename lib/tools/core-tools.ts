@@ -14,7 +14,7 @@ const RetrievedChunkSchema = z.object({
   tokenCount: z.number(),
   sectionHint: z.string().optional(),
   confidence: z.number(),
-}).passthrough();
+});
 
 const RetrieveEvidenceInputSchema = z.object({
   query: z.string().min(1).max(2_000),

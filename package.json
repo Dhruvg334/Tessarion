@@ -17,7 +17,8 @@
     "eval:mastery": "tsx eval/mastery/run-mastery-eval.ts",
     "eval:review": "tsx eval/review/run-review-eval.ts",
     "eval:tutoring": "tsx eval/tutoring/run-tutoring-eval.ts",
-    "eval:foundation": "tsx eval/framework/run-foundation-eval.ts"
+    "eval:foundation": "tsx eval/framework/run-foundation-eval.ts",
+    "eval:diagnosis": "tsx eval/diagnosis/run-diagnosis-eval.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^4.0.7",
