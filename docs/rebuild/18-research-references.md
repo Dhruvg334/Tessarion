@@ -57,3 +57,14 @@ This document records the official documentation sources and framework versions 
     - **Version/Date:** `ai` package / Accessed Jul 2026
     - **Source:** [sdk.vercel.ai/docs](https://sdk.vercel.ai/docs)
     - **Key Validations:** `embed` abstraction, `generateObject` Zod integrations.
+
+## Rebuild B1 implementation references
+
+- LangGraph JavaScript persistence and checkpoints: https://docs.langchain.com/oss/javascript/langgraph/persistence
+- LangGraph graph API: https://docs.langchain.com/oss/javascript/langgraph/graph-api
+- Official MCP TypeScript SDK: https://github.com/modelcontextprotocol/typescript-sdk
+- MCP TypeScript server guide: https://github.com/modelcontextprotocol/typescript-sdk/blob/main/docs/server.md
+- Promptfoo test cases and datasets: https://www.promptfoo.dev/docs/configuration/test-cases/
+- Promptfoo assertions and metrics: https://www.promptfoo.dev/docs/configuration/expected-outputs/
+- Phoenix TypeScript SDK: https://arize.com/docs/phoenix/sdk-api-reference/typescript/overview
+- Phoenix Vercel AI SDK tracing: https://arize.com/docs/phoenix/integrations/typescript/vercel/vercel-ai-sdk-tracing-js

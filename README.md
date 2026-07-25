@@ -111,3 +111,7 @@ The core product loop is integrated: source ingestion, concept graph, teach-back
 
 - **Observability:** Strict, privacy-focused operational event logging for debugging and workspace transparency. See [Observability Model](docs/public-observability-model.md).
 - **Security:** Rate limiting and payload constraints on all high-risk routes. See [Security Model](docs/public-security-model.md).
+
+## Rebuild status
+
+Tessarion is undergoing a controlled architecture and product rebuild. Rebuild B1 establishes versioned prompt contracts, typed workflow and tool boundaries, a safe trace model, and versioned evaluation datasets. Planned integrations such as LangGraph, Qdrant, Neo4j, MCP, and Phoenix are not described as production-complete until their implementation phases pass their quality gates.
