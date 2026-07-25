@@ -1,92 +1,69 @@
 import Link from 'next/link';
+import { SiteShell } from '@/components/site/site-shell';
 
 export default function MarketingPage() {
   return (
-    <main>
-      <section className="container" style={{ padding: '8rem 2rem 6rem', textAlign: 'center', maxWidth: 800 }}>
-        <h1 className="handwritten" style={{ fontSize: 'clamp(4rem, 8vw, 6rem)', lineHeight: 1, marginBottom: '1.5rem', color: 'var(--ink)' }}>
+    <SiteShell>
+      <section className="container" style={{ padding: '8rem 2rem 6rem', textAlign: 'center', maxWidth: '800px', margin: '0 auto' }}>
+        <h1 className="handwritten" style={{ fontSize: 'clamp(3.5rem, 8vw, 5rem)', lineHeight: 1, marginBottom: '1.5rem', color: 'var(--ink)' }}>
           Tessarion
         </h1>
-        <p className="subtitle" style={{ fontSize: '1.25rem', marginBottom: '2.5rem', marginInline: 'auto', color: 'var(--ink)' }}>
+        <p className="subtitle" style={{ fontSize: '1.25rem', marginBottom: '3rem', color: 'var(--ink)' }}>
           A study workspace that builds understanding through explanation, not just reading. Upload materials, visualize concepts, and test your knowledge by teaching it back.
         </p>
         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link href="/signup" className="btn">Start learning</Link>
-          <Link href="/how-it-works" className="btn btn-secondary">See how it works</Link>
+          <Link href="/signup" className="btn" style={{ padding: '0.75rem 2rem', fontSize: '1.1rem' }}>Start learning</Link>
+          <Link href="/how-it-works" className="btn btn-secondary" style={{ padding: '0.75rem 2rem', fontSize: '1.1rem' }}>See how it works</Link>
         </div>
       </section>
 
       <section className="container-wide" style={{ paddingTop: '5rem', paddingBottom: '5rem', borderTop: '1px solid var(--line)' }}>
-        <div style={{ textAlign: 'center', marginBottom: '4rem', maxWidth: 640, marginInline: 'auto' }}>
-          <p className="eyebrow" style={{ marginBottom: '0.75rem' }}>The Workspace Loop</p>
-          <h2 className="title" style={{ fontSize: '2.25rem' }}>A workspace, not a chatbot.</h2>
-          <p className="subtitle" style={{ marginTop: '1rem' }}>Tessarion forces you to do the hard work of generation. It is built for careful learning, grounding every interaction in the text you provide.</p>
+        <div style={{ textAlign: 'center', marginBottom: '4rem', maxWidth: '640px', margin: '0 auto' }}>
+          <p className="eyebrow" style={{ marginBottom: '0.75rem' }}>The Problem</p>
+          <h2 className="title" style={{ fontSize: '2.25rem' }}>Passive studying fails.</h2>
+          <p className="subtitle" style={{ marginTop: '1rem', fontSize: '1.1rem' }}>
+            Highlighting textbooks and taking multiple-choice quizzes creates an illusion of competence. When asked to explain a concept from scratch, the gaps in understanding become immediately obvious.
+          </p>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', padding: '3rem 0', maxWidth: '800px', margin: '0 auto' }}>
-          <div className="card card-ruled" style={{ width: '100%', padding: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 600, color: 'var(--ink)' }}>1. Source Material</h3>
-              <p style={{ color: 'var(--ink-soft)', marginTop: '0.5rem', maxWidth: '400px' }}>Upload your textbook chapters and notes. Tessarion will never invent facts outside your curriculum.</p>
-            </div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2rem', padding: '2rem 0', maxWidth: '800px', margin: '0 auto' }}>
+          <p className="eyebrow" style={{ alignSelf: 'flex-start', marginLeft: '1rem' }}>The Workspace Loop</p>
+          
+          <div className="card card-ruled" style={{ width: '100%', padding: '2rem' }}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 600, color: 'var(--ink)' }}>1. Add Material</h3>
+            <p style={{ color: 'var(--ink-soft)', marginTop: '0.5rem' }}>Upload your textbook chapters and notes. Tessarion will never invent facts outside your curriculum.</p>
           </div>
-          
-          <div style={{ width: '2px', height: '40px', backgroundColor: 'var(--ink-soft)' }} aria-hidden="true" />
-          
-          <div className="card card-ruled" style={{ width: '100%', padding: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 600, color: 'var(--ink)' }}>2. Knowledge Graph</h3>
-              <p style={{ color: 'var(--ink-soft)', marginTop: '0.5rem', maxWidth: '400px' }}>Concepts are extracted and mapped to prerequisites, creating a visual mental model of the subject.</p>
-            </div>
+
+          <div className="card card-ruled" style={{ width: '100%', padding: '2rem' }}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 600, color: 'var(--ink)' }}>2. Build Concept Map</h3>
+            <p style={{ color: 'var(--ink-soft)', marginTop: '0.5rem' }}>Tessarion analyzes the text and extracts a visual graph of concepts and their prerequisites.</p>
           </div>
-          
-          <div style={{ width: '2px', height: '40px', backgroundColor: 'var(--ink-soft)' }} aria-hidden="true" />
-          
-          <div className="card card-ruled" style={{ width: '100%', padding: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 600, color: 'var(--ink)' }}>3. Teach-Back</h3>
-              <p style={{ color: 'var(--ink-soft)', marginTop: '0.5rem', maxWidth: '400px' }}>Select a node in the graph and explain it from memory. The system detects gaps and unsupported claims.</p>
-            </div>
+
+          <div className="card card-ruled" style={{ width: '100%', padding: '2rem' }}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 600, color: 'var(--ink)' }}>3. Teach It Back</h3>
+            <p style={{ color: 'var(--ink-soft)', marginTop: '0.5rem' }}>Select a concept and explain it in your own words. The system evaluates your explanation against the source text.</p>
+          </div>
+
+          <div className="card card-ruled" style={{ width: '100%', padding: '2rem' }}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 600, color: 'var(--ink)' }}>4. Find Gaps & Review</h3>
+            <p style={{ color: 'var(--ink-soft)', marginTop: '0.5rem' }}>If you miss critical details, the system flags the gap, schedules a review, and offers guided Socratic tutoring to help you discover the answer.</p>
           </div>
         </div>
       </section>
 
-      <section className="container-wide" style={{ paddingTop: '5rem', paddingBottom: '5rem', borderTop: '1px solid var(--line)' }}>
-        <div style={{ textAlign: 'center', marginBottom: '4rem', maxWidth: 640, marginInline: 'auto' }}>
-          <p className="eyebrow" style={{ marginBottom: '0.75rem' }}>The Cognitive Science</p>
-          <h2 className="title" style={{ fontSize: '2.25rem' }}>Why teaching back works.</h2>
-          <p className="subtitle" style={{ marginTop: '1rem' }}>Rereading notes creates the illusion of competence. True mastery comes from struggling to recall and explain.</p>
-        </div>
-
-        <div className="flow-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2.5rem' }}>
-          <article className="flow-step card" style={{ padding: '2rem' }}>
-            <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem', fontWeight: 600 }}>Retrieval Practice</h3>
-            <p className="muted">
-              Every time you try to pull information from memory without looking at the answer, you strengthen the neural pathway. Tessarion forces you to explain concepts from memory before you can see the grounded feedback.
+      <section className="container" style={{ paddingTop: '5rem', paddingBottom: '6rem', borderTop: '1px solid var(--line)' }}>
+        <div style={{ textAlign: 'center', maxWidth: '640px', margin: '0 auto' }}>
+          <h2 className="title" style={{ fontSize: '2rem', marginBottom: '1rem' }}>What Tessarion is not.</h2>
+          <p className="subtitle" style={{ fontSize: '1.1rem', marginBottom: '2rem' }}>
+            It is not a chatbot that gives you the answers. It is not an essay writer. It will not pretend to know things outside of the documents you provide. It is a strict environment for building mastery through effort.
+          </p>
+          <div style={{ display: 'inline-block', padding: '1rem 1.5rem', border: '1px dashed var(--ink)', backgroundColor: 'var(--cream)', borderRadius: '4px' }}>
+            <p style={{ fontSize: '0.9rem', color: 'var(--ink-soft)' }}>
+              <strong>Current State:</strong> Tessarion is an active technical project. Not all edge cases are handled, but the core active recall loop is functional.
             </p>
-          </article>
-          
-          <article className="flow-step card" style={{ padding: '2rem' }}>
-            <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem', fontWeight: 600 }}>Metacognition</h3>
-            <p className="muted">
-              You don&apos;t know what you don&apos;t know until you try to teach it. Tessarion&apos;s gap detection compares your explanation directly against the source text to highlight omissions and weak connections.
-            </p>
-          </article>
-          
-          <article className="flow-step card" style={{ padding: '2rem' }}>
-            <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem', fontWeight: 600 }}>Grounded Feedback</h3>
-            <p className="muted">
-              Unlike generic chatbot responses, Tessarion explicitly highlights parts of your explanation that are unsupported by the uploaded curriculum, preventing hallucinated learning.
-            </p>
-          </article>
+          </div>
         </div>
       </section>
-
-      <section className="container" style={{ paddingTop: '6rem', paddingBottom: '6rem', textAlign: 'center' }}>
-        <h2 className="title" style={{ fontSize: '2rem', marginBottom: '1rem' }}>Ready to test your understanding?</h2>
-        <p className="subtitle" style={{ maxWidth: 500, marginInline: 'auto', marginBottom: '2.5rem' }}>Create your first notebook, add a study source, and try teaching it back.</p>
-        <Link href="/signup" className="btn" style={{ padding: '0.8rem 2rem', fontSize: '1.1rem' }}>Create notebook</Link>
-      </section>
-    </main>
+    </SiteShell>
   );
 }

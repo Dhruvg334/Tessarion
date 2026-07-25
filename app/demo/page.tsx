@@ -1,81 +1,48 @@
-import Link from 'next/link';
-import { SiteHeader } from '@/components/site/header';
-import { SiteFooter } from '@/components/site/footer';
+import { SiteShell } from '@/components/site/site-shell';
+import { Prose } from '@/components/site/prose';
+
+export const metadata = {
+  title: 'Demo | Tessarion',
+};
 
 export default function DemoPage() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <SiteHeader />
-      <main className="container-wide" style={{ flex: 1, paddingTop: '4rem', paddingBottom: '4rem' }}>
-        <div style={{ marginBottom: '3rem', textAlign: 'center' }}>
-          <span className="eyebrow" style={{ display: 'inline-block', border: '1px solid var(--line-strong)', padding: '0.35rem 0.75rem', borderRadius: 999, marginBottom: '1rem' }}>
-            Static preview
-          </span>
-          <h1 className="title">Demo workspace</h1>
-          <p className="subtitle" style={{ margin: '0 auto' }}>A non-authenticated preview of the source → graph → teach-back loop.</p>
+    <SiteShell className="container" style={{ padding: '4rem 2rem' }}>
+      <header style={{ textAlign: 'center', marginBottom: '4rem' }}>
+        <h1 className="title" style={{ fontSize: '3rem', marginBottom: '1.5rem', color: 'var(--ink)' }}>
+          Try Tessarion
+        </h1>
+        <p className="muted" style={{ fontSize: '1.25rem', maxWidth: '600px', margin: '0 auto', color: 'var(--ink-soft)' }}>
+          How to evaluate the system locally.
+        </p>
+      </header>
+
+      <Prose>
+        <p>
+          Tessarion does not currently offer a public, unauthenticated sandbox due to the high computational costs of building concept graphs and running evaluation models. 
+        </p>
+        <p>
+          However, you can run the entire system locally by cloning the repository and providing your own API keys.
+        </p>
+
+        <h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginTop: '2rem', marginBottom: '1rem' }}>Local Evaluation Flow</h3>
+        <p>Once deployed locally, we recommend the following flow to test the system&apos;s capabilities:</p>
+        <ol style={{ paddingLeft: '1.5rem', marginBottom: '2rem' }}>
+          <li style={{ marginBottom: '0.5rem' }}><strong>Create a Workspace:</strong> Make a notebook for a specific topic (e.g., &quot;Photosynthesis&quot;).</li>
+          <li style={{ marginBottom: '0.5rem' }}><strong>Upload Source Material:</strong> Paste in a dense, factual text of about 500-1000 words.</li>
+          <li style={{ marginBottom: '0.5rem' }}><strong>View the Graph:</strong> Watch as Tessarion extracts concepts and links them by prerequisites.</li>
+          <li style={{ marginBottom: '0.5rem' }}><strong>Teach-Back:</strong> Select a core concept and try to explain it. <em>First, try a perfect explanation. Then, try an explanation that intentionally misses a critical detail from your source text.</em></li>
+          <li style={{ marginBottom: '0.5rem' }}><strong>Observe the Gap Detection:</strong> See how the system strictly uses your uploaded text to identify what you missed, without hallucinating outside facts.</li>
+          <li style={{ marginBottom: '0.5rem' }}><strong>Try Socratic Tutoring:</strong> Click on the resulting review task and engage the tutor. Notice how it asks leading questions instead of just giving you the answer.</li>
+        </ol>
+
+        <div style={{ padding: '1.5rem', border: '1px solid var(--line-strong)', borderRadius: '4px', backgroundColor: 'var(--white)', marginTop: '3rem' }}>
+          <h4 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.5rem' }}>Suggested Sample Text</h4>
+          <p style={{ fontSize: '0.9rem', color: 'var(--ink-soft)', marginBottom: '1rem' }}>
+            If you need material to test with, try a short Wikipedia excerpt about a technical process. For example, the mechanism of action of Aspirin (Cyclooxygenase inhibition) works exceptionally well for generating a clear concept graph and testing precise explanations.
+          </p>
         </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '2rem' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-            <div className="card">
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 650, borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem', marginBottom: '1rem' }}>
-                Source documents
-              </h2>
-              <div style={{ padding: '1rem', background: 'var(--paper)', border: '1px solid var(--border)', borderRadius: '14px' }}>
-                <p style={{ fontWeight: 650 }}>Cellular Respiration — Chapter 9</p>
-                <p className="muted" style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>12 pages • 84 chunks</p>
-                <div style={{ marginTop: '1rem', fontSize: '0.875rem', color: 'var(--muted)', fontStyle: 'italic', paddingLeft: '1rem', borderLeft: '3px solid var(--line-strong)' }}>
-                  &quot;Glycolysis occurs in the cytosol and begins the degradation process by breaking glucose into two molecules of pyruvate...&quot;
-                </div>
-              </div>
-            </div>
-
-            <div className="card">
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 650, borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem', marginBottom: '1rem' }}>
-                Concept graph preview
-              </h2>
-              <div style={{ minHeight: '220px', display: 'grid', placeItems: 'center', background: 'var(--paper)', borderRadius: '16px', border: '1px dashed var(--line-strong)', color: 'var(--muted)', padding: '2rem' }}>
-                <div style={{ width: '100%', maxWidth: 360 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}><span className="arch-node">Glucose</span><span className="arch-node">ATP</span></div>
-                  <div style={{ textAlign: 'center', marginBottom: '1rem' }} className="annotation">leads into</div>
-                  <div style={{ display: 'flex', justifyContent: 'center' }}><span className="arch-node">Glycolysis</span></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="card" style={{ display: 'flex', flexDirection: 'column' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 650, borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem', marginBottom: '1rem' }}>
-              Teach-back session
-            </h2>
-            <div style={{ marginBottom: '1.5rem' }}>
-              <p style={{ fontWeight: 650, marginBottom: '0.5rem' }}>Concept: Glycolysis</p>
-              <p className="muted">Explain the role of ATP investment in the early stages of glycolysis.</p>
-            </div>
-
-            <div style={{ padding: '1.1rem', background: 'var(--paper)', border: '1px solid var(--border)', borderRadius: '16px', marginBottom: '1.5rem' }}>
-              <p className="annotation">
-                The cell spends ATP first to phosphorylate glucose, making it unstable so it can break apart later.
-              </p>
-            </div>
-
-            <div className="notice" style={{ marginBottom: '2rem' }}>
-              <h4 style={{ fontWeight: 750, marginBottom: '0.5rem' }}>Grounded feedback</h4>
-              <p style={{ fontSize: '0.92rem', marginBottom: '0.75rem' }}>
-                You correctly identified ATP investment and glucose phosphorylation.
-              </p>
-              <p style={{ fontSize: '0.92rem' }}>
-                <strong>Follow-up:</strong> According to the source, what enzyme catalyzes the first transfer?
-              </p>
-            </div>
-
-            <div style={{ marginTop: 'auto', textAlign: 'center' }}>
-              <Link href="/signup" className="btn" style={{ width: '100%' }}>Create account to try it</Link>
-            </div>
-          </div>
-        </div>
-      </main>
-      <SiteFooter />
-    </div>
+      </Prose>
+    </SiteShell>
   );
 }

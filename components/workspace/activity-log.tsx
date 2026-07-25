@@ -1,6 +1,4 @@
-'use client';
-
-import { useState, useEffect } from 'react';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 interface ActivityEvent {
   id: string;
@@ -11,46 +9,35 @@ interface ActivityEvent {
   created_at: string;
 }
 
-export function ActivityLog({ workspaceId }: { workspaceId: string }) {
-  const [events, setEvents] = useState<ActivityEvent[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export async function ActivityLog({ workspaceId }: { workspaceId: string }) {
+  const supabase = await createServerSupabaseClient();
+  const { data: { session } } = await supabase.auth.getSession();
 
-  useEffect(() => {
-    async function fetchEvents() {
-      try {
-        const res = await fetch(`/api/workspaces/${workspaceId}/activity`);
-        if (!res.ok) {
-          throw new Error('Failed to load activity log');
-        }
-        const data = await res.json();
-        setEvents(data);
-      } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : 'Unknown error');
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchEvents();
-  }, [workspaceId]);
-
-  if (loading) {
+  if (!session) {
     return (
-      <div className="card" style={{ padding: '2rem', textAlign: 'center' }}>
-        <p className="muted">Loading activity...</p>
+      <div className="card" style={{ padding: '2rem', borderLeft: '4px solid var(--error)' }}>
+        <p style={{ color: 'var(--error)' }}>Unauthorized</p>
       </div>
     );
   }
+
+  const { data: events, error } = await supabase
+    .from('operational_events')
+    .select('id, event_type, safe_message, entity_type, entity_id, created_at')
+    .eq('workspace_id', workspaceId)
+    .eq('user_id', session.user.id)
+    .order('created_at', { ascending: false })
+    .limit(50);
 
   if (error) {
     return (
       <div className="card" style={{ padding: '2rem', borderLeft: '4px solid var(--error)' }}>
-        <p style={{ color: 'var(--error)' }}>{error}</p>
+        <p style={{ color: 'var(--error)' }}>Failed to load activity log.</p>
       </div>
     );
   }
 
-  if (events.length === 0) {
+  if (!events || events.length === 0) {
     return (
       <div className="card" style={{ padding: '2rem', textAlign: 'center' }}>
         <p className="muted">No recent activity.</p>
@@ -68,7 +55,7 @@ export function ActivityLog({ workspaceId }: { workspaceId: string }) {
       </div>
       <div style={{ padding: '1.5rem' }}>
         <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {events.map((ev) => (
+          {events.map((ev: ActivityEvent) => (
             <li key={ev.id} style={{ marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid var(--line)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div>
