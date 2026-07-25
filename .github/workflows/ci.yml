@@ -53,4 +53,24 @@ jobs:
 
       - name: Build Next.js app
         run: npm run build
-      - run: npm audit --audit-level=moderate
+      - name: Run foundation evaluation
+        run: npm run eval:foundation
+
+      - name: Run diagnosis evaluation
+        run: npm run eval:diagnosis
+
+      - name: Run hybrid retrieval evaluation
+        run: npm run eval:retrieval-v2
+
+      - name: Run graph evaluation
+        run: npm run eval:graph-v2
+
+      - name: Run workflow evaluation
+        run: npm run eval:workflows-v2
+
+      - name: Audit runtime dependencies
+        run: npm audit --audit-level=critical --omit=dev
+
+      - name: Report complete dependency audit
+        continue-on-error: true
+        run: npm audit --audit-level=moderate

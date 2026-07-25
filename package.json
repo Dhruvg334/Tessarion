@@ -20,7 +20,8 @@
     "eval:foundation": "tsx eval/framework/run-foundation-eval.ts",
     "eval:diagnosis": "tsx eval/diagnosis/run-diagnosis-eval.ts",
     "eval:retrieval-v2": "tsx eval/retrieval-v2/run-retrieval-eval.ts",
-    "eval:graph-v2": "tsx eval/graph-v2/run-graph-eval.ts"
+    "eval:graph-v2": "tsx eval/graph-v2/run-graph-eval.ts",
+    "eval:workflows-v2": "tsx eval/workflows-v2/run-workflow-eval.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^4.0.7",
