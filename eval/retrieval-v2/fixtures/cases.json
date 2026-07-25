@@ -1,0 +1,12 @@
+[
+  {"id":"ret-001","query":"How do arrays support random access?","expectedChunkIds":["arrays"],"intent":"concept_explanation"},
+  {"id":"ret-002","query":"What links one node to the next in a linked list?","expectedChunkIds":["linked-lists"],"intent":"factual_lookup"},
+  {"id":"ret-003","query":"Compare stack and queue removal order","expectedChunkIds":["stack","queue"],"intent":"comparison"},
+  {"id":"ret-004","query":"Why is binary search not suitable for an unsorted sequence?","expectedChunkIds":["binary-search","sorting"],"intent":"prerequisite_lookup"},
+  {"id":"ret-005","query":"A learner says linked lists provide direct index access. Find corrective evidence.","expectedChunkIds":["linked-lists","arrays"],"intent":"misconception_diagnosis"},
+  {"id":"ret-006","query":"Which concept should be reviewed before tree traversal?","expectedChunkIds":["tree-traversal","recursion"],"intent":"review_recommendation"},
+  {"id":"ret-007","query":"Help a learner distinguish breadth-first and depth-first search","expectedChunkIds":["bfs","dfs"],"intent":"tutoring_recovery"},
+  {"id":"ret-008","query":"What is the amortized cost of dynamic array append?","expectedChunkIds":["dynamic-array"],"intent":"factual_lookup"},
+  {"id":"ret-009","query":"Explain collision handling in hash tables","expectedChunkIds":["hash-collision"],"intent":"concept_explanation"},
+  {"id":"ret-010","query":"What prerequisite is needed to understand Dijkstra's algorithm?","expectedChunkIds":["dijkstra","weighted-graph"],"intent":"prerequisite_lookup"}
+]
