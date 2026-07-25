@@ -2,13 +2,17 @@ import React from 'react';
 import { SiteHeader } from './header';
 import { SiteFooter } from './footer';
 
-export function SiteShell({ children, className = '', style }: { children: React.ReactNode, className?: string, style?: React.CSSProperties }) {
+interface SiteShellProps {
+  children: React.ReactNode;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+export function SiteShell({ children, className = '', style }: SiteShellProps) {
   return (
-    <div style={{ backgroundColor: 'var(--paper)', minHeight: '100vh', display: 'flex', flexDirection: 'column', ...style }}>
+    <div className="site-shell" style={style}>
       <SiteHeader />
-      <main className={className} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        {children}
-      </main>
+      <main className={className}>{children}</main>
       <SiteFooter />
     </div>
   );

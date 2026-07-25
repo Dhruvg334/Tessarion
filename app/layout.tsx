@@ -7,7 +7,7 @@ const caveat = Caveat({ subsets: ["latin"], display: "swap", variable: "--font-c
 
 export const metadata: Metadata = {
   title: "Tessarion — Learn by Teaching",
-  description: "An AI-powered deep learning workspace where students learn by teaching.",
+  description: "An evidence-linked learning workspace where students build understanding by teaching concepts back.",
 };
 
 export default function RootLayout({
