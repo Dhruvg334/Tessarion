@@ -6,6 +6,7 @@ export const WorkflowCheckpointStatusSchema = z.enum([
   'completed',
   'failed',
 ]);
+export type WorkflowCheckpointStatus = z.infer<typeof WorkflowCheckpointStatusSchema>;
 
 export const WorkflowCheckpointSchema = z.object({
   threadId: z.string().min(1).max(160),
