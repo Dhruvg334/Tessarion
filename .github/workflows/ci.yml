@@ -68,6 +68,13 @@ jobs:
       - name: Run workflow evaluation
         run: npm run eval:workflows-v2
 
+
+      - name: Run runtime evaluation
+        run: npm run eval:runtime-v2
+
+      - name: Run Rebuild B dataset quality gate
+        run: npm run eval:rebuild-b
+
       - name: Audit runtime dependencies
         run: npm audit --audit-level=critical --omit=dev
 

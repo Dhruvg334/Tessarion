@@ -337,3 +337,13 @@ npm run eval:workflows-v2
 **Tessarion is built as an inspectable learning system, not a black-box answer generator.**
 
 </div>
+
+## Rebuild B quality gate
+
+The backend rebuild now includes versioned workflow contracts, typed tools, deterministic workflow cores, hybrid retrieval, bounded graph projection, checkpoint persistence, and safe trace export boundaries. Run the complete dataset inventory with:
+
+```bash
+npm run eval:rebuild-b
+```
+
+The generated report is written to `eval/reports/rebuild-b-quality-gate.json`. External vector, graph, workflow, and tracing services remain derived infrastructure; Supabase/Postgres remains the canonical source of truth.

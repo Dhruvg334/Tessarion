@@ -22,7 +22,8 @@
     "eval:retrieval-v2": "tsx eval/retrieval-v2/run-retrieval-eval.ts",
     "eval:graph-v2": "tsx eval/graph-v2/run-graph-eval.ts",
     "eval:workflows-v2": "tsx eval/workflows-v2/run-workflow-eval.ts",
-    "eval:runtime-v2": "tsx eval/runtime-v2/run-runtime-eval.ts"
+    "eval:runtime-v2": "tsx eval/runtime-v2/run-runtime-eval.ts",
+    "eval:rebuild-b": "tsx eval/rebuild-b/run-rebuild-b-quality-gate.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^4.0.7",

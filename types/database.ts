@@ -267,3 +267,17 @@ export interface OperationalEventRow {
   created_at: string;
 }
 
+
+export interface WorkflowCheckpointRow {
+  checkpoint_id: string;
+  thread_id: string;
+  workflow_name: string;
+  workflow_version: string;
+  workspace_id: string;
+  user_id: string;
+  trace_id: string;
+  status: 'running' | 'waiting_for_input' | 'completed' | 'failed';
+  sequence: number;
+  state: Record<string, unknown>;
+  created_at: string;
+}
