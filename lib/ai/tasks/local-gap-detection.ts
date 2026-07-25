@@ -4,14 +4,34 @@ export interface LocalGapDetectionOptions {
   studentExplanation: string;
   conceptName: string;
   conceptDefinition?: string;
+  conceptNodeId?: string;
   sourceChunks?: { id: string; content: string }[];
   prerequisiteConcepts?: string[];
 }
 
 export async function detectGapsLocal(options: LocalGapDetectionOptions): Promise<GapFindingOutput[]> {
-  const { studentExplanation, conceptName, conceptDefinition = '', sourceChunks = [], prerequisiteConcepts = [] } = options;
+  const {
+    studentExplanation,
+    conceptName,
+    conceptDefinition = '',
+    conceptNodeId,
+    sourceChunks = [],
+    prerequisiteConcepts = [],
+  } = options;
   const gaps: GapFindingOutput[] = [];
   const text = studentExplanation.toLowerCase();
+  const primaryChunk = sourceChunks[0];
+  const groundedReference = primaryChunk
+    ? {
+        sourceEvidence: primaryChunk.content.substring(0, 100),
+        sourceChunkIds: [primaryChunk.id],
+        relatedConceptId: conceptNodeId,
+      }
+    : {
+        sourceEvidence: conceptDefinition.trim(),
+        sourceChunkIds: [] as string[],
+        relatedConceptId: conceptNodeId,
+      };
 
   // Basic length heuristic
   if (text.length < 20) {
@@ -19,8 +39,7 @@ export async function detectGapsLocal(options: LocalGapDetectionOptions): Promis
       gapType: 'shallow_explanation',
       description: 'The explanation is too brief to demonstrate full understanding.',
       severity: 'moderate',
-      sourceEvidence: sourceChunks.length > 0 ? sourceChunks[0].content.substring(0, 100) : '',
-      sourceChunkIds: sourceChunks.slice(0, 1).map(c => c.id),
+      ...groundedReference,
       confidenceScore: 0.8,
       groundingStatus: 'verified',
       extractionMethod: 'local_deterministic'
@@ -38,8 +57,7 @@ export async function detectGapsLocal(options: LocalGapDetectionOptions): Promis
       gapType: 'missing_concept',
       description: `The explanation does not explicitly mention or clearly refer to '${conceptName}'.`,
       severity: 'significant',
-      sourceEvidence: conceptDefinition.substring(0, 100),
-      sourceChunkIds: sourceChunks.slice(0, 1).map(c => c.id), // Pick first chunk as evidence
+      ...groundedReference,
       confidenceScore: 0.9,
       groundingStatus: 'verified',
       extractionMethod: 'local_deterministic'
@@ -53,8 +71,7 @@ export async function detectGapsLocal(options: LocalGapDetectionOptions): Promis
         gapType: 'missing_prerequisite',
         description: `The explanation fails to connect to the prerequisite concept '${prereq}'.`,
         severity: 'moderate',
-        sourceEvidence: sourceChunks.length > 0 ? sourceChunks[0].content.substring(0, 100) : '',
-        sourceChunkIds: sourceChunks.slice(0, 1).map(c => c.id),
+        ...groundedReference,
         confidenceScore: 0.7,
         groundingStatus: 'unverified',
         extractionMethod: 'local_deterministic'
@@ -77,8 +94,7 @@ export async function detectGapsLocal(options: LocalGapDetectionOptions): Promis
           gapType: 'shallow_explanation',
           description: 'The explanation lacks depth and key terminology.',
           severity: 'moderate',
-          sourceEvidence: conceptDefinition,
-          sourceChunkIds: sourceChunks.slice(0, 1).map(c => c.id),
+          ...groundedReference,
           confidenceScore: 0.75,
           groundingStatus: 'verified',
           extractionMethod: 'local_deterministic'

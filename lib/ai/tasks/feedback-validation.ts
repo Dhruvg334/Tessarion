@@ -14,8 +14,13 @@ export function validateTeachBackFeedback(summary: TeachBackSummary) {
   // Validate gaps
   for (const gap of summary.gaps) {
     if (gap.gapType !== 'unsupported_claim') {
-      if (!gap.sourceChunkIds || gap.sourceChunkIds.length === 0) {
-        errors.push(`Non-unsupported gap (${gap.gapType}) must have sourceChunkIds`);
+      const hasEvidenceReference =
+        Boolean(gap.relatedConceptId) || Boolean(gap.sourceChunkIds && gap.sourceChunkIds.length > 0);
+
+      if (!hasEvidenceReference) {
+        errors.push(
+          `Non-unsupported gap (${gap.gapType}) must have sourceChunkIds or relatedConceptId`
+        );
       }
       if (!gap.sourceEvidence || gap.sourceEvidence.trim().length === 0) {
         errors.push(`Non-unsupported gap (${gap.gapType}) must have sourceEvidence`);
@@ -48,6 +53,10 @@ export function validateTeachBackFeedback(summary: TeachBackSummary) {
   }
 
   if (errors.length > 0) {
-    throw new AppError('VALIDATION_ERROR', 400, `Teach-back feedback validation failed: ${errors.join('; ')}`);
+    throw new AppError(
+      `Teach-back feedback validation failed: ${errors.join('; ')}`,
+      400,
+      'VALIDATION_ERROR'
+    );
   }
 }

@@ -61,4 +61,26 @@ describe('runLearningDiagnosis', () => {
     expect(result.mastery?.state).toBe('partial');
     expect(result.nextAction).toBe('teach_back_again');
   });
+
+  it('grounds definition-only shallow gaps to the concept node', async () => {
+    const result = await runLearningDiagnosis({
+      ...baseInput,
+      conceptName: 'Stack',
+      conceptDefinition: 'A stack is a last-in, first-out collection.',
+      learnerExplanation: 'Stack.',
+      sourceChunks: [],
+    });
+
+    expect(result.status).toBe('completed');
+    expect(result.gaps).toEqual([
+      expect.objectContaining({
+        gapType: 'shallow_explanation',
+        relatedConceptId: baseInput.conceptId,
+        sourceChunkIds: [],
+      }),
+    ]);
+    expect(result.mastery?.state).toBe('partial');
+    expect(result.nextAction).toBe('teach_back_again');
+  });
+
 });

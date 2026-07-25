@@ -118,14 +118,16 @@ The repository is being rebuilt in controlled layers. Current implementation sta
 - Bounded local graph traversal and graph-supported retrieval boosts
 - Concept Intelligence workflow core
 - Socratic Tutor workflow core with interruption checkpoints
+- Framework-neutral workflow checkpoint contract with deterministic in-memory history
+- MCP exposure manifest derived from the authorized internal tool registry
 - Versioned local evaluation datasets
 
 ### Planned integration work
 
-- Durable stateful orchestration adapter and persistent checkpoints
+- LangGraph adapter and durable Postgres-backed checkpoints
 - Production Qdrant indexing and migration jobs
 - Production Neo4j projection synchronization
-- Approved MCP adapter for selected read-only tools and resources
+- Official MCP SDK transport/server adapter for the approved manifest
 - Trace export to an OpenTelemetry-compatible backend
 - Public-site, documentation, demo, and workspace redesign
 

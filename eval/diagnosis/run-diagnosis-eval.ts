@@ -23,6 +23,15 @@ interface DiagnosisEvalResult {
   nextActionMatch: boolean;
   gapTypesMatch: boolean;
   deterministic: boolean;
+  expectedStatus: string;
+  actualStatus: string;
+  expectedMastery: string | null;
+  actualMastery: string | null;
+  expectedNextAction: string;
+  actualNextAction: string | null;
+  expectedGapTypes: string;
+  actualGapTypes: string;
+  errorCode: string | null;
 }
 
 const IDS = {
@@ -74,6 +83,15 @@ async function main(): Promise<void> {
         first.mastery?.state === second.mastery?.state &&
         first.nextAction === second.nextAction &&
         arraysEqual(actualGapTypes, normalizedGapTypes(second.gaps)),
+      expectedStatus: testCase.expectedStatus,
+      actualStatus: first.status,
+      expectedMastery: testCase.expectedMastery,
+      actualMastery: first.mastery?.state ?? null,
+      expectedNextAction: testCase.expectedNextAction,
+      actualNextAction: first.nextAction,
+      expectedGapTypes: expectedGapTypes.join(', '),
+      actualGapTypes: actualGapTypes.join(', '),
+      errorCode: first.errorCode,
     });
   }
 
@@ -89,7 +107,25 @@ async function main(): Promise<void> {
     deterministicRepeatability: rate('deterministic'),
   };
 
-  console.table(results);
+  console.table(
+    results.map(({
+      id,
+      category,
+      routeMatch,
+      masteryMatch,
+      nextActionMatch,
+      gapTypesMatch,
+      deterministic,
+    }) => ({
+      id,
+      category,
+      routeMatch,
+      masteryMatch,
+      nextActionMatch,
+      gapTypesMatch,
+      deterministic,
+    }))
+  );
   console.table(metrics);
 
   const failedCases = results.filter(
@@ -103,6 +139,20 @@ async function main(): Promise<void> {
 
   if (failedCases.length > 0) {
     console.error(`Diagnosis evaluation failed for ${failedCases.length} of ${results.length} cases.`);
+    console.table(
+      failedCases.map((result) => ({
+        id: result.id,
+        expectedStatus: result.expectedStatus,
+        actualStatus: result.actualStatus,
+        expectedMastery: result.expectedMastery,
+        actualMastery: result.actualMastery,
+        expectedNextAction: result.expectedNextAction,
+        actualNextAction: result.actualNextAction,
+        expectedGapTypes: result.expectedGapTypes,
+        actualGapTypes: result.actualGapTypes,
+        errorCode: result.errorCode,
+      }))
+    );
     process.exitCode = 1;
   }
 }

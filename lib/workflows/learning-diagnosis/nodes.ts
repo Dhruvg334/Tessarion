@@ -41,6 +41,7 @@ export async function detectDiagnosisGaps(
     studentExplanation: state.learnerExplanation,
     conceptName: state.conceptName,
     conceptDefinition: state.conceptDefinition,
+    conceptNodeId: state.conceptId,
     sourceChunks: state.sourceChunks,
     prerequisiteConcepts: state.prerequisiteConcepts,
   });
