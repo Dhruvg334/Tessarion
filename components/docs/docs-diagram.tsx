@@ -58,8 +58,8 @@ export function DocsDiagram({ spec }: { spec: DocsDiagramSpec }) {
               'text-valign': 'center',
               'text-halign': 'center',
               shape: 'round-rectangle',
-              width: 132,
-              height: 48,
+              width: '132px',
+              height: '48px',
             },
           },
           { selector: 'node[group = "derived"]', style: { 'background-color': '#f1e8ca', 'border-style': 'dashed' } },
@@ -68,7 +68,7 @@ export function DocsDiagram({ spec }: { spec: DocsDiagramSpec }) {
           {
             selector: 'edge',
             style: {
-              width: 1.2,
+              width: '1.2px',
               'line-color': '#9e937a',
               'target-arrow-color': '#9e937a',
               'target-arrow-shape': 'triangle',
