@@ -370,3 +370,8 @@ Copyright 2026 Dhruv Gupta. Licensed under the [Apache License 2.0](LICENSE). Re
 ### Authenticated product shell
 
 The authenticated notebook now uses a shared three-part shell: a workspace navigation rail, a primary learning surface, and an optional context rail for evidence, readiness, and graph context. On smaller screens the rail becomes a compact horizontal navigation row. Source entry and settings share the same navigation contract, while legacy audit links resolve to the canonical Activity panel.
+
+
+## Product experience
+
+- **Teach-back diagnosis experience** — structured explanation composer, evidence-linked report, mastery reasoning, and tutor handoff.
