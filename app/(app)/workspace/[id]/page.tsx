@@ -68,12 +68,24 @@ export default async function WorkspacePage(props: {
     );
   }
 
+  // Fetch only the data required by the active surface. The Study Board needs the
+  // complete summary; focused panels should not pay for unrelated graph, review,
+  // tutoring, or history queries.
+  const needsStudySummary = currentPanel === 'study';
+  const needsDocuments = needsStudySummary || ['sources', 'graph', 'teach-back'].includes(currentPanel);
+  const needsGraph = needsStudySummary || ['graph', 'teach-back'].includes(currentPanel);
+  const needsReviews = needsStudySummary || currentPanel === 'review';
+  const needsTeachBackHistory = needsStudySummary;
+  const needsTutoringHistory = needsStudySummary || currentPanel === 'tutor';
+
   const [documentsResult, graphResult, queueResult, teachBackResult, tutoringListResult] = await Promise.allSettled([
-    listDocuments(id, user.id),
-    getWorkspaceGraph(id, user.id),
-    getWorkspaceReviewQueue(id, user.id),
-    supabase.from('teach_back_sessions').select('id, status').eq('workspace_id', id),
-    listWorkspaceTutoringSessions(id, user.id),
+    needsDocuments ? listDocuments(id, user.id) : Promise.resolve([] as SourceDocument[]),
+    needsGraph ? getWorkspaceGraph(id, user.id) : Promise.resolve(null),
+    needsReviews ? getWorkspaceReviewQueue(id, user.id) : Promise.resolve([]),
+    needsTeachBackHistory
+      ? supabase.from('teach_back_sessions').select('id, status').eq('workspace_id', id)
+      : Promise.resolve({ data: [], error: null }),
+    needsTutoringHistory ? listWorkspaceTutoringSessions(id, user.id) : Promise.resolve([]),
   ]);
 
   const documents: SourceDocument[] = documentsResult.status === 'fulfilled' ? documentsResult.value : [];

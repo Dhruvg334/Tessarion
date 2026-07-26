@@ -218,6 +218,14 @@ Retrieval constraints include:
 
 There is no dual canonical ownership. Qdrant and Neo4j are rebuildable views.
 
+## Performance boundaries
+
+- Public pages render without a Supabase authentication request.
+- Workspace panels fetch only the records required by the active learning surface.
+- The Study Board intentionally loads the full notebook summary; focused panels avoid unrelated graph, review, tutoring, and history queries.
+- Next.js 16 route protection uses `proxy.ts`, with bounded failure handling and preserved return URLs.
+- `npm run eval:performance` protects these boundaries as a regression gate.
+
 ## Evaluation
 
 Tessarion maintains deterministic datasets and metric-producing runners for the main subsystems.
@@ -281,7 +289,15 @@ npm run test:run
 npm run build
 ```
 
-### Evaluations
+### Performance boundaries
+
+- Public pages render without a Supabase authentication request.
+- Workspace panels fetch only the records required by the active learning surface.
+- The Study Board intentionally loads the full notebook summary; focused panels avoid unrelated graph, review, tutoring, and history queries.
+- Next.js 16 route protection uses `proxy.ts`, with bounded failure handling and preserved return URLs.
+- `npm run eval:performance` protects these boundaries as a regression gate.
+
+## Evaluations
 
 ```cmd
 npm run eval:rag
