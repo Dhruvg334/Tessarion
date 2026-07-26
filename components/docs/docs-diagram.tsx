@@ -52,7 +52,7 @@ export function DocsDiagram({ spec }: { spec: DocsDiagramSpec }) {
               label: 'data(label)',
               'font-family': 'system-ui, sans-serif',
               'font-size': '11px',
-              'font-weight': '650',
+              'font-weight': 650,
               'text-wrap': 'wrap',
               'text-max-width': '110px',
               'text-valign': 'center',
