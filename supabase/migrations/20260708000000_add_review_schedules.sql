@@ -1,9 +1,9 @@
 -- Create review_schedules table
-DROP TABLE IF EXISTS public.review_schedules CASCADE;
+DROP TABLE IF EXISTS public.review_schedules;
 CREATE TABLE public.review_schedules (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     workspace_id uuid NOT NULL REFERENCES public.workspaces(id) ON DELETE CASCADE,
-    user_id uuid NOT NULL, -- references auth.users implicitly
+    user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     concept_node_id uuid NOT NULL REFERENCES public.concept_nodes(id) ON DELETE CASCADE,
     mastery_record_id uuid REFERENCES public.mastery_records(id) ON DELETE SET NULL,
     status text NOT NULL CHECK (status IN ('not_ready', 'queued', 'due', 'overdue', 'completed', 'skipped', 'suspended')),
@@ -43,7 +43,8 @@ CREATE POLICY "Users can insert their own review schedules"
 
 CREATE POLICY "Users can update their own review schedules"
     ON public.review_schedules FOR UPDATE
-    USING (user_id = auth.uid());
+    USING (user_id = auth.uid())
+    WITH CHECK (user_id = auth.uid());
 
 CREATE POLICY "Users can delete their own review schedules"
     ON public.review_schedules FOR DELETE

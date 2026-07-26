@@ -22,7 +22,9 @@ create policy "Users can read own workflow checkpoints"
 on public.workflow_checkpoints for select to authenticated
 using (
   user_id = auth.uid() and exists (
-    select 1 from public.workspaces w where w.id = workspace_id and w.user_id = auth.uid()
+    select 1 from public.workspaces as w
+    where w.id = workflow_checkpoints.workspace_id
+      and w.user_id = auth.uid()
   )
 );
 

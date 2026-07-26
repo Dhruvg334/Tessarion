@@ -47,49 +47,129 @@ CREATE POLICY "Users can view their own tutoring sessions"
   ON public.tutoring_sessions
   FOR SELECT
   TO authenticated
-  USING (user_id = auth.uid());
+  USING (
+    user_id = auth.uid()
+    AND EXISTS (
+      SELECT 1 FROM public.workspaces AS w
+      WHERE w.id = workspace_id AND w.user_id = auth.uid()
+    )
+  );
 
 CREATE POLICY "Users can insert their own tutoring sessions"
   ON public.tutoring_sessions
   FOR INSERT
   TO authenticated
-  WITH CHECK (user_id = auth.uid());
+  WITH CHECK (
+    user_id = auth.uid()
+    AND EXISTS (
+      SELECT 1 FROM public.workspaces AS w
+      WHERE w.id = workspace_id AND w.user_id = auth.uid()
+    )
+    AND EXISTS (
+      SELECT 1 FROM public.concept_nodes AS c
+      WHERE c.id = concept_node_id AND c.workspace_id = workspace_id
+    )
+  );
 
 CREATE POLICY "Users can update their own tutoring sessions"
   ON public.tutoring_sessions
   FOR UPDATE
   TO authenticated
-  USING (user_id = auth.uid());
+  USING (
+    user_id = auth.uid()
+    AND EXISTS (
+      SELECT 1 FROM public.workspaces AS w
+      WHERE w.id = workspace_id AND w.user_id = auth.uid()
+    )
+  )
+  WITH CHECK (
+    user_id = auth.uid()
+    AND EXISTS (
+      SELECT 1 FROM public.workspaces AS w
+      WHERE w.id = workspace_id AND w.user_id = auth.uid()
+    )
+    AND EXISTS (
+      SELECT 1 FROM public.concept_nodes AS c
+      WHERE c.id = concept_node_id AND c.workspace_id = workspace_id
+    )
+  );
 
 CREATE POLICY "Users can delete their own tutoring sessions"
   ON public.tutoring_sessions
   FOR DELETE
   TO authenticated
-  USING (user_id = auth.uid());
+  USING (
+    user_id = auth.uid()
+    AND EXISTS (
+      SELECT 1 FROM public.workspaces AS w
+      WHERE w.id = workspace_id AND w.user_id = auth.uid()
+    )
+  );
 
 CREATE POLICY "Users can view their own tutoring turns"
   ON public.tutoring_turns
   FOR SELECT
   TO authenticated
-  USING (user_id = auth.uid());
+  USING (
+    user_id = auth.uid()
+    AND EXISTS (
+      SELECT 1 FROM public.tutoring_sessions AS ts
+      WHERE ts.id = tutoring_session_id
+        AND ts.workspace_id = workspace_id
+        AND ts.user_id = auth.uid()
+    )
+  );
 
 CREATE POLICY "Users can insert their own tutoring turns"
   ON public.tutoring_turns
   FOR INSERT
   TO authenticated
-  WITH CHECK (user_id = auth.uid());
+  WITH CHECK (
+    user_id = auth.uid()
+    AND EXISTS (
+      SELECT 1 FROM public.tutoring_sessions AS ts
+      WHERE ts.id = tutoring_session_id
+        AND ts.workspace_id = workspace_id
+        AND ts.user_id = auth.uid()
+    )
+  );
 
 CREATE POLICY "Users can update their own tutoring turns"
   ON public.tutoring_turns
   FOR UPDATE
   TO authenticated
-  USING (user_id = auth.uid());
+  USING (
+    user_id = auth.uid()
+    AND EXISTS (
+      SELECT 1 FROM public.tutoring_sessions AS ts
+      WHERE ts.id = tutoring_session_id
+        AND ts.workspace_id = workspace_id
+        AND ts.user_id = auth.uid()
+    )
+  )
+  WITH CHECK (
+    user_id = auth.uid()
+    AND EXISTS (
+      SELECT 1 FROM public.tutoring_sessions AS ts
+      WHERE ts.id = tutoring_session_id
+        AND ts.workspace_id = workspace_id
+        AND ts.user_id = auth.uid()
+    )
+  );
 
 CREATE POLICY "Users can delete their own tutoring turns"
   ON public.tutoring_turns
   FOR DELETE
   TO authenticated
-  USING (user_id = auth.uid());
+  USING (
+    user_id = auth.uid()
+    AND EXISTS (
+      SELECT 1 FROM public.tutoring_sessions AS ts
+      WHERE ts.id = tutoring_session_id
+        AND ts.workspace_id = workspace_id
+        AND ts.user_id = auth.uid()
+    )
+  );
 -- Grants
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.tutoring_sessions TO authenticated;
 GRANT ALL ON public.tutoring_sessions TO service_role;

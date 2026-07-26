@@ -9,7 +9,7 @@ CREATE TABLE public.operational_events (
   request_id text,
   trace_id text,
   safe_message text NOT NULL CHECK (char_length(safe_message) <= 2000),
-  metadata jsonb DEFAULT '{}'::jsonb NOT NULL,
+  metadata jsonb DEFAULT '{}'::jsonb NOT NULL CHECK (jsonb_typeof(metadata) = 'object'),
   created_at timestamptz DEFAULT now()
 );
 
@@ -27,7 +27,13 @@ CREATE POLICY "Users can view their own operational events"
   ON public.operational_events
   FOR SELECT
   TO authenticated
-  USING (user_id = auth.uid());
+  USING (
+    user_id = auth.uid()
+    AND EXISTS (
+      SELECT 1 FROM public.workspaces AS w
+      WHERE w.id = workspace_id AND w.user_id = auth.uid()
+    )
+  );
 
 -- Inserts are restricted to service_role to ensure safe logging
 -- No INSERT, UPDATE, or DELETE policies for authenticated users on operational_events

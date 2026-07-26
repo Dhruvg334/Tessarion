@@ -2,6 +2,7 @@
 -- Purpose: Create core tables, extensions, and RLS policies for Tessarion
 
 -- 1. Extensions
+CREATE SCHEMA IF NOT EXISTS extensions;
 CREATE EXTENSION IF NOT EXISTS "vector" WITH SCHEMA extensions;
 
 -- 2. Updated At Trigger Function
@@ -234,7 +235,7 @@ CREATE INDEX idx_source_documents_processing_status ON public.source_documents(p
 CREATE INDEX idx_source_chunks_workspace_id ON public.source_chunks(workspace_id);
 CREATE INDEX idx_source_chunks_source_document_id ON public.source_chunks(source_document_id);
 -- Vector index using HNSW for cosine distance
-CREATE INDEX idx_source_chunks_embedding ON public.source_chunks USING hnsw (embedding vector_cosine_ops);
+CREATE INDEX idx_source_chunks_embedding ON public.source_chunks USING hnsw (embedding extensions.vector_cosine_ops);
 CREATE INDEX idx_concept_nodes_workspace_id ON public.concept_nodes(workspace_id);
 CREATE INDEX idx_concept_nodes_mastery_level ON public.concept_nodes(mastery_level);
 CREATE INDEX idx_concept_nodes_next_review_at ON public.concept_nodes(next_review_at);

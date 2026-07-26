@@ -49,12 +49,18 @@ DECLARE
 BEGIN
   SELECT tc.constraint_name INTO constraint_name
   FROM information_schema.table_constraints tc
-  JOIN information_schema.constraint_column_usage ccu ON ccu.constraint_name = tc.constraint_name
-  WHERE tc.table_name = 'mastery_records' AND ccu.column_name = 'mastery_level' AND tc.constraint_type = 'CHECK'
+  JOIN information_schema.constraint_column_usage ccu
+    ON ccu.constraint_schema = tc.constraint_schema
+   AND ccu.constraint_name = tc.constraint_name
+  WHERE tc.table_schema = 'public'
+    AND tc.table_name = 'mastery_records'
+    AND ccu.table_schema = 'public'
+    AND ccu.column_name = 'mastery_level'
+    AND tc.constraint_type = 'CHECK'
   LIMIT 1;
 
   IF constraint_name IS NOT NULL THEN
-    EXECUTE 'ALTER TABLE public.mastery_records DROP CONSTRAINT ' || constraint_name;
+    EXECUTE format('ALTER TABLE public.mastery_records DROP CONSTRAINT %I', constraint_name);
   END IF;
 END $$;
 
