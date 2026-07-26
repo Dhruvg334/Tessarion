@@ -116,5 +116,9 @@ function uuidToOtlpId(value: string, length: 16 | 32): string {
 }
 
 function isoToUnixNanos(value: string): string {
-  return (BigInt(Date.parse(value)) * 1_000_000n).toString();
+  const milliseconds = Date.parse(value);
+  if (!Number.isFinite(milliseconds)) {
+    throw new AppError('Trace span timestamp is invalid', 500, 'TRACE_TIMESTAMP_INVALID');
+  }
+  return `${Math.trunc(milliseconds)}000000`;
 }
