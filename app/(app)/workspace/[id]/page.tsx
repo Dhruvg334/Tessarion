@@ -125,7 +125,7 @@ export default async function WorkspacePage(props: {
         <div className="graph-preview-surface compact">
           {documents.length === 0 ? (
             <EmptyState title="Add your first source" description="A source is required before Tessarion can build evidence-linked concepts." action={<Link href={`/workspace/${id}/upload`} className="btn">Add source</Link>} />
-          ) : <WorkspaceGraphViewer initialGraph={initialGraph} workspaceId={id} />}
+          ) : <WorkspaceGraphViewer initialGraph={initialGraph} workspaceId={id} compact />}
         </div>
       </section>
     </>

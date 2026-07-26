@@ -314,6 +314,10 @@ The public demo notebook at `/demo/notebook` presents a deterministic end-to-end
 
 The authenticated dashboard and Study Board also expose a system-readiness panel so operators can distinguish configured generation, local deterministic fallbacks, workflow runtime readiness, and checkpoint availability.
 
+## Authenticated learning surfaces
+
+The notebook workspace now includes a structured source library and an evidence-linked graph explorer. Source records expose ingestion and indexing state, while graph concepts can be filtered, inspected, and opened directly in teach-back.
+
 ## Documentation
 
 - [`docs/rebuild/`](docs/rebuild/) — architecture and migration contracts
