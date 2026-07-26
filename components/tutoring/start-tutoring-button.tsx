@@ -55,7 +55,7 @@ export function StartTutoringButton({
       if (!payload.session?.id) throw new Error('Tutor session started without a valid identifier.');
 
       if (onSessionStarted) onSessionStarted(payload.session.id);
-      else router.push(`/workspace/${workspaceId}?tutoring=${payload.session.id}`);
+      else router.push(`/workspace/${workspaceId}?panel=tutor&tutoring=${payload.session.id}`);
     } catch (caught: unknown) {
       setError(caught instanceof Error ? caught.message : 'Could not start guided tutoring.');
     } finally {

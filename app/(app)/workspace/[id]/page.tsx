@@ -3,7 +3,7 @@ import { getWorkspace } from '@/lib/services/workspaces';
 import { listDocuments } from '@/lib/services/documents';
 import { getWorkspaceGraph } from '@/lib/services/graph';
 import { getWorkspaceReviewQueue } from '@/lib/services/review';
-import { getTutoringSession } from '@/lib/services/tutoring';
+import { getTutoringSession, listWorkspaceTutoringSessions } from '@/lib/services/tutoring';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { WorkspaceGraphViewer } from '@/components/graph/workspace-graph-viewer';
@@ -12,6 +12,7 @@ import { EmptyState } from '@/components/shell/empty-state';
 import { NextActionPanel } from '@/components/review/next-action-panel';
 import { ReviewQueue } from '@/components/review/review-queue';
 import { TutoringPanel } from '@/components/tutoring/tutoring-panel';
+import { TutoringSessionList } from '@/components/tutoring/tutoring-session-list';
 import { ActivityLog } from '@/components/workspace/activity-log';
 import { resolveNextAction, type NextActionContext } from '@/lib/product/next-action';
 import type { SourceDocument } from '@/types/database';
@@ -24,11 +25,12 @@ const PANELS = [
   { id: 'sources', label: 'Sources' },
   { id: 'graph', label: 'Knowledge Graph' },
   { id: 'teach-back', label: 'Teach-Back' },
+  { id: 'tutor', label: 'Tutor' },
   { id: 'review', label: 'Reviews' },
   { id: 'activity', label: 'Activity' },
 ];
 
-const validPanelIds = new Set([...PANELS.map((panel) => panel.id), 'tutoring']);
+const validPanelIds = new Set(PANELS.map((panel) => panel.id));
 
 export default async function WorkspacePage(props: {
   params: Promise<{ id: string }>;
@@ -36,7 +38,7 @@ export default async function WorkspacePage(props: {
 }) {
   const { id } = await props.params;
   const { panel, tutoring: tutoringSessionId } = await props.searchParams;
-  const requestedPanel = tutoringSessionId ? 'tutoring' : (panel || 'study');
+  const requestedPanel = tutoringSessionId ? 'tutor' : (panel || 'study');
   const currentPanel = validPanelIds.has(requestedPanel) ? requestedPanel : 'study';
 
   const supabase = await createServerSupabaseClient();
@@ -71,14 +73,14 @@ export default async function WorkspacePage(props: {
     getWorkspaceGraph(id, user.id),
     getWorkspaceReviewQueue(id, user.id),
     supabase.from('teach_back_sessions').select('id, status').eq('workspace_id', id),
-    supabase.from('tutoring_sessions').select('id, status').eq('workspace_id', id),
+    listWorkspaceTutoringSessions(id, user.id),
   ]);
 
   const documents: SourceDocument[] = documentsResult.status === 'fulfilled' ? documentsResult.value : [];
   const initialGraph = graphResult.status === 'fulfilled' ? graphResult.value : null;
   const reviewQueue = queueResult.status === 'fulfilled' ? queueResult.value : [];
   const teachBackRows = teachBackResult.status === 'fulfilled' ? (teachBackResult.value.data ?? []) : [];
-  const tutoringRows = tutoringListResult.status === 'fulfilled' ? (tutoringListResult.value.data ?? []) : [];
+  const tutoringRows = tutoringListResult.status === 'fulfilled' ? tutoringListResult.value : [];
   const degradedSections = [
     documentsResult.status === 'rejected' ? 'sources' : null,
     graphResult.status === 'rejected' ? 'knowledge graph' : null,
@@ -159,7 +161,8 @@ export default async function WorkspacePage(props: {
               <Link className="workspace-module" href={`/workspace/${id}?panel=sources`}><span>01</span><h3>Sources</h3><p>Inspect evidence and processing state.</p></Link>
               <Link className="workspace-module" href={`/workspace/${id}?panel=graph`}><span>02</span><h3>Knowledge graph</h3><p>Explore concepts and dependencies.</p></Link>
               <Link className="workspace-module" href={`/workspace/${id}?panel=teach-back`}><span>03</span><h3>Teach-back</h3><p>Explain a concept and surface gaps.</p></Link>
-              <Link className="workspace-module" href={`/workspace/${id}?panel=review`}><span>04</span><h3>Reviews</h3><p>Work through scheduled corrections.</p></Link>
+              <Link className="workspace-module" href={`/workspace/${id}?panel=tutor`}><span>04</span><h3>Tutor</h3><p>Repair one diagnosed gap through bounded questions.</p></Link>
+              <Link className="workspace-module" href={`/workspace/${id}?panel=review`}><span>05</span><h3>Reviews</h3><p>Work through scheduled corrections.</p></Link>
             </div></section>
           </div>}
 
@@ -169,9 +172,8 @@ export default async function WorkspacePage(props: {
 
           {currentPanel === 'teach-back' && <section className="workspace-panel workspace-panel-narrow"><div className="workspace-section-heading"><div><p className="eyebrow">Active recall</p><h2>Teach-back</h2></div></div>{!initialGraph?.nodes?.length ? <EmptyState title="Teach-back is not ready" description="Extract at least one concept from source material first." action={<Link href={`/workspace/${id}?panel=sources`} className="btn btn-secondary">Go to sources</Link>} /> : <EmptyState title="Choose a concept" description="Open the knowledge graph and select a concept to begin explaining it." action={<Link href={`/workspace/${id}?panel=graph`} className="btn">Choose from graph</Link>} />}</section>}
 
-          {currentPanel === 'review' && <section className="workspace-panel workspace-panel-narrow"><ReviewQueue workspaceId={id} /></section>}
-          {currentPanel === 'tutoring' && tutoringSessionObj && <section className="workspace-panel workspace-panel-narrow"><TutoringPanel workspaceId={id} session={tutoringSessionObj.session} initialTurns={tutoringSessionObj.turns} /></section>}
-          {currentPanel === 'tutoring' && !tutoringSessionObj && <section className="workspace-panel workspace-panel-narrow"><EmptyState title="Tutor session unavailable" description="The requested tutoring session could not be loaded." action={<Link href={`/workspace/${id}?panel=study`} className="btn btn-secondary">Return to study board</Link>} /></section>}
+          {currentPanel === 'tutor' && <section className="workspace-panel"><div className="workspace-section-heading"><div><p className="eyebrow">Guided recovery</p><h2>{tutoringSessionObj ? 'Tutor session' : 'Tutor sessions'}</h2></div>{tutoringSessionObj ? <Link href={`/workspace/${id}?panel=tutor`} className="btn btn-secondary">All sessions</Link> : null}</div>{tutoringSessionId && !tutoringSessionObj ? <EmptyState title="Tutor session unavailable" description="The requested session could not be loaded or does not belong to this notebook." action={<Link href={`/workspace/${id}?panel=tutor`} className="btn btn-secondary">View tutor sessions</Link>} /> : tutoringSessionObj ? <TutoringPanel workspaceId={id} session={tutoringSessionObj.session} initialTurns={tutoringSessionObj.turns} /> : <TutoringSessionList workspaceId={id} sessions={tutoringRows} />}</section>}
+          {currentPanel === 'review' && <section className="workspace-panel"><ReviewQueue workspaceId={id} /></section>}
           {currentPanel === 'activity' && <section className="workspace-panel workspace-panel-narrow"><ActivityLog workspaceId={id} /></section>}
         </WorkspaceShell>
       </div>

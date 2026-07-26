@@ -1,164 +1,148 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { TutoringSession, TutoringTurn } from '@/lib/tutoring/types';
+import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import type { TutoringSession, TutoringTurn } from '@/lib/tutoring/types';
 import { TutoringTurnItem } from './tutoring-turn';
 
 interface TutoringPanelProps {
   workspaceId: string;
   session: TutoringSession;
   initialTurns: TutoringTurn[];
-  onComplete?: () => void;
 }
 
-export function TutoringPanel({ workspaceId, session: initialSession, initialTurns, onComplete }: TutoringPanelProps) {
-  const [session, setSession] = useState<TutoringSession>(initialSession);
-  const [turns, setTurns] = useState<TutoringTurn[]>(initialTurns);
+async function readError(response: Response, fallback: string) {
+  try {
+    const payload = (await response.json()) as { error?: string; message?: string };
+    return payload.error || payload.message || fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+export function TutoringPanel({ workspaceId, session: initialSession, initialTurns }: TutoringPanelProps) {
+  const [session, setSession] = useState(initialSession);
+  const [turns, setTurns] = useState(initialTurns);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [turns]);
 
-  const handleSubmit = async (e?: React.FormEvent) => {
-    e?.preventDefault();
-    if (!input.trim() || isLoading || session.status !== 'active') return;
-
+  const handleSubmit = async (event?: React.FormEvent) => {
+    event?.preventDefault();
     const studentText = input.trim();
+    if (!studentText || isLoading || session.status !== 'active') return;
+
     setInput('');
+    setError(null);
     setIsLoading(true);
 
     try {
-      const res = await fetch(`/api/workspaces/${workspaceId}/tutoring/${session.id}/turns`, {
+      const response = await fetch(`/api/workspaces/${workspaceId}/tutoring/${session.id}/turns`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ studentResponse: studentText }),
       });
+      if (!response.ok) throw new Error(await readError(response, 'Could not save this response.'));
 
-      if (!res.ok) throw new Error('Failed to send response');
-
-      const data = await res.json();
-      setSession(data.session);
-      setTurns(prev => [...prev, ...data.newTurns]);
-    } catch (error) {
-      console.error(error);
-      // A robust UI would show a toast here. For now, we restore the input.
+      const payload = (await response.json()) as { session: TutoringSession; newTurns: TutoringTurn[] };
+      setSession(payload.session);
+      setTurns((current) => [...current, ...payload.newTurns]);
+    } catch (caught: unknown) {
       setInput(studentText);
+      setError(caught instanceof Error ? caught.message : 'Could not save this response.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleAction = async (action: 'complete' | 'abandon') => {
+  const handleEnd = async () => {
+    if (isLoading) return;
+    setError(null);
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/workspaces/${workspaceId}/tutoring/${session.id}`, {
+      const response = await fetch(`/api/workspaces/${workspaceId}/tutoring/${session.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action }),
+        body: JSON.stringify({ action: 'abandon' }),
       });
-
-      if (!res.ok) throw new Error(`Failed to ${action} session`);
-
-      const data = await res.json();
-      setSession(data);
-      if (onComplete) onComplete();
-    } catch (error) {
-      console.error(error);
+      if (!response.ok) throw new Error(await readError(response, 'Could not end this session.'));
+      const payload = (await response.json()) as { status: TutoringSession['status'] };
+      setSession((current) => ({ ...current, status: payload.status }));
+    } catch (caught: unknown) {
+      setError(caught instanceof Error ? caught.message : 'Could not end this session.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const isEnded = session.status !== 'active';
+  const ended = session.status !== 'active';
+  const progress = Math.min(100, Math.round((session.currentTurnCount / Math.max(1, session.maxTurns)) * 100));
 
   return (
-    <div className="flex flex-col h-[500px] border border-neutral-200 bg-white shadow-sm">
-      <div className="flex-none p-3 border-b border-neutral-200 bg-neutral-50 flex justify-between items-center">
+    <div className="tutor-workspace">
+      <header className="tutor-workspace-header">
         <div>
-          <h3 className="text-sm font-medium text-neutral-900">Guided Tutoring</h3>
-          <p className="text-xs text-neutral-500">Focus: {session.focusSummary}</p>
+          <p className="eyebrow">Socratic recovery</p>
+          <h2>{session.focusSummary}</h2>
+          <p>The tutor asks one bounded question at a time. It does not mark mastery; a new teach-back does.</p>
         </div>
-        <div className="text-xs font-mono text-neutral-400">
-          Turn {session.currentTurnCount} / {session.maxTurns}
+        <div className="tutor-progress-block" aria-label={`Turn ${session.currentTurnCount} of ${session.maxTurns}`}>
+          <strong>{session.currentTurnCount}/{session.maxTurns}</strong>
+          <span>turns</span>
+          <div><i style={{ width: `${progress}%` }} /></div>
         </div>
+      </header>
+
+      <div className="tutor-focus-strip">
+        <span>Focus</span>
+        <strong>{session.focusType.replaceAll('_', ' ')}</strong>
+        <em>{ended ? session.status.replaceAll('_', ' ') : 'active session'}</em>
       </div>
 
-      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
-        {turns.map(turn => (
-          <TutoringTurnItem key={turn.id} turn={turn} />
-        ))}
-        {isLoading && (
-          <div className="text-left py-3">
-            <div className="inline-block px-4 py-2 rounded-sm border bg-white border-neutral-300 text-neutral-400 text-sm italic">
-              Saving your response...
-            </div>
-          </div>
-        )}
-        {isEnded && (
-          <div className="text-center py-4 text-sm text-neutral-500 italic">
-            This session has ended. ({session.status})
-          </div>
-        )}
+      <div ref={scrollRef} className="tutor-thread" aria-live="polite">
+        {turns.map((turn) => <TutoringTurnItem key={turn.id} turn={turn} />)}
+        {isLoading ? <div className="tutor-saving-state">Saving response and choosing the next move…</div> : null}
       </div>
 
-      <div className="flex-none p-3 border-t border-neutral-200 bg-neutral-50">
-        {!isEnded ? (
-          <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-            <textarea 
-              value={input}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setInput(e.target.value)}
-              placeholder="Type your response..."
-              className="resize-none h-20 text-sm bg-white border-neutral-300 p-2 border rounded-sm"
-              disabled={isLoading}
-              onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSubmit();
-                }
-              }}
-            />
-            <div className="flex justify-between">
-              <button 
-                type="button" 
-                onClick={() => handleAction('abandon')}
-                disabled={isLoading}
-                className="btn btn-secondary text-neutral-500"
-              >
-                End Session
-              </button>
-              <button 
-                type="submit" 
-                disabled={!input.trim() || isLoading}
-                className="btn bg-neutral-900 text-white hover:bg-neutral-800"
-              >
-                Reply
-              </button>
+      {error ? <div className="tutor-error" role="alert"><strong>Session action failed</strong><span>{error}</span></div> : null}
+
+      {!ended ? (
+        <form onSubmit={handleSubmit} className="tutor-composer">
+          <label htmlFor="tutor-response">Respond in your own words</label>
+          <textarea
+            id="tutor-response"
+            value={input}
+            onChange={(event) => setInput(event.target.value)}
+            placeholder="Explain your reasoning, compare the concepts, or answer the question directly."
+            disabled={isLoading}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                void handleSubmit();
+              }
+            }}
+          />
+          <div className="tutor-composer-footer">
+            <div><span>{input.trim().split(/\s+/).filter(Boolean).length} words</span><span>Enter to send · Shift+Enter for a new line</span></div>
+            <div>
+              <button type="button" className="btn btn-secondary" onClick={handleEnd} disabled={isLoading}>End session</button>
+              <button type="submit" className="btn" disabled={!input.trim() || isLoading}>Send response</button>
             </div>
-          </form>
-        ) : (
-          <div className="flex flex-col items-center justify-center gap-3 py-2">
-             <button 
-                type="button" 
-                onClick={() => { if (onComplete) onComplete(); }}
-                className="btn bg-neutral-900 text-white hover:bg-neutral-800 w-full"
-              >
-                {session.status === 'completed' || session.status === 'needs_review' 
-                  ? 'Try Teach-Back Again' 
-                  : 'Return to Workspace'}
-              </button>
-              {(session.status === 'completed' || session.status === 'needs_review') && (
-                <p className="text-xs text-neutral-500 text-center">
-                  Tutoring doesn&apos;t prove mastery&mdash;teaching it back does.
-                </p>
-              )}
           </div>
-        )}
-      </div>
+        </form>
+      ) : (
+        <div className="tutor-completion-card">
+          <div><p className="eyebrow">Session closed</p><h3>Return to evidence-producing work</h3><p>The tutor helped you repair one gap. Explain the concept again so Tessarion can record new mastery evidence.</p></div>
+          <div><Link href={`/workspace/${workspaceId}?panel=graph`} className="btn">Choose concept for teach-back</Link><button type="button" className="btn btn-secondary" onClick={() => router.push(`/workspace/${workspaceId}?panel=tutor`)}>All tutor sessions</button></div>
+        </div>
+      )}
     </div>
   );
 }

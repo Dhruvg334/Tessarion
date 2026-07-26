@@ -8,6 +8,7 @@ const primaryItems = [
   { id: 'sources', label: 'Sources' },
   { id: 'graph', label: 'Knowledge graph' },
   { id: 'teach-back', label: 'Teach-back' },
+  { id: 'tutor', label: 'Tutor' },
   { id: 'review', label: 'Reviews' },
   { id: 'activity', label: 'Activity' },
 ] as const;

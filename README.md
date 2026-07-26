@@ -374,4 +374,6 @@ The authenticated notebook now uses a shared three-part shell: a workspace navig
 
 ## Product experience
 
+- Structured tutor session workspace and priority-based review queue
+
 - **Teach-back diagnosis experience** — structured explanation composer, evidence-linked report, mastery reasoning, and tutor handoff.
