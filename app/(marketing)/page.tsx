@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, CheckCircle2, Compass, Layers3, ShieldCheck } from 'lucide-react';
 import { Reveal } from '@/components/motion/reveal';
@@ -16,9 +15,7 @@ const advantages = [
 export default function MarketingPage() {
   return (
     <SiteShell>
-      <section className="hero hero-rebuilt" aria-labelledby="hero-title">
-        <Image src="/hero-tessarion-network.svg" alt="" fill priority className="hero-background-art" sizes="100vw" />
-        <div className="hero-vignette" aria-hidden="true" />
+      <section className="hero hero-rebuilt hero-clean" aria-labelledby="hero-title">
         <div className="hero-inner">
           <p className="hero-kicker">Open-source learning intelligence</p>
           <h1 id="hero-title" className="hero-wordmark">Tessarion</h1>
