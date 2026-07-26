@@ -1025,3 +1025,40 @@ img, svg { display: block; max-width: 100%; }
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Consolidated documentation and compact About page */
+.docs-topbar-inner a[aria-current="page"] { color: var(--charcoal); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 8px; }
+.docs-layout { grid-template-columns: 205px minmax(0, 920px); gap: clamp(1.6rem, 4vw, 3.2rem); padding-block: 1.7rem 4rem; }
+.docs-sidebar { top: calc(var(--site-header-height) + 62px); }
+.docs-nav { gap: 0.28rem; }
+.docs-nav a { padding: 0.55rem 0.62rem; line-height: 1.35; }
+.docs-article { max-width: 920px; }
+.docs-article header { margin-bottom: 1.5rem; padding-bottom: 1.2rem; }
+.docs-article h1 { font-size: clamp(1.75rem, 3.3vw, 2.45rem); }
+.docs-article > section { margin-block: 2.2rem; }
+.docs-article > section > h2 { margin-bottom: 0.8rem; font-size: clamp(1.25rem, 2vw, 1.55rem); }
+.docs-article p, .docs-article li { line-height: 1.72; }
+.docs-index-list { display: grid; border-top: 1px solid var(--rule-strong); }
+.docs-index-card { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; gap: 1rem; align-items: start; padding: 1.15rem 0; border-bottom: 1px solid var(--rule); }
+.docs-index-card > span { padding-top: 0.2rem; color: var(--pencil); font: 700 0.72rem ui-monospace, monospace; }
+.docs-index-card h2 { margin: 0.25rem 0 0.35rem; font-size: 1.08rem; }
+.docs-index-card p { margin: 0; color: var(--graphite); font-size: 0.88rem; }
+.docs-index-card > strong { padding-top: 1.2rem; }
+.docs-diagram { margin: 1.4rem 0 1.8rem; overflow: hidden; border: 1px solid var(--rule); border-radius: var(--radius-md); background: var(--paper); }
+.docs-diagram figcaption { display: grid; gap: 0.2rem; padding: 0.8rem 0.95rem; border-bottom: 1px solid var(--rule); }
+.docs-diagram figcaption strong { font-size: 0.9rem; }
+.docs-diagram figcaption span { color: var(--graphite); font-size: 0.78rem; line-height: 1.5; }
+.docs-diagram-canvas { height: 390px; min-height: 390px; background: linear-gradient(to bottom, rgba(255,255,255,0.2), rgba(245,238,213,0.18)); }
+
+.about-page { padding-bottom: 4rem; }
+.about-page .about-hero { padding-block: clamp(3rem, 6vw, 5rem) 2.4rem; text-align: center; border-bottom: 0; }
+.about-page .about-hero h1 { max-width: 850px; margin: 0.55rem auto 0; font-size: clamp(1.9rem, 4vw, 3rem); }
+.about-three-sections { max-width: 1040px; border-top: 1px solid var(--rule-strong); }
+.about-compact-section { display: grid; grid-template-columns: 150px minmax(0, 720px); justify-content: center; gap: clamp(1.6rem, 5vw, 4rem); padding-block: clamp(2.2rem, 5vw, 3.6rem); border-bottom: 1px solid var(--rule); }
+.about-actions { display: flex; flex-wrap: wrap; gap: 0.7rem; margin-top: 1.4rem; }
+
+@media (max-width: 760px) {
+  .docs-layout { grid-template-columns: 1fr; padding-block: 1.2rem 3rem; }
+  .docs-diagram-canvas { height: 320px; min-height: 320px; }
+  .about-compact-section { grid-template-columns: 1fr; gap: 1.1rem; }
+}

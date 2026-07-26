@@ -382,7 +382,7 @@ The generated report is written to `eval/reports/rebuild-b-quality-gate.json`. E
 
 ### Public interface and documentation
 
-The public interface uses a custom tokenized design system built on pale cream surfaces, charcoal typography, compact editorial spacing, and accessible Radix primitives for interactive controls. The `/docs/*` section documents architecture, source processing, hybrid retrieval, graph projection, workflow orchestration, teach-back, mastery, tutoring, evaluation, observability, security, and current implementation status.
+The public interface uses a custom tokenized design system built on pale cream surfaces, charcoal typography, compact editorial spacing, and accessible Radix primitives for interactive controls. The documentation is consolidated into five substantial guides: overview, architecture, learning system, quality and operations, and security and status. Interactive system diagrams use the existing Cytoscape rendering foundation rather than static decorative images.
 
 
 ## Integration quality gate
@@ -435,4 +435,4 @@ npm run infra:validate
 
 The lightweight liveness route is `/api/health`. A dependency-aware report is available at `/api/health/infrastructure` and can be protected with `INFRASTRUCTURE_HEALTH_TOKEN`. MCP remains disabled unless `MCP_SERVER_TOKEN` is set.
 
-See [`docs/deployment/DEPLOYMENT.md`](docs/deployment/DEPLOYMENT.md) for the complete deployment sequence and environment matrix.
+See [`docs/deployment/DEPLOYMENT.md`](docs/deployment/DEPLOYMENT.md) for the complete infrastructure sequence and [`docs/deployment/VERCEL.md`](docs/deployment/VERCEL.md) for the first production web deployment. Run `npm run deploy:check` before importing or redeploying the project on Vercel.

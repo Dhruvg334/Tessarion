@@ -34,7 +34,8 @@
     "infra:status": "docker compose ps",
     "infra:logs": "docker compose logs --tail=100",
     "infra:validate": "tsx scripts/validate-infrastructure.ts",
-    "infra:bootstrap": "tsx scripts/bootstrap-infrastructure.ts"
+    "infra:bootstrap": "tsx scripts/bootstrap-infrastructure.ts",
+    "deploy:check": "node scripts/validate-vercel-readiness.mjs"
   },
   "dependencies": {
     "@ai-sdk/google": "^4.0.7",

@@ -5,18 +5,21 @@ import { SiteShell } from '@/components/site/site-shell';
 import { docsPages } from '@/lib/docs/content';
 
 const topLinks = [
-  ['Foundations', '/docs/architecture'],
-  ['Learning system', '/docs/teach-back'],
-  ['Operations', '/docs/evaluation'],
+  ['Overview', '/docs/overview'],
+  ['Architecture', '/docs/architecture'],
+  ['Learning system', '/docs/learning-system'],
+  ['Quality', '/docs/quality-and-operations'],
+  ['Security & status', '/docs/security-and-status'],
 ] as const;
 
 export function DocsShell({ currentSlug, children }: { currentSlug?: string; children: ReactNode }) {
   return (
     <SiteShell>
       <div className="docs-topbar">
-        <nav className="container docs-topbar-inner" aria-label="Documentation categories">
-          {topLinks.map(([label, href]) => <Link href={href} key={href}>{label}</Link>)}
-          <Link href="/docs/current-status">Current status</Link>
+        <nav className="container docs-topbar-inner" aria-label="Documentation sections">
+          {topLinks.map(([label, href]) => (
+            <Link href={href} key={href} aria-current={href.endsWith(currentSlug ?? '__none__') ? 'page' : undefined}>{label}</Link>
+          ))}
         </nav>
       </div>
       <div className="container docs-layout">

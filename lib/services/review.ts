@@ -16,10 +16,10 @@ export async function scheduleReviewsFromMastery(
 
   const { data: ws, error: wsError } = await supabase
     .from('workspaces').select('id').eq('id', workspaceId).eq('user_id', userId).single();
-  if (wsError || !ws) throw new AppError('UNAUTHORIZED', 403, 'Unauthorized');
+  if (wsError || !ws) throw new AppError('Unauthorized.', 403, 'UNAUTHORIZED');
   
   if (mastery.workspaceId !== workspaceId || mastery.userId !== userId) {
-    throw new AppError('INVALID_SCOPE', 400, 'Mastery does not belong to workspace or user');
+    throw new AppError('Mastery does not belong to this notebook or learner.', 400, 'INVALID_SCOPE');
   }
 
   const { data: cNode, error: cError } = await supabase
@@ -28,7 +28,7 @@ export async function scheduleReviewsFromMastery(
     .eq('id', mastery.conceptId)
     .eq('workspace_id', workspaceId)
     .single();
-  if (cError || !cNode) throw new AppError('INVALID_SCOPE', 400, 'Concept node does not belong to workspace');
+  if (cError || !cNode) throw new AppError('Concept does not belong to this notebook.', 400, 'INVALID_SCOPE');
 
   const { data: mRecord, error: mError } = await supabase
     .from('mastery_records')
@@ -37,7 +37,7 @@ export async function scheduleReviewsFromMastery(
     .eq('concept_node_id', mastery.conceptId)
     .single();
 
-  if (mError || !mRecord) throw new AppError('INVALID_SCOPE', 400, 'Mastery record does not exist in scope');
+  if (mError || !mRecord) throw new AppError('Mastery record is outside the requested scope.', 400, 'INVALID_SCOPE');
 
   if (signalIds.length > 0) {
     const { data: validSignals, error: sigError } = await supabase
@@ -49,7 +49,7 @@ export async function scheduleReviewsFromMastery(
       .eq('concept_id', mastery.conceptId);
       
     if (sigError || !validSignals || validSignals.length !== signalIds.length) {
-      throw new AppError('INVALID_SCOPE', 400, 'One or more source signal IDs are invalid or belong to a different scope');
+      throw new AppError('One or more mastery signals are outside the requested scope.', 400, 'INVALID_SCOPE');
     }
   }
 
@@ -64,7 +64,7 @@ export async function scheduleReviewsFromMastery(
     .in('status', ['queued', 'due', 'overdue'])
     .maybeSingle();
 
-  if (searchError) throw new AppError('DB_ERROR', 500, searchError.message);
+  if (searchError) throw new AppError('The active review schedule could not be checked.', 500, 'DB_ERROR', searchError.message);
 
   const isScheduleable = rec.suggestedReviewAt !== null && rec.priority !== null && rec.reasonType !== null;
 
@@ -76,8 +76,8 @@ export async function scheduleReviewsFromMastery(
         .eq('workspace_id', workspaceId)
         .eq('user_id', userId)
         .select('id');
-      if (updError) throw new AppError('DB_ERROR', 500, updError.message);
-      if (!updData || updData.length === 0) throw new AppError('NOT_FOUND', 404, 'Review schedule not found or unauthorized');
+      if (updError) throw new AppError('The review schedule could not be updated.', 500, 'DB_ERROR', updError.message);
+      if (!updData || updData.length === 0) throw new AppError('Review schedule not found or unauthorized.', 404, 'NOT_FOUND');
       return { recommendation: rec, action: 'suspended' };
     }
     return { recommendation: rec, action: 'skippedNotReady' };
@@ -91,7 +91,7 @@ export async function scheduleReviewsFromMastery(
       .in('status', ['queued', 'due', 'overdue'])
       .eq('reason_type', 'scheduled_reinforcement');
     const { count, error: countError } = await builder;
-    if (countError) throw new AppError('DB_ERROR', 500, countError.message);
+    if (countError) throw new AppError('Review schedule limits could not be checked.', 500, 'DB_ERROR', countError.message);
     
     const alreadyReinforcement = existingActive && existingActive.reason_type === 'scheduled_reinforcement';
     if (count !== null && count >= 3 && !alreadyReinforcement) {
@@ -112,8 +112,8 @@ export async function scheduleReviewsFromMastery(
       .eq('workspace_id', workspaceId)
       .eq('user_id', userId)
       .select('id');
-    if (updError) throw new AppError('DB_ERROR', 500, updError.message);
-    if (!updData || updData.length === 0) throw new AppError('NOT_FOUND', 404, 'Review schedule not found or unauthorized');
+    if (updError) throw new AppError('The review schedule could not be updated.', 500, 'DB_ERROR', updError.message);
+    if (!updData || updData.length === 0) throw new AppError('Review schedule not found or unauthorized.', 404, 'NOT_FOUND');
     
     await recordOperationalEvent({
       workspaceId,
@@ -139,7 +139,7 @@ export async function scheduleReviewsFromMastery(
       scheduled_for: rec.suggestedReviewAt!.toISOString(),
       source_mastery_signal_ids: signalIds
     }).select('id').single();
-    if (insError || !insData) throw new AppError('DB_ERROR', 500, insError?.message || 'Insert failed');
+    if (insError || !insData) throw new AppError('The review schedule could not be created.', 500, 'DB_ERROR', insError?.message);
     
     await recordOperationalEvent({
       workspaceId,
@@ -155,92 +155,152 @@ export async function scheduleReviewsFromMastery(
   }
 }
 
+type ReviewScheduleRow = {
+  id: string;
+  workspace_id: string;
+  user_id: string;
+  concept_node_id: string;
+  status: string;
+  priority: string;
+  reason_type: string;
+  reason: string;
+  scheduled_for: string | null;
+  [key: string]: unknown;
+};
+
+function computeReviewQueueItem(
+  item: ReviewScheduleRow,
+  conceptName: string,
+  now: Date,
+  workspaceName?: string
+) {
+  const nowMs = now.getTime();
+  const oneDayMs = 24 * 60 * 60 * 1000;
+  let computedStatus = item.status;
+
+  if (item.status === 'queued' && item.scheduled_for) {
+    const scheduledFor = new Date(item.scheduled_for).getTime();
+    if (Number.isFinite(scheduledFor)) {
+      if (scheduledFor <= nowMs - oneDayMs) computedStatus = 'overdue';
+      else if (scheduledFor <= nowMs) computedStatus = 'due';
+    }
+  }
+
+  const priorityScore = item.priority === 'critical' ? 4 : item.priority === 'high' ? 3 : item.priority === 'medium' ? 2 : 1;
+
+  return {
+    ...item,
+    computedStatus,
+    priorityScore,
+    conceptName,
+    ...(workspaceName ? { workspaceName } : {}),
+  };
+}
+
+function reviewDateValue(value: string | null) {
+  if (!value) return Number.POSITIVE_INFINITY;
+  const timestamp = new Date(value).getTime();
+  return Number.isFinite(timestamp) ? timestamp : Number.POSITIVE_INFINITY;
+}
+
 export async function getWorkspaceReviewQueue(workspaceId: string, userId: string, now: Date = new Date()) {
   const supabase = await createServerSupabaseClient();
-  
-  const { data: ws, error: wsError } = await supabase
-    .from('workspaces').select('id').eq('id', workspaceId).eq('user_id', userId).single();
-  if (wsError || !ws) throw new AppError('UNAUTHORIZED', 403, 'Unauthorized');
 
-  const { data: queue, error } = await supabase
+  const { data: workspace, error: workspaceError } = await supabase
+    .from('workspaces')
+    .select('id')
+    .eq('id', workspaceId)
+    .eq('user_id', userId)
+    .single();
+
+  if (workspaceError || !workspace) {
+    throw new AppError('You do not have access to this notebook.', 403, 'UNAUTHORIZED');
+  }
+
+  // Avoid embedded PostgREST joins here. Hosted schema caches can lag immediately
+  // after migrations; separate scoped reads are portable and keep queue access usable.
+  const { data: queueData, error: queueError } = await supabase
     .from('review_schedules')
-    .select(`
-      *,
-      concept_nodes(name)
-    `)
+    .select('*')
     .eq('workspace_id', workspaceId)
     .eq('user_id', userId)
     .in('status', ['queued', 'due', 'overdue'])
     .order('scheduled_for', { ascending: true });
 
-  if (error) throw new AppError('DB_ERROR', 500, error.message);
+  if (queueError) {
+    throw new AppError('The review queue could not be loaded.', 500, 'DB_ERROR', queueError.message);
+  }
 
-  const nowMs = now.getTime();
-  const oneDayMs = 24 * 60 * 60 * 1000;
+  const queue = (queueData ?? []) as ReviewScheduleRow[];
+  const conceptIds = [...new Set(queue.map((item) => item.concept_node_id))];
+  const conceptNames = new Map<string, string>();
 
-  return queue.map(item => {
-    let computedStatus = item.status;
-    if (item.status === 'queued') {
-      const scheduledFor = new Date(item.scheduled_for).getTime();
-      if (scheduledFor <= nowMs - oneDayMs) {
-        computedStatus = 'overdue';
-      } else if (scheduledFor <= nowMs) {
-        computedStatus = 'due';
-      }
+  if (conceptIds.length > 0) {
+    const { data: concepts, error: conceptError } = await supabase
+      .from('concept_nodes')
+      .select('id, name')
+      .eq('workspace_id', workspaceId)
+      .in('id', conceptIds);
+
+    if (conceptError) {
+      throw new AppError('Review concepts could not be loaded.', 500, 'DB_ERROR', conceptError.message);
     }
-    
-    // Sort priority
-    const priorityScore = item.priority === 'critical' ? 4 : item.priority === 'high' ? 3 : item.priority === 'medium' ? 2 : 1;
 
-    return {
-      ...item,
-      computedStatus,
-      priorityScore,
-      conceptName: item.concept_nodes?.name || 'Unknown Concept'
-    };
-  }).sort((a, b) => b.priorityScore - a.priorityScore || new Date(a.scheduled_for).getTime() - new Date(b.scheduled_for).getTime());
+    for (const concept of concepts ?? []) conceptNames.set(concept.id, concept.name);
+  }
+
+  return queue
+    .map((item) => computeReviewQueueItem(item, conceptNames.get(item.concept_node_id) ?? 'Concept unavailable', now))
+    .sort((left, right) => right.priorityScore - left.priorityScore || reviewDateValue(left.scheduled_for) - reviewDateValue(right.scheduled_for));
 }
 
 export async function getGlobalReviewQueue(userId: string, now: Date = new Date()) {
   const supabase = await createServerSupabaseClient();
-  
-  const { data: queue, error } = await supabase
+
+  const { data: queueData, error: queueError } = await supabase
     .from('review_schedules')
-    .select(`
-      *,
-      concept_nodes(name),
-      workspaces(name)
-    `)
+    .select('*')
     .eq('user_id', userId)
     .in('status', ['queued', 'due', 'overdue'])
     .order('scheduled_for', { ascending: true });
 
-  if (error) throw new AppError('DB_ERROR', 500, error.message);
+  if (queueError) {
+    throw new AppError('The review queue could not be loaded.', 500, 'DB_ERROR', queueError.message);
+  }
 
-  const nowMs = now.getTime();
-  const oneDayMs = 24 * 60 * 60 * 1000;
+  const queue = (queueData ?? []) as ReviewScheduleRow[];
+  const conceptIds = [...new Set(queue.map((item) => item.concept_node_id))];
+  const workspaceIds = [...new Set(queue.map((item) => item.workspace_id))];
+  const conceptNames = new Map<string, string>();
+  const workspaceNames = new Map<string, string>();
 
-  return queue.map(item => {
-    let computedStatus = item.status;
-    if (item.status === 'queued') {
-      const scheduledFor = new Date(item.scheduled_for).getTime();
-      if (scheduledFor <= nowMs - oneDayMs) {
-        computedStatus = 'overdue';
-      } else if (scheduledFor <= nowMs) {
-        computedStatus = 'due';
-      }
-    }
-    
-    const priorityScore = item.priority === 'critical' ? 4 : item.priority === 'high' ? 3 : item.priority === 'medium' ? 2 : 1;
+  if (conceptIds.length > 0) {
+    const { data: concepts, error: conceptError } = await supabase
+      .from('concept_nodes')
+      .select('id, name')
+      .in('id', conceptIds);
+    if (conceptError) throw new AppError('Review concepts could not be loaded.', 500, 'DB_ERROR', conceptError.message);
+    for (const concept of concepts ?? []) conceptNames.set(concept.id, concept.name);
+  }
 
-    return {
-      ...item,
-      computedStatus,
-      priorityScore,
-      conceptName: item.concept_nodes?.name || 'Unknown Concept',
-      workspaceName: (item.workspaces as { name?: string } | undefined)?.name || 'Unknown Notebook'
-    };
-  }).sort((a, b) => b.priorityScore - a.priorityScore || new Date(a.scheduled_for).getTime() - new Date(b.scheduled_for).getTime());
+  if (workspaceIds.length > 0) {
+    const { data: workspaces, error: workspacesError } = await supabase
+      .from('workspaces')
+      .select('id, name')
+      .eq('user_id', userId)
+      .in('id', workspaceIds);
+    if (workspacesError) throw new AppError('Review notebooks could not be loaded.', 500, 'DB_ERROR', workspacesError.message);
+    for (const workspace of workspaces ?? []) workspaceNames.set(workspace.id, workspace.name);
+  }
+
+  return queue
+    .map((item) => computeReviewQueueItem(
+      item,
+      conceptNames.get(item.concept_node_id) ?? 'Concept unavailable',
+      now,
+      workspaceNames.get(item.workspace_id) ?? 'Notebook unavailable'
+    ))
+    .sort((left, right) => right.priorityScore - left.priorityScore || reviewDateValue(left.scheduled_for) - reviewDateValue(right.scheduled_for));
 }
 
 export async function markReviewCompleted(workspaceId: string, reviewId: string, userId: string) {
@@ -352,14 +412,14 @@ export async function scheduleReviewsFromWorkspaceMastery(workspaceId: string, u
   
   const { data: ws, error: wsError } = await supabase
     .from('workspaces').select('id').eq('id', workspaceId).eq('user_id', userId).single();
-  if (wsError || !ws) throw new AppError('UNAUTHORIZED', 403, 'Unauthorized');
+  if (wsError || !ws) throw new AppError('Unauthorized.', 403, 'UNAUTHORIZED');
 
   const { data: concepts, error: conceptsError } = await supabase
     .from('concept_nodes')
     .select('id')
     .eq('workspace_id', workspaceId);
 
-  if (conceptsError) throw new AppError('DB_ERROR', 500, conceptsError.message);
+  if (conceptsError) throw new AppError('Notebook concepts could not be loaded for review scheduling.', 500, 'DB_ERROR', conceptsError.message);
 
   const conceptIds = (concepts || []).map((concept) => concept.id);
   const { data: records, error: mError } = conceptIds.length > 0
@@ -369,7 +429,7 @@ export async function scheduleReviewsFromWorkspaceMastery(workspaceId: string, u
         .in('concept_node_id', conceptIds)
     : { data: [], error: null };
     
-  if (mError) throw new AppError('DB_ERROR', 500, mError.message);
+  if (mError) throw new AppError('Mastery records could not be loaded for review scheduling.', 500, 'DB_ERROR', mError.message);
   
   const summary = {
     created: 0,
@@ -407,7 +467,7 @@ export async function scheduleReviewsFromWorkspaceMastery(workspaceId: string, u
       .order('created_at', { ascending: false })
       .limit(3);
       
-    if (sigError) throw new AppError('DB_ERROR', 500, sigError.message);
+    if (sigError) throw new AppError('Mastery signals could not be loaded for review scheduling.', 500, 'DB_ERROR', sigError.message);
       
     const signalIds = signals ? signals.map(s => s.id) : [];
 

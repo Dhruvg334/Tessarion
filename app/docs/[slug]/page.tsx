@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 
 import { DocsShell } from '@/components/docs/docs-shell';
-import { docsPageBySlug, docsPages } from '@/lib/docs/content';
+import { DocsDiagram } from '@/components/docs/docs-diagram';
+import { docsLegacyRedirects, docsPageBySlug, docsPages } from '@/lib/docs/content';
 
 export function generateStaticParams() {
   return docsPages.map((page) => ({ slug: page.slug }));
@@ -17,6 +18,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function DocsDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const legacyTarget = docsLegacyRedirects[slug];
+  if (legacyTarget) redirect(`/docs/${legacyTarget}`);
   const page = docsPageBySlug.get(slug);
   if (!page) notFound();
   const index = docsPages.findIndex((item) => item.slug === page.slug);
@@ -33,6 +36,7 @@ export default async function DocsDetailPage({ params }: { params: Promise<{ slu
             {section.paragraphs?.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
             {section.bullets && <ul>{section.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul>}
             {section.steps && <div className="docs-steps">{section.steps.map((step, stepIndex) => <div className="docs-step" key={step}><span className="docs-step-index">{stepIndex + 1}</span><p>{step}</p></div>)}</div>}
+            {section.diagram && <DocsDiagram spec={section.diagram} />}
             {section.note && <div className="docs-block"><strong>Boundary:</strong> {section.note}</div>}
           </section>
         ))}

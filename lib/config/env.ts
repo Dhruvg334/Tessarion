@@ -7,6 +7,7 @@ const optionalStrongSecret = z.preprocess((value) => value === '' ? undefined : 
 const clientSchema = z.object({
   NEXT_PUBLIC_SUPABASE_URL: z.string().url('NEXT_PUBLIC_SUPABASE_URL is required'),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1, 'NEXT_PUBLIC_SUPABASE_ANON_KEY is required'),
+  NEXT_PUBLIC_SITE_URL: optionalUrl,
 });
 
 export const serverSchema = z.object({
@@ -50,13 +51,15 @@ export function getClientEnv() {
   const result = clientSchema.safeParse({
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
   });
   if (!result.success) {
-    return { supabaseUrl: '', supabaseAnonKey: '' };
+    return { supabaseUrl: '', supabaseAnonKey: '', siteUrl: undefined };
   }
   return {
     supabaseUrl: result.data.NEXT_PUBLIC_SUPABASE_URL,
     supabaseAnonKey: result.data.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    siteUrl: result.data.NEXT_PUBLIC_SITE_URL,
   };
 }
 
