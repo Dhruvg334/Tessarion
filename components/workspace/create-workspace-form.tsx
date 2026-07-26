@@ -35,7 +35,7 @@ export function CreateWorkspaceForm() {
 
       const json = await res.json();
       if (!res.ok || !json.data?.id) {
-        setError(json?.error || 'Failed to create notebook.');
+        setError(json?.error?.message || json?.error || 'Failed to create notebook.');
         setCreating(false);
         return;
       }

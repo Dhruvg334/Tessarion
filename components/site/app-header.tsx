@@ -12,7 +12,7 @@ export function AppHeader() {
         </Link>
         <nav className="site-nav">
           <Link href="/dashboard" className="nav-link">Dashboard</Link>
-          <Link href="/how-it-works" className="nav-link">How it works</Link>
+          <Link href="/docs" className="nav-link">Documentation</Link>
           <Link href="/about" className="nav-link">About</Link>
           <Link href="/demo" className="nav-link">Demo</Link>
           <LogoutButton />
