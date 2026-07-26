@@ -1,32 +1,41 @@
 import Link from 'next/link';
+import { PlayCircle } from 'lucide-react';
+import { Reveal } from '@/components/motion/reveal';
 import { SiteShell } from '@/components/site/site-shell';
 
-export const metadata = { title: 'Demo' };
+export const metadata = { title: 'Demo', description: 'Watch the product walkthrough and explore the public demo notebook.' };
+
+const steps = [
+  ['Inspect the source', 'Start with the compact memory-hierarchy source. Every concept and finding points back to it.'],
+  ['Explore the graph', 'Select concepts, read evidence, and inspect prerequisites, contrasts, and dependencies.'],
+  ['Switch explanations', 'Compare strong, shallow, partial, unsupported, prerequisite-gap, and misconception cases.'],
+  ['Read the diagnosis', 'See coverage, gaps, evidence conflicts, mastery evidence, and the selected route.'],
+  ['Step through tutoring', 'Follow one bounded question at a time, then return to a fresh teach-back attempt.'],
+  ['Inspect review and trace', 'See why review was scheduled and which workflow steps produced the decision.'],
+] as const;
 
 export default function DemoPage() {
   return (
     <SiteShell>
-      <header className="page-hero">
-        <div className="container page-hero-inner">
-          <p className="eyebrow">Guided evaluation</p>
-          <h1 className="title">Test the same learning loop used by the application.</h1>
-          <p className="subtitle">The demo path is a reproducible sequence, not a simulated dashboard. It uses a source, a concept, two contrasting explanations, and the resulting evidence trail.</p>
-        </div>
-      </header>
-      <div className="container page-content">
-        <div className="feature-grid">
-          <article className="card feature-card"><h3>1. Create a workspace</h3><p>Use a focused topic so the concept and evidence boundaries remain clear.</p></article>
-          <article className="card feature-card"><h3>2. Add the sample source</h3><p>Use the arrays and linked-lists passage documented in the testing guide.</p></article>
-          <article className="card feature-card"><h3>3. Compare responses</h3><p>Submit one grounded explanation and one deliberate misconception.</p></article>
-          <article className="card feature-card"><h3>4. Inspect the route</h3><p>Review detected gaps, evidence references, mastery recommendation, and next action.</p></article>
-          <article className="card feature-card"><h3>5. Enter tutoring</h3><p>Confirm that the tutor asks one bounded question rather than giving the answer.</p></article>
-          <article className="card feature-card"><h3>6. Return to teach-back</h3><p>Finish with another explanation; tutoring alone does not mark the concept understood.</p></article>
-        </div>
-        <div style={{ marginTop: '2rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-          <Link href="/demo/notebook" className="btn">Try demo notebook</Link>
-          <Link href="/docs/teach-back" className="btn btn-secondary">Read the teach-back contract</Link>
-        </div>
-      </div>
+      <main className="demo-page-expanded">
+        <header className="page-hero demo-page-hero"><div className="container page-hero-inner"><p className="eyebrow">Product walkthrough</p><h1>Watch the flow, then inspect it yourself.</h1><p className="subtitle">The video gives a quick orientation. The public notebook lets you interact with the same source, concepts, diagnosis cases, tutoring route, review state, and trace without creating an account.</p></div></header>
+
+        <Reveal className="container-wide demo-video-section">
+          <div className="demo-video-heading"><div><p className="eyebrow">Temporary walkthrough</p><h2>A guided view of the complete learning loop.</h2></div><span>Replaceable video · 16:9</span></div>
+          <div className="demo-video-frame">
+            <iframe src="https://www.youtube-nocookie.com/embed/JSnYRxWMMus?rel=0" title="Tessarion temporary product demonstration" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen loading="lazy" />
+          </div>
+          <div className="demo-video-caption"><PlayCircle size={18} /><p>This temporary video will be replaced with the final Tessarion walkthrough. The interactive notebook below is the authoritative demo of the current product behaviour.</p></div>
+        </Reveal>
+
+        <Reveal className="container demo-guide-section">
+          <div className="landing-section-heading-centered"><p className="eyebrow">How to use the demo</p><h2>Follow the evidence from source to next action.</h2><p>The demo is deterministic and public. It writes no account data and requires no provider key.</p></div>
+          <div className="demo-guide-grid">
+            {steps.map(([title, copy], index) => <article key={title}><span>{String(index + 1).padStart(2, '0')}</span><h3>{title}</h3><p>{copy}</p></article>)}
+          </div>
+          <div className="demo-guide-actions"><Link href="/demo/notebook" className="btn">Try demo notebook</Link><Link href="/docs/learning-system" className="btn btn-secondary">Read the learning-system guide</Link></div>
+        </Reveal>
+      </main>
     </SiteShell>
   );
 }

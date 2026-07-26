@@ -436,3 +436,11 @@ npm run infra:validate
 The lightweight liveness route is `/api/health`. A dependency-aware report is available at `/api/health/infrastructure` and can be protected with `INFRASTRUCTURE_HEALTH_TOKEN`. MCP remains disabled unless `MCP_SERVER_TOKEN` is set.
 
 See [`docs/deployment/DEPLOYMENT.md`](docs/deployment/DEPLOYMENT.md) for the complete infrastructure sequence and [`docs/deployment/VERCEL.md`](docs/deployment/VERCEL.md) for the first production web deployment. Run `npm run deploy:check` before importing or redeploying the project on Vercel.
+
+## Public experience
+
+The public interface uses a warm cream and wood-toned design system, a centred Tessarion wordmark hero, an evidence-linked diagnosis report, an interactive capability explorer, consolidated documentation with Cytoscape diagrams, a guided video page, and a deterministic public notebook.
+
+The public demo is available at `/demo/notebook` without authentication. It includes fourteen concepts, six teach-back cases, source evidence, graph relationships, tutoring turns, review reasoning, attempt comparison, and a workflow trace.
+
+Production signup requires custom SMTP configuration in Supabase. See [`docs/deployment/AUTH-EMAIL.md`](docs/deployment/AUTH-EMAIL.md).

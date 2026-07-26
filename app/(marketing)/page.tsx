@@ -1,174 +1,94 @@
+import Image from 'next/image';
 import Link from 'next/link';
+import { ArrowRight, CheckCircle2, Compass, Layers3, ShieldCheck } from 'lucide-react';
+import { Reveal } from '@/components/motion/reveal';
+import { FeatureExplorer } from '@/components/site/public/feature-explorer';
+import { KnowledgeReport } from '@/components/site/public/knowledge-report';
 import { SiteShell } from '@/components/site/site-shell';
 
-const loop = [
-  ['01', 'Ground', 'Add the exact material you are studying.'],
-  ['02', 'Model', 'Build concepts, evidence links, and dependencies.'],
-  ['03', 'Explain', 'Teach one idea back without reading the source.'],
-  ['04', 'Diagnose', 'Locate omissions, misconceptions, and weak prerequisites.'],
-  ['05', 'Recover', 'Use tutoring and review before explaining it again.'],
-];
-
-
-
-const reportCards = [
-  ['Source grounding', '6 evidence chunks', 'Every claim is linked to material in the notebook.'],
-  ['Gap diagnosis', '2 contradictions found', 'Misconceptions remain separate from missing details.'],
-  ['Next action', 'Socratic tutoring', 'The route changes because the explanation conflicts with the source.'],
-  ['Traceability', '6 recorded steps', 'Retrieval, graph context, validation, and routing remain inspectable.'],
-];
-
-const exampleScenarios = [
-  ['Grounded explanation', 'The learner compares speed, volatility, and capacity correctly.', 'Light review'],
-  ['Shallow explanation', 'The learner names the concept but leaves out its mechanism.', 'Teach back again'],
-  ['Misconception', 'The learner makes a claim that directly conflicts with the source.', 'Socratic tutoring'],
-];
-
-const systemLayers = [
-  ['Evidence', 'Source chunks stay attached to every concept and diagnosis.'],
-  ['Reasoning', 'Workflow transitions are explicit, bounded, and inspectable.'],
-  ['Memory', 'Learner state records what changed and why it changed.'],
-  ['Evaluation', 'Versioned datasets measure retrieval, diagnosis, review, and tutoring.'],
-];
+const advantages = [
+  ['Evidence you can inspect', 'Source-linked findings replace unexplained confidence.', ShieldCheck],
+  ['Weak prerequisites become visible', 'Graph paths show what a learner may need before the active concept.', Layers3],
+  ['Recovery matches the failure', 'A shallow answer, omission, and misconception lead to different routes.', Compass],
+  ['Progress stays grounded', 'New mastery evidence comes from another explanation, not from finishing a chat.', CheckCircle2],
+] as const;
 
 export default function MarketingPage() {
   return (
     <SiteShell>
-      <section className="hero" aria-labelledby="hero-title">
+      <section className="hero hero-rebuilt" aria-labelledby="hero-title">
+        <Image src="/hero-tessarion-network.svg" alt="" fill priority className="hero-background-art" sizes="100vw" />
+        <div className="hero-vignette" aria-hidden="true" />
         <div className="hero-inner">
+          <p className="hero-kicker">Open-source learning intelligence</p>
           <h1 id="hero-title" className="hero-wordmark">Tessarion</h1>
           <div className="hero-actions">
-            <Link href="/signup" className="btn">Open a workspace</Link>
-            <Link href="/docs" className="btn btn-secondary">Explore the system</Link>
+            <Link href="/signup" className="btn btn-on-hero">Open a workspace</Link>
+            <Link href="/demo/notebook" className="btn btn-ghost-on-hero">Try the public demo <ArrowRight size={16} /></Link>
           </div>
         </div>
       </section>
 
-      <section className="landing-intro-section">
-        <div className="container landing-intro-grid">
-          <div className="landing-intro-heading">
-            <p className="eyebrow">A different study loop</p>
-            <h2>Reading creates familiarity. Explanation reveals whether the idea can be rebuilt.</h2>
+      <Reveal className="landing-report-showcase">
+        <div className="container-wide landing-showcase-grid">
+          <div className="landing-showcase-copy">
+            <p className="eyebrow">A report, not a mystery score</p>
+            <h2>See the concept structure, evidence, gap, and next action in one place.</h2>
+            <p>Tessarion turns a learner explanation into an inspectable decision. The interface keeps source evidence, graph context, diagnosis, and routing connected.</p>
+            <Link href="/docs/learning-system" className="text-link">Read the learning-system guide →</Link>
           </div>
-          <div className="landing-intro-copy">
-            <p>Tessarion turns source material into an evidence-linked learning system. It asks you to explain a concept, checks the explanation against the source and its dependencies, then selects the next learning action.</p>
-            <p>The result is not a score without context. It is a traceable record of what was covered, what was missed, and which evidence supports the diagnosis.</p>
-          </div>
+          <KnowledgeReport />
         </div>
-      </section>
+      </Reveal>
 
-      <section className="landing-loop-section">
+      <Reveal className="landing-feature-section">
         <div className="container-wide">
-          <div className="landing-section-title">
-            <p className="eyebrow">The complete loop</p>
-            <h2>One continuous path from material to durable understanding.</h2>
+          <div className="landing-section-heading-centered">
+            <p className="eyebrow">Explore the system</p>
+            <h2>Six capabilities. One evidence-linked learning loop.</h2>
+            <p>Select a capability to see the mechanism and the learner advantage.</p>
           </div>
-          <div className="landing-loop-rail">
-            {loop.map(([index, title, description]) => (
-              <article key={index}>
-                <span>{index}</span>
+          <FeatureExplorer />
+        </div>
+      </Reveal>
+
+      <Reveal className="landing-advantages-section">
+        <div className="container-wide">
+          <div className="landing-section-heading-centered">
+            <p className="eyebrow">Why the architecture matters</p>
+            <h2>Technical boundaries become practical learning advantages.</h2>
+          </div>
+          <div className="advantage-grid">
+            {advantages.map(([title, copy, Icon], index) => (
+              <article key={title}>
+                <div className="advantage-card-top"><span>{String(index + 1).padStart(2, '0')}</span><Icon size={18} /></div>
                 <h3>{title}</h3>
-                <p>{description}</p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="landing-system-section">
-        <div className="container landing-system-grid">
-          <div className="landing-system-map" aria-label="Tessarion system flow">
-            <div className="system-map-column">
-              <span className="eyebrow">Input</span>
-              <strong>Source material</strong>
-              <small>documents · chunks · evidence</small>
-            </div>
-            <div className="system-map-arrow" aria-hidden="true">→</div>
-            <div className="system-map-column system-map-core">
-              <span className="eyebrow">Learning engine</span>
-              <strong>Concepts + workflows</strong>
-              <small>retrieval · graph · diagnosis</small>
-            </div>
-            <div className="system-map-arrow" aria-hidden="true">→</div>
-            <div className="system-map-column">
-              <span className="eyebrow">Output</span>
-              <strong>Next action</strong>
-              <small>review · tutor · teach-back</small>
-            </div>
-          </div>
-
-          <div className="landing-system-copy">
-            <p className="eyebrow">Inside the system</p>
-            <h2>Each layer has one responsibility.</h2>
-            <div className="system-layer-list">
-              {systemLayers.map(([title, copy]) => (
-                <div key={title}><h3>{title}</h3><p>{copy}</p></div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="landing-report-section">
-        <div className="container-wide">
-          <div className="landing-section-title">
-            <p className="eyebrow">Diagnosis report</p>
-            <h2>A learning decision should show its evidence, not hide behind a score.</h2>
-          </div>
-          <div className="landing-report-grid">
-            {reportCards.map(([title, value, copy]) => (
-              <article key={title} className="landing-report-card">
-                <p className="eyebrow">{title}</p>
-                <h3>{value}</h3>
                 <p>{copy}</p>
               </article>
             ))}
           </div>
         </div>
-      </section>
+      </Reveal>
 
-      <section className="landing-scenarios-section">
-        <div className="container landing-scenarios-grid">
+      <Reveal className="landing-process-section">
+        <div className="container landing-process-grid">
           <div>
-            <p className="eyebrow">Example scenarios</p>
-            <h2>The same concept can require a different learning route.</h2>
-            <p>These examples show why Tessarion keeps diagnosis, evidence, tutoring, and review as separate decisions.</p>
-            <Link href="/demo/notebook" className="btn">Try the public notebook</Link>
+            <p className="eyebrow">The working loop</p>
+            <h2>Material becomes a concept model. Explanation becomes evidence.</h2>
           </div>
-          <div className="landing-scenario-list">
-            {exampleScenarios.map(([title, copy, action], index) => (
-              <article key={title}>
-                <span>{String(index + 1).padStart(2, '0')}</span>
-                <div><h3>{title}</h3><p>{copy}</p></div>
-                <strong>{action}</strong>
-              </article>
-            ))}
-          </div>
+          <ol>
+            <li><span>01</span><div><strong>Add source material</strong><p>Documents are chunked, indexed, and kept inside the notebook boundary.</p></div></li>
+            <li><span>02</span><div><strong>Build the concept structure</strong><p>Concepts and evidence-bearing relationships form the context for diagnosis.</p></div></li>
+            <li><span>03</span><div><strong>Teach it back</strong><p>The learner explains without copying the source.</p></div></li>
+            <li><span>04</span><div><strong>Repair and review</strong><p>Tutoring, another attempt, or scheduled review follows the detected gap.</p></div></li>
+          </ol>
         </div>
-      </section>
+      </Reveal>
 
-      <section className="landing-proof-section">
-        <div className="container landing-proof-grid">
-          <div>
-            <p className="eyebrow">Engineering standard</p>
-            <h2>Evidence before confidence.</h2>
-          </div>
-          <div className="landing-proof-list">
-            <p><span>01</span> Generated output cannot update learner state until validation passes.</p>
-            <p><span>02</span> Vector and graph layers remain rebuildable projections, not canonical records.</p>
-            <p><span>03</span> Workflow checkpoints, tool calls, and failure boundaries are inspectable.</p>
-            <p><span>04</span> Evaluation datasets are versioned and run as regression gates.</p>
-          </div>
-        </div>
-      </section>
-
-      <section className="landing-status-section">
-        <div className="container landing-status-inner">
-          <div>
-            <p className="eyebrow">Current implementation</p>
-            <h2>The learning core is active. External retrieval and graph services remain replaceable.</h2>
-          </div>
-          <Link href="/docs/current-status" className="btn btn-secondary">Read implementation status</Link>
+      <section className="landing-final-cta">
+        <div className="container landing-final-cta-inner">
+          <div><p className="eyebrow">Start with one concept</p><h2>Build a notebook around material you are actually studying.</h2></div>
+          <div><Link href="/signup" className="btn btn-on-wood">Create an account</Link><Link href="/docs" className="btn btn-wood-outline">Read documentation</Link></div>
         </div>
       </section>
     </SiteShell>

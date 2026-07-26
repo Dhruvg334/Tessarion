@@ -1,11 +1,14 @@
-"use client";
+'use client';
 
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Check, Clock3 } from 'lucide-react';
 
 import { hasSupabaseClientEnv } from '@/lib/config/env';
 import { TesseractIcon } from '@/components/ui/tesseract-icon';
+
+type SignupPayload = { error?: string; kind?: string; retryAfterSeconds?: number; confirmationRequired?: boolean };
 
 export function SignupForm() {
   const [email, setEmail] = useState('');
@@ -13,41 +16,53 @@ export function SignupForm() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
   const router = useRouter();
+
+  const normalizedEmail = email.trim().toLowerCase();
+  const emailValid = useMemo(() => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(normalizedEmail), [normalizedEmail]);
+  const passwordValid = password.length >= 8;
+  const formValid = emailValid && passwordValid && cooldown === 0 && !loading && hasSupabaseClientEnv();
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = window.setInterval(() => setCooldown((value) => Math.max(value - 1, 0)), 1000);
+    return () => window.clearInterval(timer);
+  }, [cooldown]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    if (!formValid) {
+      setError(!emailValid ? 'Enter a complete email address, including the domain.' : 'Use a password with at least eight characters.');
+      return;
+    }
+
     setLoading(true);
     setError('');
     setSuccess('');
-
-    if (!hasSupabaseClientEnv()) {
-      setError('Supabase is not configured. Add the public Supabase URL and anonymous key to .env.local, then restart the development server.');
-      setLoading(false);
-      return;
-    }
 
     try {
       const response = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), password }),
+        body: JSON.stringify({ email: normalizedEmail, password }),
       });
-      const payload = await response.json().catch(() => ({ error: 'Signup returned an unreadable response.' })) as { error?: string; confirmationRequired?: boolean };
+      const payload = await response.json().catch(() => ({ error: 'Signup returned an unreadable response.' })) as SignupPayload;
 
       if (!response.ok) {
-        setError(payload.error ?? 'Account creation failed.');
+        setError(payload.error ?? 'Account creation could not be completed.');
+        if (response.status === 429) setCooldown(payload.retryAfterSeconds ?? 60);
         return;
       }
 
       if (payload.confirmationRequired) {
-        setSuccess('Check your email for the confirmation link. Local Supabase messages are available in Inbucket.');
+        setSuccess(`A confirmation link was sent to ${normalizedEmail}. Open it to finish creating the account.`);
       } else {
         router.replace('/dashboard');
         router.refresh();
       }
     } catch {
-      setError('The application could not reach its signup endpoint. Check that the development server is still running.');
+      setError('The signup endpoint could not be reached. Check the connection and try again.');
     } finally {
       setLoading(false);
     }
@@ -58,22 +73,32 @@ export function SignupForm() {
       <Link href="/" className="auth-logo brand-link"><TesseractIcon size={23} /><span className="brand-word">Tessarion</span></Link>
       <section className="auth-brand-panel" aria-labelledby="signup-context">
         <p className="eyebrow">Create a workspace</p>
-        <h1 id="signup-context" className="title" style={{ marginTop: '0.7rem' }}>Build a concept model from material you are actually studying.</h1>
+        <h1 id="signup-context" className="title">Build a concept model from material you are actually studying.</h1>
         <ul className="auth-list"><li>Evidence-linked concept relationships</li><li>Teach-back diagnosis and review</li><li>Guided tutoring without premature answers</li></ul>
       </section>
       <section className="auth-form-wrapper">
         <div className="auth-form-card">
-          <h2 style={{ margin: 0, fontSize: '1.45rem' }}>Create an account</h2>
-          <p className="muted" style={{ margin: '0.35rem 0 1.3rem' }}>Start with one focused source and one concept.</p>
-          {!hasSupabaseClientEnv() && <div className="notice" style={{ marginBottom: '1rem' }}>Account creation is unavailable until Supabase is configured.</div>}
-          {error && <p className="notice" role="alert" style={{ marginBottom: '1rem' }}>{error}</p>}
-          {success && <p className="notice" role="status" style={{ marginBottom: '1rem' }}>{success}</p>}
-          <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '0.9rem' }}>
-            <label><span className="eyebrow" style={{ display: 'block', marginBottom: '0.35rem' }}>Email</span><input type="email" autoComplete="email" className="input" value={email} onChange={(event) => setEmail(event.target.value)} required /></label>
-            <label><span className="eyebrow" style={{ display: 'block', marginBottom: '0.35rem' }}>Password</span><input type="password" autoComplete="new-password" minLength={8} className="input" value={password} onChange={(event) => setPassword(event.target.value)} required /></label>
-            <button className="btn" disabled={loading} type="submit">{loading ? 'Creating account…' : 'Create account'}</button>
+          <h2>Create an account</h2>
+          <p className="muted auth-card-intro">Start with one focused source and one concept.</p>
+          {!hasSupabaseClientEnv() && <div className="notice auth-notice">Account creation is unavailable until Supabase is configured.</div>}
+          {error && <p className="notice auth-notice" role="alert">{error}</p>}
+          {success && <p className="notice auth-notice" role="status">{success}</p>}
+          <form onSubmit={handleSubmit} className="auth-form-grid" noValidate>
+            <label>
+              <span className="eyebrow auth-field-label">Email</span>
+              <input type="email" inputMode="email" autoComplete="email" className="input" value={email} onChange={(event) => { setEmail(event.target.value); setError(''); }} aria-invalid={email.length > 0 && !emailValid} required />
+              <small className={email.length > 0 && emailValid ? 'field-help is-valid' : 'field-help'}>{email.length > 0 && emailValid ? <><Check size={13} /> Email format looks complete</> : 'Use an address such as name@example.com.'}</small>
+            </label>
+            <label>
+              <span className="eyebrow auth-field-label">Password</span>
+              <input type="password" autoComplete="new-password" minLength={8} className="input" value={password} onChange={(event) => { setPassword(event.target.value); setError(''); }} aria-invalid={password.length > 0 && !passwordValid} required />
+              <small className={passwordValid ? 'field-help is-valid' : 'field-help'}>{passwordValid ? <><Check size={13} /> Minimum length met</> : 'Use at least eight characters.'}</small>
+            </label>
+            <button className="btn" disabled={!formValid} type="submit">
+              {cooldown > 0 ? <><Clock3 size={15} /> Try again in {cooldown}s</> : loading ? 'Creating account…' : 'Create account'}
+            </button>
           </form>
-          <p className="muted" style={{ margin: '1.2rem 0 0', textAlign: 'center' }}>Already registered? <Link href="/login" style={{ fontWeight: 750 }}>Sign in</Link></p>
+          <p className="muted auth-card-footer">Already registered? <Link href="/login">Sign in</Link></p>
         </div>
       </section>
     </div>
