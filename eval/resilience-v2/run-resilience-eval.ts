@@ -77,9 +77,42 @@ async function workflowCompletesWithCheckpoints(): Promise<ResilienceCaseResult>
 }
 
 async function workflowPausesForInput(): Promise<ResilienceCaseResult> {
+  type PauseWorkflowState = {
+    [key: string]: unknown;
+    activeStep?: string;
+    waitingForInput?: boolean;
+  };
+
   const store = new InMemoryWorkflowCheckpointStore();
-  const result = await runCheckpointedWorkflow({ threadId: 'eval-pause', workflowName: 'eval', workflowVersion: '1.0.0', workspaceId: context.workspaceId, userId: context.userId, traceId: context.traceId, entryStep: 'ask', initialState: {}, checkpointStore: store, steps: [{ name: 'ask', run: (state) => ({ ...state, waitingForInput: true }), next: () => 'evaluate' }, { name: 'evaluate', run: (state) => state, next: () => null }] });
-  return outcome('workflow-pauses', result.status === 'waiting_for_input' && result.state.activeStep === 'evaluate', `status=${result.status}`);
+  const result = await runCheckpointedWorkflow<PauseWorkflowState>({
+    threadId: 'eval-pause',
+    workflowName: 'eval',
+    workflowVersion: '1.0.0',
+    workspaceId: context.workspaceId,
+    userId: context.userId,
+    traceId: context.traceId,
+    entryStep: 'ask',
+    initialState: {},
+    checkpointStore: store,
+    steps: [
+      {
+        name: 'ask',
+        run: (state) => ({ ...state, waitingForInput: true }),
+        next: () => 'evaluate',
+      },
+      {
+        name: 'evaluate',
+        run: (state) => state,
+        next: () => null,
+      },
+    ],
+  });
+
+  return outcome(
+    'workflow-pauses',
+    result.status === 'waiting_for_input' && result.state.activeStep === 'evaluate',
+    `status=${result.status}`,
+  );
 }
 
 async function workflowResumesFromCheckpoint(): Promise<ResilienceCaseResult> {
