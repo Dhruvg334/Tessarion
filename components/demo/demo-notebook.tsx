@@ -30,6 +30,8 @@ export function DemoNotebook() {
   const scenario = useMemo(() => demoNotebook.scenarios.find((item) => item.id === scenarioId) ?? demoNotebook.scenarios[0], [scenarioId]);
   const comparison = useMemo(() => demoNotebook.scenarios.find((item) => item.id === compareId) ?? demoNotebook.scenarios[0], [compareId]);
   const concept = useMemo(() => demoNotebook.concepts.find((item) => item.id === conceptId) ?? demoNotebook.concepts[0], [conceptId]);
+  const gapCount = Number(scenario.gaps.length);
+  const gapLabel = gapCount === 1 ? 'issue' : 'issues';
 
   return (
     <div className="demo-notebook-shell">
@@ -63,7 +65,7 @@ export function DemoNotebook() {
               <section className="demo-tutor-panel"><div className="demo-panel-heading"><div><p className="eyebrow">Socratic recovery</p><h2>One question at a time</h2></div><span>{tutorStep} / {demoNotebook.tutor.length}</span></div><div className="demo-tutor-thread">{demoNotebook.tutor.slice(0,tutorStep).map((turn,index) => <article key={`${turn.role}-${index}`} className={`demo-turn is-${turn.role}`}><span>{turn.role}</span><p>{turn.text}</p></article>)}</div><div className="demo-tutor-controls"><button type="button" className="btn btn-secondary" disabled={tutorStep <= 1} onClick={() => setTutorStep((value) => Math.max(1,value-1))}>Previous</button><button type="button" className="btn" disabled={tutorStep >= demoNotebook.tutor.length} onClick={() => setTutorStep((value) => Math.min(demoNotebook.tutor.length,value+1))}>Next turn</button>{tutorStep >= demoNotebook.tutor.length ? <button type="button" className="btn" onClick={() => setPanel('review')}>Continue to review</button> : null}</div></section>
             )}
 
-            {panel === 'review' && <section className="demo-reading-panel"><p className="eyebrow">Review decision</p><h2>{scenario.nextAction}</h2><p>{scenario.review}</p><div className="demo-review-reason"><strong>Why this route?</strong><p>{scenario.gaps.length ? `${scenario.gaps.length} evidence-linked issue${scenario.gaps.length === 1 ? '' : 's'} remain.` : 'No material gap remains, so a lighter review is appropriate.'}</p></div><button type="button" className="btn" onClick={() => setPanel('trace')}>Inspect workflow trace</button></section>}
+            {panel === 'review' && <section className="demo-reading-panel"><p className="eyebrow">Review decision</p><h2>{scenario.nextAction}</h2><p>{scenario.review}</p><div className="demo-review-reason"><strong>Why this route?</strong><p>{gapCount ? `${gapCount} evidence-linked ${gapLabel} remain.` : 'No material gap remains, so a lighter review is appropriate.'}</p></div><button type="button" className="btn" onClick={() => setPanel('trace')}>Inspect workflow trace</button></section>}
 
             {panel === 'trace' && <section className="demo-trace-panel"><div className="demo-panel-heading"><div><p className="eyebrow">Execution trace</p><h2>How the route was produced</h2></div><span>{demoNotebook.trace.length} recorded steps</span></div><ol>{demoNotebook.trace.map(([step,detail,status],index) => <li key={step}><span>{String(index+1).padStart(2,'0')}</span><div><strong>{step}</strong><p>{detail}</p></div><em>{status}</em></li>)}</ol></section>}
           </m.div>

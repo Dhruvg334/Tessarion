@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Check, Clock3 } from 'lucide-react';
@@ -30,7 +30,7 @@ export function SignupForm() {
     return () => window.clearInterval(timer);
   }, [cooldown]);
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!formValid) {
       setError(!emailValid ? 'Enter a complete email address, including the domain.' : 'Use a password with at least eight characters.');
