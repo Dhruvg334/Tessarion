@@ -2,7 +2,7 @@
 
 -- 1. Create mastery_signals table for historical ledger
 CREATE TABLE public.mastery_signals (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   workspace_id uuid REFERENCES public.workspaces(id) ON DELETE CASCADE,
   concept_id uuid REFERENCES public.concept_nodes(id) ON DELETE CASCADE,
   user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE,

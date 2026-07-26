@@ -2,8 +2,7 @@
 -- Purpose: Create core tables, extensions, and RLS policies for Tessarion
 
 -- 1. Extensions
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-CREATE EXTENSION IF NOT EXISTS "vector";
+CREATE EXTENSION IF NOT EXISTS "vector" WITH SCHEMA extensions;
 
 -- 2. Updated At Trigger Function
 CREATE OR REPLACE FUNCTION public.set_current_timestamp_updated_at()
@@ -28,7 +27,7 @@ CREATE TABLE public.profiles (
 
 -- workspaces
 CREATE TABLE public.workspaces (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid REFERENCES public.profiles(id) ON DELETE CASCADE,
   name text NOT NULL,
   description text,
@@ -39,7 +38,7 @@ CREATE TABLE public.workspaces (
 
 -- source_documents
 CREATE TABLE public.source_documents (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   workspace_id uuid REFERENCES public.workspaces(id) ON DELETE CASCADE,
   file_name text,
   file_type text,
@@ -56,7 +55,7 @@ CREATE TABLE public.source_documents (
 
 -- source_chunks
 CREATE TABLE public.source_chunks (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   source_document_id uuid REFERENCES public.source_documents(id) ON DELETE CASCADE,
   workspace_id uuid REFERENCES public.workspaces(id) ON DELETE CASCADE,
   content text NOT NULL,
@@ -65,13 +64,13 @@ CREATE TABLE public.source_chunks (
   section_hint text,
   char_start integer,
   char_end integer,
-  embedding vector(768),
+  embedding extensions.vector(768),
   created_at timestamptz DEFAULT NOW()
 );
 
 -- concept_nodes
 CREATE TABLE public.concept_nodes (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   workspace_id uuid REFERENCES public.workspaces(id) ON DELETE CASCADE,
   name text NOT NULL,
   definition text,
@@ -94,7 +93,7 @@ CREATE TABLE public.concept_nodes (
 
 -- concept_edges
 CREATE TABLE public.concept_edges (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   workspace_id uuid REFERENCES public.workspaces(id) ON DELETE CASCADE,
   source_node_id uuid REFERENCES public.concept_nodes(id) ON DELETE CASCADE,
   target_node_id uuid REFERENCES public.concept_nodes(id) ON DELETE CASCADE,
@@ -109,7 +108,7 @@ CREATE TABLE public.concept_edges (
 
 -- teach_back_sessions
 CREATE TABLE public.teach_back_sessions (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   workspace_id uuid REFERENCES public.workspaces(id) ON DELETE CASCADE,
   concept_node_id uuid REFERENCES public.concept_nodes(id) ON DELETE CASCADE,
   status text CHECK (status IN ('in_progress', 'completed', 'abandoned')),
@@ -125,7 +124,7 @@ CREATE TABLE public.teach_back_sessions (
 
 -- student_explanations
 CREATE TABLE public.student_explanations (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   session_id uuid REFERENCES public.teach_back_sessions(id) ON DELETE CASCADE,
   content text NOT NULL,
   sequence_index integer NOT NULL,
@@ -135,7 +134,7 @@ CREATE TABLE public.student_explanations (
 
 -- gap_findings
 CREATE TABLE public.gap_findings (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   session_id uuid REFERENCES public.teach_back_sessions(id) ON DELETE CASCADE,
   gap_type text CHECK (gap_type IN ('missing_concept', 'misconception', 'weak_connection', 'shallow_explanation', 'missing_prerequisite', 'unsupported_claim')),
   description text NOT NULL,
@@ -151,7 +150,7 @@ CREATE TABLE public.gap_findings (
 
 -- socratic_questions
 CREATE TABLE public.socratic_questions (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   session_id uuid REFERENCES public.teach_back_sessions(id) ON DELETE CASCADE,
   question_text text NOT NULL,
   target_gap_id uuid REFERENCES public.gap_findings(id) ON DELETE SET NULL,
@@ -163,7 +162,7 @@ CREATE TABLE public.socratic_questions (
 
 -- mastery_records
 CREATE TABLE public.mastery_records (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   concept_node_id uuid REFERENCES public.concept_nodes(id) ON DELETE CASCADE,
   mastery_score numeric NOT NULL,
   mastery_level text CHECK (mastery_level IN ('untested', 'weak', 'developing', 'strong', 'mastered')),
@@ -176,7 +175,7 @@ CREATE TABLE public.mastery_records (
 
 -- review_schedules
 CREATE TABLE public.review_schedules (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   concept_node_id uuid REFERENCES public.concept_nodes(id) ON DELETE CASCADE,
   workspace_id uuid REFERENCES public.workspaces(id) ON DELETE CASCADE,
   scheduled_date date NOT NULL,
@@ -190,7 +189,7 @@ CREATE TABLE public.review_schedules (
 
 -- agent_runs
 CREATE TABLE public.agent_runs (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   workspace_id uuid REFERENCES public.workspaces(id) ON DELETE CASCADE,
   session_id uuid REFERENCES public.teach_back_sessions(id) ON DELETE SET NULL,
   agent_name text NOT NULL,
@@ -209,7 +208,7 @@ CREATE TABLE public.agent_runs (
 
 -- audit_logs
 CREATE TABLE public.audit_logs (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   workspace_id uuid REFERENCES public.workspaces(id) ON DELETE CASCADE,
   user_id uuid REFERENCES public.profiles(id) ON DELETE CASCADE,
   event_type text NOT NULL,

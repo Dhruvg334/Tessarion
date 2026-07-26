@@ -6,7 +6,7 @@ create index if not exists source_chunks_search_idx on public.source_chunks usin
 
 -- Dense match
 create or replace function match_source_chunks_dense(
-  query_embedding vector(768),
+  query_embedding extensions.vector(768),
   match_workspace_id uuid,
   match_threshold float,
   match_count int
@@ -71,7 +71,7 @@ $$;
 -- Hybrid match
 create or replace function match_source_chunks_hybrid(
   query_text text,
-  query_embedding vector(768),
+  query_embedding extensions.vector(768),
   match_workspace_id uuid,
   match_count int,
   rrf_k int default 60
