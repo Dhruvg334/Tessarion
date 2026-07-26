@@ -1,13 +1,7 @@
-export default async function SessionPage({ params }: { params: Promise<{ id: string, sessionId: string }> }) {
+import Link from 'next/link';
+import { WorkspaceShell } from '@/components/workspace/workspace-shell';
+
+export default async function SessionPage({ params }: { params: Promise<{ id: string; sessionId: string }> }) {
   const { id, sessionId } = await params;
-  return (
-    <div className="container">
-      <h1 className="title">Active Session: {sessionId}</h1>
-      <p className="muted">Workspace: {id} — Socratic Learning Mode</p>
-      
-      <div className="card" style={{ marginTop: '2rem' }}>
-        <p className="muted">Teach-back interface and chat coming next.</p>
-      </div>
-    </div>
-  );
+  return <div className="app-page workspace-subpage"><div className="container-wide"><div className="workspace-breadcrumb"><Link href="/dashboard">Dashboard</Link><span>/</span><Link href={`/workspace/${id}`}>Notebook</Link><span>/</span><span>Session</span></div><WorkspaceShell workspaceId={id} workspaceName="Current notebook"><header className="workspace-subpage-header"><div><p className="eyebrow">Learning session</p><h1>Session unavailable in this view</h1><p>The active teach-back and tutoring experiences now open through the notebook navigation so evidence, review state, and trace context stay together.</p></div></header><div className="workspace-session-note"><code>{sessionId}</code><Link className="btn" href={`/workspace/${id}?panel=teach-back`}>Return to teach-back</Link></div></WorkspaceShell></div></div>;
 }

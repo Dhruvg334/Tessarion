@@ -8,7 +8,6 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { WorkspaceGraphViewer } from '@/components/graph/workspace-graph-viewer';
 import { DocumentList } from '@/components/workspace/document-list';
-import { ProductPanelNav } from '@/components/shell/product-panel-nav';
 import { EmptyState } from '@/components/shell/empty-state';
 import { NextActionPanel } from '@/components/review/next-action-panel';
 import { ReviewQueue } from '@/components/review/review-queue';
@@ -18,6 +17,7 @@ import { resolveNextAction, type NextActionContext } from '@/lib/product/next-ac
 import type { SourceDocument } from '@/types/database';
 import { getSystemReadiness } from '@/lib/system/readiness';
 import { SystemReadinessCard } from '@/components/system/system-readiness-card';
+import { WorkspaceShell } from '@/components/workspace/workspace-shell';
 
 const PANELS = [
   { id: 'study', label: 'Study Board' },
@@ -114,117 +114,66 @@ export default async function WorkspacePage(props: {
   const nextAction = resolveNextAction(context);
   const readiness = getSystemReadiness();
 
+  const contextRail = currentPanel === 'study' ? (
+    <>
+      <SystemReadinessCard readiness={readiness} compact />
+      <section className="workspace-context-card">
+        <div className="workspace-context-card-head">
+          <div><p className="eyebrow">Graph preview</p><h2>Concept structure</h2></div>
+          <Link href={`/workspace/${id}?panel=graph`}>Open</Link>
+        </div>
+        <div className="graph-preview-surface compact">
+          {documents.length === 0 ? (
+            <EmptyState title="Add your first source" description="A source is required before Tessarion can build evidence-linked concepts." action={<Link href={`/workspace/${id}/upload`} className="btn">Add source</Link>} />
+          ) : <WorkspaceGraphViewer initialGraph={initialGraph} workspaceId={id} />}
+        </div>
+      </section>
+    </>
+  ) : undefined;
+
   return (
     <div className="app-page workspace-page">
       <div className="container-wide">
-        <div className="workspace-breadcrumb">
-          <Link href="/dashboard">Dashboard</Link>
-          <span aria-hidden="true">/</span>
-          <span>{workspace.name}</span>
-        </div>
+        <div className="workspace-breadcrumb"><Link href="/dashboard">Dashboard</Link><span aria-hidden="true">/</span><span>{workspace.name}</span></div>
 
         <section className="workspace-command-header">
           <div className="workspace-command-copy">
-            <p className="eyebrow">Notebook</p>
-            <h1>{workspace.name}</h1>
+            <p className="eyebrow">Notebook</p><h1>{workspace.name}</h1>
             <p>{workspace.description || 'Add a short description to define the learning scope.'}</p>
           </div>
-          <div className="workspace-command-actions">
-            <Link href={`/demo/notebook`} className="btn btn-secondary">View example</Link>
-            <Link href={`/workspace/${id}/upload`} className="btn">Add source</Link>
-          </div>
+          <div className="workspace-command-actions"><Link href="/demo/notebook" className="btn btn-secondary">View example</Link><Link href={`/workspace/${id}/upload`} className="btn">Add source</Link></div>
         </section>
 
-        {degradedSections.length > 0 ? (
-          <div className="workspace-degraded-notice" role="status">
-            <strong>Partial data available</strong>
-            <span>{degradedSections.join(', ')} could not be loaded. Other sections remain usable.</span>
-          </div>
-        ) : null}
+        {degradedSections.length > 0 ? <div className="workspace-degraded-notice" role="status"><strong>Partial data available</strong><span>{degradedSections.join(', ')} could not be loaded. Other sections remain usable.</span></div> : null}
 
-        <div className="workspace-toolbar">
-          <ProductPanelNav panels={PANELS} defaultPanel="study" />
-          <div className="workspace-facts-compact" aria-label="Workspace summary">
-            <div><strong>{documents.length}</strong><span>sources</span></div>
-            <div><strong>{initialGraph?.nodes?.length || 0}</strong><span>concepts</span></div>
-            <div><strong>{reviewQueue.length}</strong><span>reviews</span></div>
-            <div><strong>{activeTutoringSessions.length}</strong><span>tutor sessions</span></div>
-          </div>
-        </div>
-
-        {currentPanel === 'study' && (
-          <div className="workspace-study-layout">
-            <main className="workspace-study-main">
-              <section className="workspace-action-section">
-                <div className="workspace-section-heading">
-                  <div><p className="eyebrow">Current route</p><h2>What to do next</h2></div>
-                </div>
-                <NextActionPanel action={nextAction} />
-              </section>
-
-              <section className="workspace-modules-section">
-                <div className="workspace-section-heading">
-                  <div><p className="eyebrow">Learning surfaces</p><h2>Move through the notebook</h2></div>
-                </div>
-                <div className="workspace-module-grid refined">
-                  <Link className="workspace-module" href={`/workspace/${id}?panel=sources`}><span>01</span><h3>Sources</h3><p>Inspect evidence and processing state.</p></Link>
-                  <Link className="workspace-module" href={`/workspace/${id}?panel=graph`}><span>02</span><h3>Knowledge graph</h3><p>Explore concepts and dependencies.</p></Link>
-                  <Link className="workspace-module" href={`/workspace/${id}?panel=teach-back`}><span>03</span><h3>Teach-back</h3><p>Explain a concept and surface gaps.</p></Link>
-                  <Link className="workspace-module" href={`/workspace/${id}?panel=review`}><span>04</span><h3>Reviews</h3><p>Work through scheduled corrections.</p></Link>
-                </div>
-              </section>
-            </main>
-
-            <aside className="workspace-study-rail">
-              <SystemReadinessCard readiness={readiness} compact />
-              <section className="workspace-graph-preview-card">
-                <div className="workspace-section-heading">
-                  <div><p className="eyebrow">Graph preview</p><h2>Concept structure</h2></div>
-                  <Link href={`/workspace/${id}?panel=graph`}>Open</Link>
-                </div>
-                <div className="graph-preview-surface compact">
-                  {documents.length === 0 ? (
-                    <EmptyState title="Add your first source" description="A source document is required before Tessarion can build evidence-linked concepts." action={<Link href={`/workspace/${id}/upload`} className="btn">Add source</Link>} />
-                  ) : (
-                    <WorkspaceGraphViewer initialGraph={initialGraph} workspaceId={id} />
-                  )}
-                </div>
-              </section>
-            </aside>
-          </div>
-        )}
-
-        {currentPanel === 'sources' && (
-          <section className="workspace-panel">
-            <div className="workspace-section-heading"><div><p className="eyebrow">Evidence base</p><h2>Source materials</h2></div><Link href={`/workspace/${id}/upload`} className="btn">Add source</Link></div>
-            {documents.length === 0 ? <EmptyState title="No source documents" description="Add a passage, note, or document to begin." action={<Link href={`/workspace/${id}/upload`} className="btn">Add source</Link>} /> : <DocumentList documents={documents} workspaceId={id} />}
-          </section>
-        )}
-
-        {currentPanel === 'graph' && (
-          <section className="workspace-panel">
-            <div className="workspace-section-heading"><div><p className="eyebrow">Relational model</p><h2>Knowledge graph</h2></div></div>
-            <div className="graph-full-surface">
-              {documents.length === 0 ? <EmptyState title="No concepts yet" description="Add and process source material first." action={<Link href={`/workspace/${id}/upload`} className="btn">Add source</Link>} /> : <WorkspaceGraphViewer initialGraph={initialGraph} workspaceId={id} />}
+        <WorkspaceShell workspaceId={id} workspaceName={workspace.name} context={contextRail}>
+          <div className="workspace-main-toolbar">
+            <div className="workspace-facts-compact" aria-label="Workspace summary">
+              <div><strong>{documents.length}</strong><span>sources</span></div><div><strong>{initialGraph?.nodes?.length || 0}</strong><span>concepts</span></div><div><strong>{reviewQueue.length}</strong><span>reviews</span></div><div><strong>{activeTutoringSessions.length}</strong><span>tutor sessions</span></div>
             </div>
-          </section>
-        )}
+          </div>
 
-        {currentPanel === 'teach-back' && (
-          <section className="workspace-panel workspace-panel-narrow">
-            <div className="workspace-section-heading"><div><p className="eyebrow">Active recall</p><h2>Teach-back</h2></div></div>
-            {!initialGraph?.nodes?.length ? (
-              <EmptyState title="Teach-back is not ready" description="Extract at least one concept from source material first." action={<Link href={`/workspace/${id}?panel=sources`} className="btn btn-secondary">Go to sources</Link>} />
-            ) : (
-              <EmptyState title="Choose a concept" description="Open the knowledge graph and select a concept to begin explaining it." action={<Link href={`/workspace/${id}?panel=graph`} className="btn">Choose from graph</Link>} />
-            )}
-          </section>
-        )}
+          {currentPanel === 'study' && <div className="workspace-study-main">
+            <section className="workspace-action-section"><div className="workspace-section-heading"><div><p className="eyebrow">Current route</p><h2>What to do next</h2></div></div><NextActionPanel action={nextAction} /></section>
+            <section className="workspace-modules-section"><div className="workspace-section-heading"><div><p className="eyebrow">Learning surfaces</p><h2>Move through the notebook</h2></div></div><div className="workspace-module-grid refined">
+              <Link className="workspace-module" href={`/workspace/${id}?panel=sources`}><span>01</span><h3>Sources</h3><p>Inspect evidence and processing state.</p></Link>
+              <Link className="workspace-module" href={`/workspace/${id}?panel=graph`}><span>02</span><h3>Knowledge graph</h3><p>Explore concepts and dependencies.</p></Link>
+              <Link className="workspace-module" href={`/workspace/${id}?panel=teach-back`}><span>03</span><h3>Teach-back</h3><p>Explain a concept and surface gaps.</p></Link>
+              <Link className="workspace-module" href={`/workspace/${id}?panel=review`}><span>04</span><h3>Reviews</h3><p>Work through scheduled corrections.</p></Link>
+            </div></section>
+          </div>}
 
-        {currentPanel === 'review' && <section className="workspace-panel workspace-panel-narrow"><ReviewQueue workspaceId={id} /></section>}
-        {currentPanel === 'tutoring' && tutoringSessionObj && <section className="workspace-panel workspace-panel-narrow"><TutoringPanel workspaceId={id} session={tutoringSessionObj.session} initialTurns={tutoringSessionObj.turns} /></section>}
-        {currentPanel === 'tutoring' && !tutoringSessionObj && <section className="workspace-panel workspace-panel-narrow"><EmptyState title="Tutor session unavailable" description="The requested tutoring session could not be loaded." action={<Link href={`/workspace/${id}?panel=study`} className="btn btn-secondary">Return to study board</Link>} /></section>}
-        {currentPanel === 'activity' && <section className="workspace-panel workspace-panel-narrow"><ActivityLog workspaceId={id} /></section>}
+          {currentPanel === 'sources' && <section className="workspace-panel"><div className="workspace-section-heading"><div><p className="eyebrow">Evidence base</p><h2>Source materials</h2></div><Link href={`/workspace/${id}/upload`} className="btn">Add source</Link></div>{documents.length === 0 ? <EmptyState title="No source documents" description="Add a passage, note, or document to begin." action={<Link href={`/workspace/${id}/upload`} className="btn">Add source</Link>} /> : <DocumentList documents={documents} workspaceId={id} />}</section>}
+
+          {currentPanel === 'graph' && <section className="workspace-panel"><div className="workspace-section-heading"><div><p className="eyebrow">Relational model</p><h2>Knowledge graph</h2></div></div><div className="graph-full-surface">{documents.length === 0 ? <EmptyState title="No concepts yet" description="Add and process source material first." action={<Link href={`/workspace/${id}/upload`} className="btn">Add source</Link>} /> : <WorkspaceGraphViewer initialGraph={initialGraph} workspaceId={id} />}</div></section>}
+
+          {currentPanel === 'teach-back' && <section className="workspace-panel workspace-panel-narrow"><div className="workspace-section-heading"><div><p className="eyebrow">Active recall</p><h2>Teach-back</h2></div></div>{!initialGraph?.nodes?.length ? <EmptyState title="Teach-back is not ready" description="Extract at least one concept from source material first." action={<Link href={`/workspace/${id}?panel=sources`} className="btn btn-secondary">Go to sources</Link>} /> : <EmptyState title="Choose a concept" description="Open the knowledge graph and select a concept to begin explaining it." action={<Link href={`/workspace/${id}?panel=graph`} className="btn">Choose from graph</Link>} />}</section>}
+
+          {currentPanel === 'review' && <section className="workspace-panel workspace-panel-narrow"><ReviewQueue workspaceId={id} /></section>}
+          {currentPanel === 'tutoring' && tutoringSessionObj && <section className="workspace-panel workspace-panel-narrow"><TutoringPanel workspaceId={id} session={tutoringSessionObj.session} initialTurns={tutoringSessionObj.turns} /></section>}
+          {currentPanel === 'tutoring' && !tutoringSessionObj && <section className="workspace-panel workspace-panel-narrow"><EmptyState title="Tutor session unavailable" description="The requested tutoring session could not be loaded." action={<Link href={`/workspace/${id}?panel=study`} className="btn btn-secondary">Return to study board</Link>} /></section>}
+          {currentPanel === 'activity' && <section className="workspace-panel workspace-panel-narrow"><ActivityLog workspaceId={id} /></section>}
+        </WorkspaceShell>
       </div>
     </div>
   );

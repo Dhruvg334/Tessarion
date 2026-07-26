@@ -1,8 +1,10 @@
-"use client";
-import { useState, use } from 'react';
-import { useRouter } from 'next/navigation';
+'use client';
+
+import { use, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { LoadingState } from '@/components/shell/loading-state';
+import { WorkspaceShell } from '@/components/workspace/workspace-shell';
 
 export default function UploadPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: workspaceId } = use(params);
@@ -14,115 +16,51 @@ export default function UploadPage({ params }: { params: Promise<{ id: string }>
   const [success, setSuccess] = useState(false);
   const [chunkCount, setChunkCount] = useState(0);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
     setLoading(true);
     setError('');
     setSuccess(false);
 
     try {
-      const res = await fetch(`/api/workspaces/${workspaceId}/documents`, {
+      const response = await fetch(`/api/workspaces/${workspaceId}/documents`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ file_name: title, content }),
+        body: JSON.stringify({ file_name: title.trim(), content }),
       });
-      
-      const json = await res.json();
-      if (!res.ok) {
-        const message =
-          json?.error?.message ||
-          json?.error ||
-          'Failed to upload';
-        throw new Error(message);
-      }
-
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload?.error?.message || payload?.error || 'The source could not be processed.');
       setSuccess(true);
-      setChunkCount(json.data.chunk_count);
+      setChunkCount(payload.data.chunk_count);
       setTitle('');
       setContent('');
       router.refresh();
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
+    } catch (caught: unknown) {
+      setError(caught instanceof Error ? caught.message : 'The source could not be processed.');
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   return (
-    <div className="container-wide" style={{ padding: '0 2rem' }}>
-      <div style={{ marginBottom: '1rem' }}>
-        <Link href={`/workspace/${workspaceId}?panel=sources`} className="muted" style={{ display: 'inline-flex', alignItems: 'center', fontSize: '0.875rem' }}>
-          ← Back to Workspace
-        </Link>
-      </div>
-      
-      <div style={{ marginBottom: '2rem' }}>
-        <h1 className="title" style={{ marginBottom: '0.25rem' }}>Add Materials</h1>
-        <p className="muted">Upload your study materials, lecture notes, or textbook excerpts.</p>
-      </div>
-      
-      <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
-        {/* Paste Text Form */}
-        <div className="card" style={{ flex: '1 1 400px' }}>
-          <h3 style={{ fontSize: '1.25rem', fontWeight: 600, borderBottom: '1px solid var(--line)', paddingBottom: '0.75rem', marginBottom: '1rem' }}>Paste Text</h3>
-          {error && <div style={{ padding: '0.75rem', backgroundColor: 'var(--paper)', border: '1px solid var(--ink)', color: 'var(--ink)', fontSize: '0.9rem', marginBottom: '1rem' }}><strong>Error:</strong> {error}</div>}
-          {success && (
-            <div style={{ padding: '1rem', backgroundColor: 'var(--paper)', border: '1px solid var(--ink-light)', color: 'var(--ink)', fontSize: '0.9rem', marginBottom: '1rem' }}>
-              <strong>Success:</strong> Processed into {chunkCount} context chunks.
-              <div style={{ marginTop: '1rem' }}>
-                <Link href={`/workspace/${workspaceId}?panel=graph`} className="btn" style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}>
-                  Return to workspace to extract concepts
-                </Link>
-              </div>
-            </div>
-          )}
-          
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.25rem', color: 'var(--ink)' }}>Document Title</label>
-              <input
-                type="text"
-                className="input"
-                placeholder="e.g. Cellular Respiration Chapter 9"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-                disabled={loading}
-              />
-            </div>
-            
-            <div>
-              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.25rem', color: 'var(--ink)' }}>Content</label>
-              <textarea
-                className="input"
-                placeholder="Paste the text content of your material here..."
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                required
-                rows={15}
-                disabled={loading}
-                style={{ resize: 'vertical', fontFamily: 'monospace', fontSize: '0.875rem' }}
-              />
-            </div>
-            
-            <button className="btn" disabled={loading} type="submit" style={{ marginTop: '0.5rem', width: '200px' }}>
-              {loading ? (
-                <LoadingState type="button" message="Processing chunks..." />
-              ) : (
-                'Process Text'
-              )}
-            </button>
-          </form>
-        </div>
+    <div className="app-page workspace-subpage">
+      <div className="container-wide">
+        <div className="workspace-breadcrumb"><Link href="/dashboard">Dashboard</Link><span>/</span><Link href={`/workspace/${workspaceId}?panel=sources`}>Notebook</Link><span>/</span><span>Add source</span></div>
+        <WorkspaceShell workspaceId={workspaceId} workspaceName="Current notebook">
+          <header className="workspace-subpage-header"><div><p className="eyebrow">Evidence base</p><h1>Add source material</h1><p>Paste a focused passage or set of notes. Tessarion will split it into traceable chunks before any concept analysis begins.</p></div></header>
 
-        {/* File Upload Placeholder */}
-        <div className="card" style={{ flex: '1 1 300px', opacity: 0.7, height: 'fit-content' }}>
-          <h3 style={{ fontSize: '1.25rem', fontWeight: 600, borderBottom: '1px solid var(--line)', paddingBottom: '0.75rem', marginBottom: '1rem' }}>File Upload</h3>
-          <p className="muted" style={{ fontSize: '0.875rem' }}>Coming next. PDF, DOCX, and TXT files will be securely uploaded to Supabase Storage and automatically parsed.</p>
-          <div style={{ border: '2px dashed var(--line-strong)', borderRadius: '6px', padding: '3rem', textAlign: 'center', marginTop: '1.5rem', background: 'var(--paper)' }}>
-            <p className="muted" style={{ fontSize: '0.875rem' }}>Drag and drop files here (Disabled)</p>
+          {error ? <div className="notice" role="alert"><strong>Source not added.</strong> {error}</div> : null}
+          {success ? <div className="notice" role="status"><strong>Source processed.</strong> Created {chunkCount} evidence chunks. <Link href={`/workspace/${workspaceId}?panel=sources`}>Return to sources</Link>.</div> : null}
+
+          <div className="source-entry-layout">
+            <form className="source-entry-form" onSubmit={handleSubmit}>
+              <div className="form-field"><label htmlFor="source-title">Document title</label><input id="source-title" className="input" value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Cellular respiration — Chapter 9" required disabled={loading} /></div>
+              <div className="form-field"><label htmlFor="source-content">Source text</label><textarea id="source-content" className="input source-textarea" value={content} onChange={(event) => setContent(event.target.value)} placeholder="Paste the material exactly as you want it used as evidence…" required rows={18} disabled={loading} /></div>
+              <div className="source-entry-actions"><button className="btn" disabled={loading} type="submit">{loading ? <LoadingState type="button" message="Processing…" /> : 'Process source'}</button><Link href={`/workspace/${workspaceId}?panel=sources`} className="btn btn-secondary">Cancel</Link></div>
+            </form>
+            <aside className="source-entry-guidance"><p className="eyebrow">Good source material</p><h2>Keep the evidence bounded.</h2><ul><li>Use one topic or chapter section at a time.</li><li>Preserve definitions and prerequisite explanations.</li><li>Remove unrelated navigation, footers, and duplicate text.</li></ul><p>File upload remains intentionally disabled until parsing and storage guardrails are complete.</p></aside>
           </div>
-        </div>
+        </WorkspaceShell>
       </div>
     </div>
   );
