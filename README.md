@@ -308,6 +308,12 @@ npm run eval:workflows-v2
 - Full source text and hidden reasoning are not stored in traces.
 - CI blocks critical runtime dependency advisories and reports the complete dependency audit separately.
 
+## Public demonstration
+
+The public demo notebook at `/demo/notebook` presents a deterministic end-to-end learning case using Computer Memory Hierarchy. It includes source evidence, a concept graph, grounded and incorrect teach-back scenarios, tutoring, review routing, and a safe execution trace. It is available without authentication and does not write user data.
+
+The authenticated dashboard and Study Board also expose a system-readiness panel so operators can distinguish configured generation, local deterministic fallbacks, workflow runtime readiness, and checkpoint availability.
+
 ## Documentation
 
 - [`docs/rebuild/`](docs/rebuild/) — architecture and migration contracts

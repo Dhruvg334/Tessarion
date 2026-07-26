@@ -23,7 +23,7 @@ export default function DemoPage() {
           <article className="card feature-card"><h3>6. Return to teach-back</h3><p>Finish with another explanation; tutoring alone does not mark the concept understood.</p></article>
         </div>
         <div style={{ marginTop: '2rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-          <Link href="/signup" className="btn">Start the flow</Link>
+          <Link href="/demo/notebook" className="btn">Try demo notebook</Link>
           <Link href="/docs/teach-back" className="btn btn-secondary">Read the teach-back contract</Link>
         </div>
       </div>

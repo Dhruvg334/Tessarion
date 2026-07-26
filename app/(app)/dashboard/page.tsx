@@ -2,11 +2,11 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { CreateWorkspaceForm } from '@/components/workspace/create-workspace-form';
+import { SystemReadinessCard } from '@/components/system/system-readiness-card';
+import { getSystemReadiness } from '@/lib/system/readiness';
 import type { Workspace } from '@/types/database';
 
-export const metadata = {
-  title: 'Dashboard | Tessarion',
-};
+export const metadata = { title: 'Dashboard | Tessarion' };
 
 const workspaceDestinations = [
   ['Study board', 'study'],
@@ -20,10 +20,7 @@ const workspaceDestinations = [
 export default async function DashboardPage() {
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect('/login?next=/dashboard');
-  }
+  if (!user) redirect('/login?next=/dashboard');
 
   const { data, error } = await supabase
     .from('workspaces')
@@ -33,85 +30,65 @@ export default async function DashboardPage() {
     .order('created_at', { ascending: false });
 
   const workspaces = (data ?? []) as Workspace[];
+  const readiness = getSystemReadiness();
 
   return (
     <div className="app-page dashboard-page">
       <div className="container-wide">
-        <header className="dashboard-hero">
+        <header className="dashboard-hero dashboard-hero-refined">
           <div>
-            <p className="eyebrow">Learning workspaces</p>
-            <h1>Dashboard</h1>
-            <p>Continue a subject, add evidence, inspect its concept graph, or return to a teach-back session.</p>
+            <p className="eyebrow">Learning workspace</p>
+            <h1>Continue where understanding broke down.</h1>
+            <p>Open a notebook, add evidence, inspect its concept structure, or return to the next recommended learning action.</p>
           </div>
-          <div className="dashboard-hero-note">
-            <span>{workspaces.length}</span>
-            <p>{workspaces.length === 1 ? 'active notebook' : 'active notebooks'}</p>
-          </div>
+          <Link className="btn" href="#create-notebook">Create notebook</Link>
         </header>
 
-        {error ? (
-          <div className="notice" role="alert">
-            Tessarion could not load your notebooks. Refresh the page or verify the Supabase connection.
-          </div>
-        ) : null}
+        {error ? <div className="notice" role="alert">Tessarion could not load your notebooks. Refresh the page or verify the Supabase connection.</div> : null}
 
-        <section className="dashboard-layout" aria-label="Workspace dashboard">
-          <aside className="dashboard-create-panel">
-            <CreateWorkspaceForm />
-            <div className="dashboard-capability-note">
-              <p className="eyebrow">Inside every notebook</p>
-              <ul>
-                <li>Source material and evidence</li>
-                <li>Concept and prerequisite graph</li>
-                <li>Teach-back diagnosis</li>
-                <li>Review and tutoring actions</li>
-                <li>Activity and trace history</li>
-              </ul>
-            </div>
-          </aside>
+        <div className="dashboard-overview-strip" aria-label="Dashboard summary">
+          <div><strong>{workspaces.length}</strong><span>active notebooks</span></div>
+          <div><strong>{readiness.overall === 'ready' ? 'Ready' : 'Limited'}</strong><span>system state</span></div>
+          <div><strong>6</strong><span>learning surfaces</span></div>
+        </div>
 
-          <div className="dashboard-workspaces">
+        <section className="dashboard-refined-layout">
+          <main className="dashboard-workspaces">
             <div className="dashboard-section-heading">
-              <div>
-                <p className="eyebrow">Your notebooks</p>
-                <h2>Continue learning</h2>
-              </div>
-              <p>Each notebook keeps its sources, concepts, learning state, and review history separate.</p>
+              <div><p className="eyebrow">Your notebooks</p><h2>Current subjects</h2></div>
+              <p>Sources, concepts, explanations, reviews, and traces stay isolated inside each notebook.</p>
             </div>
 
             {workspaces.length === 0 ? (
               <div className="dashboard-empty">
                 <h3>Create your first notebook</h3>
-                <p>Start with one subject and add a short source passage. Tessarion will use it as the evidence base for later learning actions.</p>
+                <p>Start with one subject and one short source passage. The system will build the evidence base before asking you to explain anything.</p>
               </div>
             ) : (
-              <div className="workspace-list">
+              <div className="workspace-card-grid">
                 {workspaces.map((workspace, index) => (
-                  <article className="workspace-row" key={workspace.id}>
-                    <div className="workspace-row-index" aria-hidden="true">
-                      {String(index + 1).padStart(2, '0')}
-                    </div>
-                    <div className="workspace-row-main">
-                      <div className="workspace-row-copy">
-                        <h3>{workspace.name}</h3>
-                        <p>{workspace.description || 'No description yet.'}</p>
-                      </div>
-                      <Link className="btn workspace-primary-action" href={`/workspace/${workspace.id}?panel=study`}>
-                        Open notebook
-                      </Link>
-                    </div>
-                    <nav className="workspace-shortcuts" aria-label={`${workspace.name} sections`}>
-                      {workspaceDestinations.map(([label, panel]) => (
-                        <Link key={panel} href={`/workspace/${workspace.id}?panel=${panel}`}>
-                          {label}
-                        </Link>
-                      ))}
+                  <article className="workspace-card-refined" key={workspace.id}>
+                    <div className="workspace-card-top"><span>{String(index + 1).padStart(2, '0')}</span><p>Notebook</p></div>
+                    <div><h3>{workspace.name}</h3><p>{workspace.description || 'No description yet.'}</p></div>
+                    <nav className="workspace-card-links" aria-label={`${workspace.name} sections`}>
+                      {workspaceDestinations.map(([label, panel]) => <Link key={panel} href={`/workspace/${workspace.id}?panel=${panel}`}>{label}</Link>)}
                     </nav>
+                    <Link className="btn workspace-card-open" href={`/workspace/${workspace.id}?panel=study`}>Open notebook</Link>
                   </article>
                 ))}
               </div>
             )}
-          </div>
+          </main>
+
+          <aside className="dashboard-side-rail">
+            <div id="create-notebook" className="dashboard-create-card"><CreateWorkspaceForm /></div>
+            <SystemReadinessCard readiness={readiness} compact />
+            <section className="dashboard-route-guide">
+              <p className="eyebrow">How to use the system</p>
+              <ol><li>Add source material.</li><li>Inspect extracted concepts.</li><li>Teach one concept back.</li><li>Follow the evidence-backed next action.</li></ol>
+              <Link href="/demo/notebook">See the public example</Link>
+            </section>
+          </aside>
         </section>
       </div>
     </div>

@@ -9,6 +9,21 @@ const loop = [
   ['05', 'Recover', 'Use tutoring and review before explaining it again.'],
 ];
 
+
+
+const reportCards = [
+  ['Source grounding', '6 evidence chunks', 'Every claim is linked to material in the notebook.'],
+  ['Gap diagnosis', '2 contradictions found', 'Misconceptions remain separate from missing details.'],
+  ['Next action', 'Socratic tutoring', 'The route changes because the explanation conflicts with the source.'],
+  ['Traceability', '6 recorded steps', 'Retrieval, graph context, validation, and routing remain inspectable.'],
+];
+
+const exampleScenarios = [
+  ['Grounded explanation', 'The learner compares speed, volatility, and capacity correctly.', 'Light review'],
+  ['Shallow explanation', 'The learner names the concept but leaves out its mechanism.', 'Teach back again'],
+  ['Misconception', 'The learner makes a claim that directly conflicts with the source.', 'Socratic tutoring'],
+];
+
 const systemLayers = [
   ['Evidence', 'Source chunks stay attached to every concept and diagnosis.'],
   ['Reasoning', 'Workflow transitions are explicit, bounded, and inspectable.'],
@@ -90,6 +105,44 @@ export default function MarketingPage() {
                 <div key={title}><h3>{title}</h3><p>{copy}</p></div>
               ))}
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="landing-report-section">
+        <div className="container-wide">
+          <div className="landing-section-title">
+            <p className="eyebrow">Diagnosis report</p>
+            <h2>A learning decision should show its evidence, not hide behind a score.</h2>
+          </div>
+          <div className="landing-report-grid">
+            {reportCards.map(([title, value, copy]) => (
+              <article key={title} className="landing-report-card">
+                <p className="eyebrow">{title}</p>
+                <h3>{value}</h3>
+                <p>{copy}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="landing-scenarios-section">
+        <div className="container landing-scenarios-grid">
+          <div>
+            <p className="eyebrow">Example scenarios</p>
+            <h2>The same concept can require a different learning route.</h2>
+            <p>These examples show why Tessarion keeps diagnosis, evidence, tutoring, and review as separate decisions.</p>
+            <Link href="/demo/notebook" className="btn">Try the public notebook</Link>
+          </div>
+          <div className="landing-scenario-list">
+            {exampleScenarios.map(([title, copy, action], index) => (
+              <article key={title}>
+                <span>{String(index + 1).padStart(2, '0')}</span>
+                <div><h3>{title}</h3><p>{copy}</p></div>
+                <strong>{action}</strong>
+              </article>
+            ))}
           </div>
         </div>
       </section>
