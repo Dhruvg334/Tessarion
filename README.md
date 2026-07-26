@@ -121,33 +121,17 @@ The repository is being rebuilt in controlled layers. Current implementation sta
 - Framework-neutral workflow checkpoint contract with deterministic in-memory history
 - MCP exposure manifest derived from the authorized internal tool registry
 - Versioned local evaluation datasets
-- Supabase-backed workflow checkpoint persistence
-- Retry-aware tool execution and transport-neutral MCP protocol core
-- Validated OTLP trace export boundary
-- Rebuilt public design tokens, navigation, landing page, and About page
 
 ### Planned integration work
 
-- LangGraph package adapter over the tested workflow contracts
+- LangGraph adapter and durable Postgres-backed checkpoints
 - Production Qdrant indexing and migration jobs
 - Production Neo4j projection synchronization
-- Official MCP SDK transport adapter for the approved manifest
-- Documentation, guided demo, and authenticated workspace redesign
+- Official MCP SDK transport/server adapter for the approved manifest
+- Trace export to an OpenTelemetry-compatible backend
+- Public-site, documentation, demo, and workspace redesign
 
 Planned systems are not presented as production-complete until their adapters, persistence, failure recovery, and evaluations are implemented.
-
-## Public interface direction
-
-The public interface uses a compact editorial system rather than a generic card dashboard:
-
-- pale cream canvas and warm paper surfaces
-- charcoal and graphite typography instead of pure black
-- evidence, graph, and trace elements as the primary visual language
-- restrained motion with reduced-motion support
-- dense information hierarchy without oversized empty sections
-- public pages that load independently of authenticated data services
-
-The first interface rebuild covers the shared public shell, landing page, and About page. The documentation system and guided demo remain separate implementation stages so their navigation and interaction models can be designed around real content rather than placeholder pages.
 
 ## Workflow cores
 
@@ -363,3 +347,7 @@ npm run eval:rebuild-b
 ```
 
 The generated report is written to `eval/reports/rebuild-b-quality-gate.json`. External vector, graph, workflow, and tracing services remain derived infrastructure; Supabase/Postgres remains the canonical source of truth.
+
+### Public interface and documentation
+
+The public interface uses a custom tokenized design system built on pale cream surfaces, charcoal typography, compact editorial spacing, and accessible Radix primitives for interactive controls. The `/docs/*` section documents architecture, source processing, hybrid retrieval, graph projection, workflow orchestration, teach-back, mastery, tutoring, evaluation, observability, security, and current implementation status.

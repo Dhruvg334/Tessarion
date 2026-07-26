@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import { Caveat } from "next/font/google";
 
 import './globals.css';
 
-const caveat = Caveat({ subsets: ["latin"], display: "swap", variable: "--font-caveat" });
-
 export const metadata: Metadata = {
-  title: "Tessarion — Learn by Teaching",
-  description: "An evidence-linked learning workspace where students build understanding by teaching concepts back.",
+  title: {
+    default: "Tessarion",
+    template: "%s | Tessarion",
+  },
+  description: "An evidence-linked learning system built around teach-back, retrieval, concept relationships, review, and guided tutoring.",
 };
 
 export default function RootLayout({
@@ -16,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={caveat.variable}>
+    <html lang="en" data-scroll-behavior="smooth">
       <body>{children}</body>
     </html>
   );

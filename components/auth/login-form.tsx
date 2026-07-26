@@ -1,10 +1,15 @@
 "use client";
+
 import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
-import { hasSupabaseClientEnv } from '@/lib/config/env';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+
+import { hasSupabaseClientEnv } from '@/lib/config/env';
 import { TesseractIcon } from '@/components/ui/tesseract-icon';
+
+function safeNextPath(value: string | null): string {
+  return value && value.startsWith('/') && !value.startsWith('//') ? value : '/dashboard';
+}
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
@@ -13,32 +18,36 @@ export function LoginForm() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const nextPath = searchParams.get('next') || '/dashboard';
+  const nextPath = safeNextPath(searchParams.get('next'));
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     setLoading(true);
     setError('');
 
     if (!hasSupabaseClientEnv()) {
-      setError('Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local, then restart Next.js.');
+      setError('Supabase is not configured. Add the public Supabase URL and anonymous key to .env.local, then restart the development server.');
       setLoading(false);
       return;
     }
 
     try {
-      const supabase = createClient();
-      const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
+      const payload = await response.json().catch(() => ({ error: 'Authentication returned an unreadable response.' })) as { error?: string };
 
-      if (error) {
-        setError(error.message);
+      if (!response.ok) {
+        setError(payload.error ?? 'Authentication failed.');
         return;
       }
 
-      router.push(nextPath);
+      router.replace(nextPath);
       router.refresh();
     } catch {
-      setError('Could not reach Supabase Auth. Check that Supabase is running, .env.local points to the correct local API URL, and the dev server was restarted after editing env variables.');
+      setError('The application could not reach its authentication endpoint. Check that the development server is still running.');
     } finally {
       setLoading(false);
     }
@@ -46,51 +55,26 @@ export function LoginForm() {
 
   return (
     <div className="auth-shell">
-      <Link href="/" className="auth-logo brand-link">
-        <TesseractIcon size={24} />
-        <span className="handwritten" style={{ fontSize: '1.5rem' }}>Tessarion</span>
-      </Link>
-
-      <div className="auth-brand-panel">
-        <p className="eyebrow" style={{ marginBottom: '1rem' }}>Return to the notebook</p>
-        <h2 className="title">Welcome back.</h2>
-        <p className="subtitle" style={{ maxWidth: '420px' }}>
-          Continue teaching concepts back, refining weak links, and building a graph that reflects what you actually understand.
-        </p>
-        <ul className="auth-list" style={{ marginTop: '2rem' }}>
-          <li>✓ Private, isolated workspaces</li>
-          <li>✓ Source-grounded learning history</li>
-          <li>✓ Feedback built from your material</li>
-        </ul>
-      </div>
-
-      <div className="auth-form-wrapper">
+      <Link href="/" className="auth-logo brand-link"><TesseractIcon size={23} /><span className="brand-word">Tessarion</span></Link>
+      <section className="auth-brand-panel" aria-labelledby="login-context">
+        <p className="eyebrow">Continue learning</p>
+        <h1 id="login-context" className="title" style={{ marginTop: '0.7rem' }}>Return to your evidence, explanations, and review queue.</h1>
+        <ul className="auth-list"><li>Source-grounded learning history</li><li>Recorded diagnosis and mastery evidence</li><li>Resumable tutoring and review state</li></ul>
+      </section>
+      <section className="auth-form-wrapper">
         <div className="auth-form-card">
-          <h2 style={{ fontSize: '1.85rem', fontWeight: 650, marginBottom: '0.5rem', letterSpacing: '-0.03em' }}>Log in</h2>
-          <p className="muted" style={{ marginBottom: '1.5rem' }}>Open your Tessarion notebooks.</p>
-
-          {!hasSupabaseClientEnv() && (
-            <div className="notice" style={{ marginBottom: '1.5rem' }}>
-              <strong>Setup required:</strong> Supabase environment variables are missing. Auth is disabled in this local environment.
-            </div>
-          )}
-
-          {error && <p className="notice" style={{ marginBottom: '1rem' }}><strong>Error:</strong> {error}</p>}
-
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <input type="email" placeholder="Email" className="input" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            <input type="password" placeholder="Password" className="input" value={password} onChange={(e) => setPassword(e.target.value)} required />
-            <button className="btn" disabled={loading} type="submit" style={{ marginTop: '0.5rem' }}>
-              {loading ? 'Authenticating...' : 'Log in'}
-            </button>
+          <h2 style={{ margin: 0, fontSize: '1.45rem' }}>Sign in</h2>
+          <p className="muted" style={{ margin: '0.35rem 0 1.3rem' }}>Open your Tessarion workspace.</p>
+          {!hasSupabaseClientEnv() && <div className="notice" style={{ marginBottom: '1rem' }}>Authentication is unavailable until Supabase is configured.</div>}
+          {error && <p className="notice" role="alert" style={{ marginBottom: '1rem' }}>{error}</p>}
+          <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '0.9rem' }}>
+            <label><span className="eyebrow" style={{ display: 'block', marginBottom: '0.35rem' }}>Email</span><input type="email" autoComplete="email" className="input" value={email} onChange={(event) => setEmail(event.target.value)} required /></label>
+            <label><span className="eyebrow" style={{ display: 'block', marginBottom: '0.35rem' }}>Password</span><input type="password" autoComplete="current-password" className="input" value={password} onChange={(event) => setPassword(event.target.value)} required /></label>
+            <button className="btn" disabled={loading} type="submit">{loading ? 'Signing in…' : 'Sign in'}</button>
           </form>
-
-          <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.9rem', textAlign: 'center' }}>
-            <p className="muted">Don&apos;t have an account? <Link href="/signup" style={{ fontWeight: 700 }}>Sign up</Link></p>
-            <p className="muted">Just looking around? <Link href="/demo" style={{ fontWeight: 700 }}>Try the demo</Link></p>
-          </div>
+          <p className="muted" style={{ margin: '1.2rem 0 0', textAlign: 'center' }}>No account? <Link href="/signup" style={{ fontWeight: 750 }}>Create one</Link></p>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

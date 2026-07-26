@@ -1,18 +1,12 @@
-import React from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { SiteHeader } from './header';
 import { SiteFooter } from './footer';
 
-interface SiteShellProps {
-  children: React.ReactNode;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-export function SiteShell({ children, className = '', style }: SiteShellProps) {
+export function SiteShell({ children, className = '', style }: { children: ReactNode; className?: string; style?: CSSProperties }) {
   return (
-    <div className="site-shell" style={style}>
+    <div className="site-root" style={style}>
       <SiteHeader />
-      <main className={className}>{children}</main>
+      <main className={`site-main ${className}`.trim()}>{children}</main>
       <SiteFooter />
     </div>
   );

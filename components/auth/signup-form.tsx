@@ -1,9 +1,10 @@
 "use client";
+
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
-import { hasSupabaseClientEnv } from '@/lib/config/env';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
+import { hasSupabaseClientEnv } from '@/lib/config/env';
 import { TesseractIcon } from '@/components/ui/tesseract-icon';
 
 export function SignupForm() {
@@ -14,32 +15,39 @@ export function SignupForm() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     setLoading(true);
     setError('');
     setSuccess('');
 
     if (!hasSupabaseClientEnv()) {
-      setError('Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local, then restart Next.js.');
+      setError('Supabase is not configured. Add the public Supabase URL and anonymous key to .env.local, then restart the development server.');
       setLoading(false);
       return;
     }
 
     try {
-      const supabase = createClient();
-      const { data, error } = await supabase.auth.signUp({ email: email.trim(), password });
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
+      const payload = await response.json().catch(() => ({ error: 'Signup returned an unreadable response.' })) as { error?: string; confirmationRequired?: boolean };
 
-      if (error) {
-        setError(error.message);
-      } else if (data.user && !data.session) {
-        setSuccess('Check your email for the confirmation link. In local Supabase, open Inbucket and confirm the message.');
+      if (!response.ok) {
+        setError(payload.error ?? 'Account creation failed.');
+        return;
+      }
+
+      if (payload.confirmationRequired) {
+        setSuccess('Check your email for the confirmation link. Local Supabase messages are available in Inbucket.');
       } else {
-        router.push('/dashboard');
+        router.replace('/dashboard');
         router.refresh();
       }
     } catch {
-      setError('Could not reach Supabase Auth. Check that Supabase is running, .env.local points to the correct local API URL, and the dev server was restarted after editing env variables.');
+      setError('The application could not reach its signup endpoint. Check that the development server is still running.');
     } finally {
       setLoading(false);
     }
@@ -47,52 +55,27 @@ export function SignupForm() {
 
   return (
     <div className="auth-shell">
-      <Link href="/" className="auth-logo brand-link">
-        <TesseractIcon size={24} />
-        <span className="handwritten" style={{ fontSize: '1.5rem' }}>Tessarion</span>
-      </Link>
-
-      <div className="auth-brand-panel">
-        <p className="eyebrow" style={{ marginBottom: '1rem' }}>Begin the notebook</p>
-        <h2 className="title">Start learning deeply.</h2>
-        <p className="subtitle" style={{ maxWidth: '430px' }}>
-          Build a personal concept graph from your material, then test understanding by explaining ideas in your own words.
-        </p>
-        <ul className="auth-list" style={{ marginTop: '2rem' }}>
-          <li>✓ Source-grounded feedback</li>
-          <li>✓ Socratic teach-back prompts</li>
-          <li>✓ Visual concept maps</li>
-        </ul>
-      </div>
-
-      <div className="auth-form-wrapper">
+      <Link href="/" className="auth-logo brand-link"><TesseractIcon size={23} /><span className="brand-word">Tessarion</span></Link>
+      <section className="auth-brand-panel" aria-labelledby="signup-context">
+        <p className="eyebrow">Create a workspace</p>
+        <h1 id="signup-context" className="title" style={{ marginTop: '0.7rem' }}>Build a concept model from material you are actually studying.</h1>
+        <ul className="auth-list"><li>Evidence-linked concept relationships</li><li>Teach-back diagnosis and review</li><li>Guided tutoring without premature answers</li></ul>
+      </section>
+      <section className="auth-form-wrapper">
         <div className="auth-form-card">
-          <h2 style={{ fontSize: '1.85rem', fontWeight: 650, marginBottom: '0.5rem', letterSpacing: '-0.03em' }}>Create an account</h2>
-          <p className="muted" style={{ marginBottom: '1.5rem' }}>Make your first Tessarion notebook.</p>
-
-          {!hasSupabaseClientEnv() && (
-            <div className="notice" style={{ marginBottom: '1.5rem' }}>
-              <strong>Setup required:</strong> Supabase environment variables are missing. Auth is disabled in this local environment.
-            </div>
-          )}
-
-          {error && <p className="notice" style={{ marginBottom: '1rem' }}><strong>Error:</strong> {error}</p>}
-          {success && <p className="notice" style={{ marginBottom: '1rem' }}>{success}</p>}
-
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <input type="email" placeholder="Email" className="input" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            <input type="password" placeholder="Password" className="input" value={password} onChange={(e) => setPassword(e.target.value)} required />
-            <button className="btn" disabled={loading} type="submit" style={{ marginTop: '0.5rem' }}>
-              {loading ? 'Creating...' : 'Sign up'}
-            </button>
+          <h2 style={{ margin: 0, fontSize: '1.45rem' }}>Create an account</h2>
+          <p className="muted" style={{ margin: '0.35rem 0 1.3rem' }}>Start with one focused source and one concept.</p>
+          {!hasSupabaseClientEnv() && <div className="notice" style={{ marginBottom: '1rem' }}>Account creation is unavailable until Supabase is configured.</div>}
+          {error && <p className="notice" role="alert" style={{ marginBottom: '1rem' }}>{error}</p>}
+          {success && <p className="notice" role="status" style={{ marginBottom: '1rem' }}>{success}</p>}
+          <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '0.9rem' }}>
+            <label><span className="eyebrow" style={{ display: 'block', marginBottom: '0.35rem' }}>Email</span><input type="email" autoComplete="email" className="input" value={email} onChange={(event) => setEmail(event.target.value)} required /></label>
+            <label><span className="eyebrow" style={{ display: 'block', marginBottom: '0.35rem' }}>Password</span><input type="password" autoComplete="new-password" minLength={8} className="input" value={password} onChange={(event) => setPassword(event.target.value)} required /></label>
+            <button className="btn" disabled={loading} type="submit">{loading ? 'Creating account…' : 'Create account'}</button>
           </form>
-
-          <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.9rem', textAlign: 'center' }}>
-            <p className="muted">Already have an account? <Link href="/login" style={{ fontWeight: 700 }}>Log in</Link></p>
-            <p className="muted">Just looking around? <Link href="/demo" style={{ fontWeight: 700 }}>Try the demo</Link></p>
-          </div>
+          <p className="muted" style={{ margin: '1.2rem 0 0', textAlign: 'center' }}>Already registered? <Link href="/login" style={{ fontWeight: 750 }}>Sign in</Link></p>
         </div>
-      </div>
+      </section>
     </div>
   );
 }
