@@ -17,6 +17,11 @@ describe('OtlpHttpTraceExporter', () => {
     const exporter = new OtlpHttpTraceExporter({ endpoint: 'http://localhost/v1/traces', fetchImpl: fetchImpl as never });
     await expect(exporter.export([span()])).resolves.toEqual({ accepted: 1, rejected: 0 });
     expect(fetchImpl).toHaveBeenCalledOnce();
+    const request = fetchImpl.mock.calls[0]?.[1] as RequestInit;
+    const payload = JSON.parse(String(request.body));
+    expect(payload.resourceSpans[0].resource.attributes[0].value.stringValue).toBe('tessarion');
+    expect(payload.resourceSpans[0].scopeSpans[0].spans[0].traceId).toHaveLength(32);
+    expect(payload.resourceSpans[0].scopeSpans[0].spans[0].spanId).toHaveLength(16);
   });
 
   it('returns a safe error on transport failure', async () => {

@@ -410,3 +410,29 @@ The authenticated notebook now uses a shared three-part shell: a workspace navig
 - Structured tutor session workspace and priority-based review queue
 
 - **Teach-back diagnosis experience** — structured explanation composer, evidence-linked report, mastery reasoning, and tutor handoff.
+
+## Infrastructure and deployment
+
+The production topology keeps canonical data in Supabase and deploys derived infrastructure independently:
+
+```mermaid
+flowchart LR
+    Browser --> Vercel[Vercel · Next.js 16]
+    Vercel --> Supabase[Supabase · auth, Postgres, storage]
+    Vercel --> Inngest[Inngest Cloud · durable jobs]
+    Vercel --> Qdrant[Qdrant Cloud · hybrid retrieval]
+    Vercel --> Neo4j[Neo4j AuraDB · graph projection]
+    Vercel --> Phoenix[Phoenix · trace inspection]
+```
+
+Local infrastructure is available through Docker Compose:
+
+```cmd
+npm run infra:up
+npm run infra:status
+npm run infra:validate
+```
+
+The lightweight liveness route is `/api/health`. A dependency-aware report is available at `/api/health/infrastructure` and can be protected with `INFRASTRUCTURE_HEALTH_TOKEN`. MCP remains disabled unless `MCP_SERVER_TOKEN` is set.
+
+See [`docs/deployment/DEPLOYMENT.md`](docs/deployment/DEPLOYMENT.md) for the complete deployment sequence and environment matrix.

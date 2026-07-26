@@ -28,7 +28,13 @@
     "eval:performance": "tsx eval/performance/run-performance-quality-gate.ts",
     "eval:foundation-v2": "tsx eval/foundation-v2/run-foundation-quality-eval.ts",
     "eval:resilience-v2": "tsx eval/resilience-v2/run-resilience-eval.ts",
-    "eval:release-v1": "tsx eval/release-v1/run-release-dataset-gate.ts"
+    "eval:release-v1": "tsx eval/release-v1/run-release-dataset-gate.ts",
+    "infra:up": "docker compose up -d",
+    "infra:down": "docker compose down",
+    "infra:status": "docker compose ps",
+    "infra:logs": "docker compose logs --tail=100",
+    "infra:validate": "tsx scripts/validate-infrastructure.ts",
+    "infra:bootstrap": "tsx scripts/bootstrap-infrastructure.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^4.0.7",
@@ -97,7 +103,7 @@
     "minimatch": "10.2.5"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=24 <25"
   },
   "license": "Apache-2.0"
 }
