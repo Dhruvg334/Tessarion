@@ -33,7 +33,7 @@ export async function middleware(request: NextRequest) {
   try {
     const { data } = await supabase.auth.getUser();
     user = data.user;
-  } catch (error) {
+  } catch {
     // If Supabase is unreachable, user remains null. We'll redirect to login.
   }
 

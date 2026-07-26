@@ -68,8 +68,10 @@ export function ReviewQueue({ workspaceId }: ReviewQueueProps) {
     }
   }, [workspaceId]);
 
+  // Initial client hydration is intentionally deferred to avoid synchronous state changes in an effect.
   useEffect(() => {
-    void fetchQueue();
+    const task = window.setTimeout(() => { void fetchQueue(); }, 0);
+    return () => window.clearTimeout(task);
   }, [fetchQueue]);
 
   const visibleItems = useMemo(() => {

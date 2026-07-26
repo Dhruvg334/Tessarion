@@ -318,6 +318,10 @@ The authenticated dashboard and Study Board also expose a system-readiness panel
 
 The notebook workspace now includes a structured source library and an evidence-linked graph explorer. Source records expose ingestion and indexing state, while graph concepts can be filtered, inspected, and opened directly in teach-back.
 
+## Evidence and trace transparency
+
+Authenticated notebooks now expose source excerpts used by diagnosis and tutoring, grouped activity history, and safe trace timelines derived from operational events. These views show evidence identifiers, workflow stages, status, and bounded failure messages without exposing credentials, raw provider payloads, or hidden reasoning.
+
 ## Documentation
 
 - [`docs/rebuild/`](docs/rebuild/) — architecture and migration contracts

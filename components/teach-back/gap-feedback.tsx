@@ -1,12 +1,13 @@
 'use client';
 
 import type { GapFindingOutput } from '@/lib/ai/types';
+import { EvidenceInspector } from '@/components/evidence/evidence-inspector';
 
 function label(value: string) {
   return value.replaceAll('_', ' ');
 }
 
-export function GapFeedback({ gap }: { gap: GapFindingOutput }) {
+export function GapFeedback({ gap, workspaceId }: { gap: GapFindingOutput; workspaceId: string }) {
   return (
     <article className="diagnosis-gap" data-severity={gap.severity}>
       <header>
@@ -29,6 +30,8 @@ export function GapFeedback({ gap }: { gap: GapFindingOutput }) {
         <span>Evidence</span>
         <p>{gap.sourceEvidence || 'No source excerpt was returned.'}</p>
       </div>
+
+      <EvidenceInspector workspaceId={workspaceId} chunkIds={gap.sourceChunkIds} />
 
       <dl>
         <div><dt>Grounding</dt><dd>{label(gap.groundingStatus)}</dd></div>

@@ -19,6 +19,9 @@ export async function runConceptIntelligence(input: ConceptWorkflowInput): Promi
       state = { ...state, status: 'failed', activeNode: 'failed', errorCode: 'CONCEPT_WORKFLOW_NODE_FAILED', stepTrace: [...state.stepTrace, { node, outcome: 'failure', safeMessage: 'The concept workflow stopped safely.' }] };
     }
   }
-  const { chunks: _chunks, minConfidence: _minConfidence, activeNode: _activeNode, ...result } = state;
+  const { chunks: omittedChunks, minConfidence: omittedConfidence, activeNode: omittedNode, ...result } = state;
+  void omittedChunks;
+  void omittedConfidence;
+  void omittedNode;
   return result;
 }

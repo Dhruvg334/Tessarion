@@ -34,10 +34,10 @@ const validPanelIds = new Set(PANELS.map((panel) => panel.id));
 
 export default async function WorkspacePage(props: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ panel?: string; tutoring?: string }>;
+  searchParams: Promise<{ panel?: string; tutoring?: string; trace?: string }>;
 }) {
   const { id } = await props.params;
-  const { panel, tutoring: tutoringSessionId } = await props.searchParams;
+  const { panel, tutoring: tutoringSessionId, trace: selectedTraceId } = await props.searchParams;
   const requestedPanel = tutoringSessionId ? 'tutor' : (panel || 'study');
   const currentPanel = validPanelIds.has(requestedPanel) ? requestedPanel : 'study';
 
@@ -174,7 +174,7 @@ export default async function WorkspacePage(props: {
 
           {currentPanel === 'tutor' && <section className="workspace-panel"><div className="workspace-section-heading"><div><p className="eyebrow">Guided recovery</p><h2>{tutoringSessionObj ? 'Tutor session' : 'Tutor sessions'}</h2></div>{tutoringSessionObj ? <Link href={`/workspace/${id}?panel=tutor`} className="btn btn-secondary">All sessions</Link> : null}</div>{tutoringSessionId && !tutoringSessionObj ? <EmptyState title="Tutor session unavailable" description="The requested session could not be loaded or does not belong to this notebook." action={<Link href={`/workspace/${id}?panel=tutor`} className="btn btn-secondary">View tutor sessions</Link>} /> : tutoringSessionObj ? <TutoringPanel workspaceId={id} session={tutoringSessionObj.session} initialTurns={tutoringSessionObj.turns} /> : <TutoringSessionList workspaceId={id} sessions={tutoringRows} />}</section>}
           {currentPanel === 'review' && <section className="workspace-panel"><ReviewQueue workspaceId={id} /></section>}
-          {currentPanel === 'activity' && <section className="workspace-panel workspace-panel-narrow"><ActivityLog workspaceId={id} /></section>}
+          {currentPanel === 'activity' && <section className="workspace-panel workspace-panel-narrow"><ActivityLog workspaceId={id} selectedTraceId={selectedTraceId} /></section>}
         </WorkspaceShell>
       </div>
     </div>

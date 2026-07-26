@@ -1,7 +1,9 @@
 import { TutoringTurn } from '@/lib/tutoring/types';
+import { EvidenceInspector } from '@/components/evidence/evidence-inspector';
 
 interface TutoringTurnProps {
   turn: TutoringTurn;
+  workspaceId: string;
 }
 
 const turnLabels: Record<TutoringTurn['turnType'], string> = {
@@ -15,7 +17,7 @@ const turnLabels: Record<TutoringTurn['turnType'], string> = {
   completion_check: 'Completion check',
 };
 
-export function TutoringTurnItem({ turn }: TutoringTurnProps) {
+export function TutoringTurnItem({ turn, workspaceId }: TutoringTurnProps) {
   const isStudent = turn.role === 'student';
   const isSystem = turn.role === 'system';
 
@@ -34,6 +36,7 @@ export function TutoringTurnItem({ turn }: TutoringTurnProps) {
         <div className="tutor-turn-evidence" aria-label="Evidence references">
           {turn.sourceChunkIds.length > 0 ? <span>{turn.sourceChunkIds.length} source reference{turn.sourceChunkIds.length === 1 ? '' : 's'}</span> : null}
           {turn.gapFindingIds.length > 0 ? <span>{turn.gapFindingIds.length} diagnosed gap{turn.gapFindingIds.length === 1 ? '' : 's'}</span> : null}
+          <EvidenceInspector workspaceId={workspaceId} chunkIds={turn.sourceChunkIds} label="Open source excerpts" />
         </div>
       ) : null}
     </article>

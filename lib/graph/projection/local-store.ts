@@ -1,6 +1,5 @@
 import type {
   GraphProjectionEdge,
-  GraphProjectionNode,
   GraphProjectionStore,
   GraphRelationshipType,
   GraphTraversalPath,

@@ -15,4 +15,4 @@ async function main() {
   console.table(metrics);
   if (metrics.completionAccuracy < 1 || metrics.checkpointCompleteness < 1) process.exitCode = 1;
 }
-main().catch((error) => { console.error('Runtime evaluation failed safely'); process.exitCode = 1; });
+main().catch(() => { console.error('Runtime evaluation failed safely'); process.exitCode = 1; });

@@ -107,7 +107,7 @@ export function TutoringPanel({ workspaceId, session: initialSession, initialTur
       </div>
 
       <div ref={scrollRef} className="tutor-thread" aria-live="polite">
-        {turns.map((turn) => <TutoringTurnItem key={turn.id} turn={turn} />)}
+        {turns.map((turn) => <TutoringTurnItem key={turn.id} turn={turn} workspaceId={workspaceId} />)}
         {isLoading ? <div className="tutor-saving-state">Saving response and choosing the next move…</div> : null}
       </div>
 

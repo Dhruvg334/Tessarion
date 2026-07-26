@@ -1,7 +1,7 @@
 import { AppError } from '@/lib/errors/app-error';
 import type { Neo4jHttpConfig, Neo4jQueryExecutor, Neo4jQueryResult } from './types';
 
-interface Neo4jQueryApiResponse<TRecord> {
+interface Neo4jQueryApiResponse {
   data?: {
     fields?: string[];
     values?: unknown[][];
@@ -39,7 +39,7 @@ export class Neo4jHttpQueryClient implements Neo4jQueryExecutor {
         throw new AppError('Graph projection service is unavailable', 503, 'GRAPH_SERVICE_UNAVAILABLE');
       }
 
-      const payload = await response.json() as Neo4jQueryApiResponse<TRecord>;
+      const payload = await response.json() as Neo4jQueryApiResponse;
       if (payload.errors?.length) {
         throw new AppError('Graph query failed', 502, 'GRAPH_QUERY_FAILED');
       }

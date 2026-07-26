@@ -228,8 +228,8 @@ export function TeachBackPanel({ workspaceId, conceptId, conceptName, conceptDef
                       <span>{result.summary.gaps.length + result.summary.unsupportedClaims.length}</span>
                     </div>
                     <div className="teachback-gap-list">
-                      {result.summary.unsupportedClaims.map((gap, index) => <GapFeedback key={`unsupported-${index}`} gap={gap} />)}
-                      {result.summary.gaps.map((gap, index) => <GapFeedback key={`gap-${index}`} gap={gap} />)}
+                      {result.summary.unsupportedClaims.map((gap, index) => <GapFeedback key={`unsupported-${index}`} gap={gap} workspaceId={workspaceId} />)}
+                      {result.summary.gaps.map((gap, index) => <GapFeedback key={`gap-${index}`} gap={gap} workspaceId={workspaceId} />)}
                       {!result.summary.unsupportedClaims.length && !result.summary.gaps.length ? <p className="teachback-section-empty">No material gap was detected.</p> : null}
                     </div>
                   </section>
