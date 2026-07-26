@@ -124,12 +124,11 @@ The repository is being rebuilt in controlled layers. Current implementation sta
 
 ### Planned integration work
 
-- LangGraph adapter and durable Postgres-backed checkpoints
 - Production Qdrant indexing and migration jobs
 - Production Neo4j projection synchronization
 - Official MCP SDK transport/server adapter for the approved manifest
 - Trace export to an OpenTelemetry-compatible backend
-- Public-site, documentation, demo, and workspace redesign
+- Hosted infrastructure validation and deployment hardening
 
 Planned systems are not presented as production-complete until their adapters, persistence, failure recovery, and evaluations are implemented.
 
@@ -243,8 +242,11 @@ Tessarion maintains deterministic datasets and metric-producing runners for the 
 | `eval:retrieval-v2` | Hybrid retrieval quality and workspace isolation |
 | `eval:graph-v2` | Graph recall, evidence recall, depth and workspace bounds |
 | `eval:workflows-v2` | Workflow completion, tutor policy, trace completeness |
+| `eval:foundation-v2` | Dataset approval, task coverage, adversarial and prohibited-behaviour coverage |
+| `eval:resilience-v2` | Retry limits, non-idempotent write safety, checkpointing, resume and loop bounds |
+| `eval:release-v1` | Frozen minimum case counts across all release evaluation suites |
 
-Run all available suites individually or through CI. External providers are not required for deterministic evaluation.
+Run all available suites individually or through CI. External providers are not required for deterministic evaluation. The release baseline currently covers 118 deterministic cases across ten suites; it is a regression floor, not a claim of production-level benchmark completeness.
 
 ## Technology
 

@@ -81,6 +81,15 @@ jobs:
       - name: Run performance quality gate
         run: npm run eval:performance
 
+      - name: Run foundation quality evaluation
+        run: npm run eval:foundation-v2
+
+      - name: Run resilience evaluation
+        run: npm run eval:resilience-v2
+
+      - name: Run release dataset gate
+        run: npm run eval:release-v1
+
       - name: Audit runtime dependencies
         run: npm audit --audit-level=critical --omit=dev
 

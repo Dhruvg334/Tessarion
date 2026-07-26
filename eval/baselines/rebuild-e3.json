@@ -1,0 +1,27 @@
+{
+  "version": "1.0.0",
+  "minimumCaseCounts": {
+    "foundation": 12,
+    "diagnosis": 18,
+    "retrievalV2": 10,
+    "graphV2": 12,
+    "concepts": 8,
+    "teachBack": 10,
+    "mastery": 14,
+    "review": 12,
+    "tutoring": 12,
+    "resilienceV2": 10
+  },
+  "requiredSuites": [
+    "foundation",
+    "diagnosis",
+    "retrievalV2",
+    "graphV2",
+    "concepts",
+    "teachBack",
+    "mastery",
+    "review",
+    "tutoring",
+    "resilienceV2"
+  ]
+}

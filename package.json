@@ -25,7 +25,10 @@
     "eval:runtime-v2": "tsx eval/runtime-v2/run-runtime-eval.ts",
     "eval:rebuild-b": "tsx eval/rebuild-b/run-rebuild-b-quality-gate.ts",
     "eval:integration": "tsx eval/integration/run-integration-quality-gate.ts",
-    "eval:performance": "tsx eval/performance/run-performance-quality-gate.ts"
+    "eval:performance": "tsx eval/performance/run-performance-quality-gate.ts",
+    "eval:foundation-v2": "tsx eval/foundation-v2/run-foundation-quality-eval.ts",
+    "eval:resilience-v2": "tsx eval/resilience-v2/run-resilience-eval.ts",
+    "eval:release-v1": "tsx eval/release-v1/run-release-dataset-gate.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^4.0.7",

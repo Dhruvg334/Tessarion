@@ -3,16 +3,214 @@
   "version": "graph-eval-v1",
   "generatedAt": "2026-07-25T00:00:00.000Z",
   "nodes": [
-    { "id": "contiguous-memory", "workspaceId": "workspace-eval", "name": "Contiguous memory", "sourceChunkIds": ["chunk-memory"], "updatedAt": "2026-07-25T00:00:00.000Z" },
-    { "id": "arrays", "workspaceId": "workspace-eval", "name": "Arrays", "sourceChunkIds": ["chunk-arrays"], "updatedAt": "2026-07-25T00:00:00.000Z" },
-    { "id": "index-access", "workspaceId": "workspace-eval", "name": "Index access", "sourceChunkIds": ["chunk-index"], "updatedAt": "2026-07-25T00:00:00.000Z" },
-    { "id": "linked-lists", "workspaceId": "workspace-eval", "name": "Linked lists", "sourceChunkIds": ["chunk-linked"], "updatedAt": "2026-07-25T00:00:00.000Z" },
-    { "id": "node-reference", "workspaceId": "workspace-eval", "name": "Node references", "sourceChunkIds": ["chunk-reference"], "updatedAt": "2026-07-25T00:00:00.000Z" }
+    {
+      "id": "contiguous-memory",
+      "workspaceId": "workspace-eval",
+      "name": "Contiguous memory",
+      "sourceChunkIds": [
+        "chunk-memory"
+      ],
+      "updatedAt": "2026-07-25T00:00:00.000Z"
+    },
+    {
+      "id": "arrays",
+      "workspaceId": "workspace-eval",
+      "name": "Arrays",
+      "sourceChunkIds": [
+        "chunk-arrays"
+      ],
+      "updatedAt": "2026-07-25T00:00:00.000Z"
+    },
+    {
+      "id": "index-access",
+      "workspaceId": "workspace-eval",
+      "name": "Index access",
+      "sourceChunkIds": [
+        "chunk-index"
+      ],
+      "updatedAt": "2026-07-25T00:00:00.000Z"
+    },
+    {
+      "id": "linked-lists",
+      "workspaceId": "workspace-eval",
+      "name": "Linked lists",
+      "sourceChunkIds": [
+        "chunk-linked"
+      ],
+      "updatedAt": "2026-07-25T00:00:00.000Z"
+    },
+    {
+      "id": "node-reference",
+      "workspaceId": "workspace-eval",
+      "name": "Node references",
+      "sourceChunkIds": [
+        "chunk-reference"
+      ],
+      "updatedAt": "2026-07-25T00:00:00.000Z"
+    },
+    {
+      "id": "cache",
+      "workspaceId": "workspace-eval",
+      "name": "Cache",
+      "sourceChunkIds": [
+        "chunk-cache"
+      ],
+      "updatedAt": "2026-07-25T00:00:00.000Z"
+    },
+    {
+      "id": "locality",
+      "workspaceId": "workspace-eval",
+      "name": "Locality",
+      "sourceChunkIds": [
+        "chunk-locality"
+      ],
+      "updatedAt": "2026-07-25T00:00:00.000Z"
+    },
+    {
+      "id": "temporal-locality",
+      "workspaceId": "workspace-eval",
+      "name": "Temporal locality",
+      "sourceChunkIds": [
+        "chunk-temporal"
+      ],
+      "updatedAt": "2026-07-25T00:00:00.000Z"
+    },
+    {
+      "id": "spatial-locality",
+      "workspaceId": "workspace-eval",
+      "name": "Spatial locality",
+      "sourceChunkIds": [
+        "chunk-spatial"
+      ],
+      "updatedAt": "2026-07-25T00:00:00.000Z"
+    },
+    {
+      "id": "memory-hierarchy",
+      "workspaceId": "workspace-eval",
+      "name": "Memory hierarchy",
+      "sourceChunkIds": [
+        "chunk-hierarchy"
+      ],
+      "updatedAt": "2026-07-25T00:00:00.000Z"
+    }
   ],
   "edges": [
-    { "id": "edge-memory-array", "workspaceId": "workspace-eval", "sourceConceptId": "contiguous-memory", "targetConceptId": "arrays", "relationshipType": "prerequisite", "strength": 0.95, "confidence": 0.98, "sourceChunkIds": ["chunk-memory"], "createdAt": "2026-07-25T00:00:00.000Z" },
-    { "id": "edge-array-index", "workspaceId": "workspace-eval", "sourceConceptId": "arrays", "targetConceptId": "index-access", "relationshipType": "causal", "strength": 0.92, "confidence": 0.95, "sourceChunkIds": ["chunk-index"], "createdAt": "2026-07-25T00:00:00.000Z" },
-    { "id": "edge-array-linked", "workspaceId": "workspace-eval", "sourceConceptId": "arrays", "targetConceptId": "linked-lists", "relationshipType": "contrasts", "strength": 0.88, "confidence": 0.93, "sourceChunkIds": ["chunk-comparison"], "createdAt": "2026-07-25T00:00:00.000Z" },
-    { "id": "edge-linked-ref", "workspaceId": "workspace-eval", "sourceConceptId": "node-reference", "targetConceptId": "linked-lists", "relationshipType": "prerequisite", "strength": 0.9, "confidence": 0.96, "sourceChunkIds": ["chunk-reference"], "createdAt": "2026-07-25T00:00:00.000Z" }
+    {
+      "id": "edge-memory-array",
+      "workspaceId": "workspace-eval",
+      "sourceConceptId": "contiguous-memory",
+      "targetConceptId": "arrays",
+      "relationshipType": "prerequisite",
+      "strength": 0.95,
+      "confidence": 0.98,
+      "sourceChunkIds": [
+        "chunk-memory"
+      ],
+      "createdAt": "2026-07-25T00:00:00.000Z"
+    },
+    {
+      "id": "edge-array-index",
+      "workspaceId": "workspace-eval",
+      "sourceConceptId": "arrays",
+      "targetConceptId": "index-access",
+      "relationshipType": "causal",
+      "strength": 0.92,
+      "confidence": 0.95,
+      "sourceChunkIds": [
+        "chunk-index"
+      ],
+      "createdAt": "2026-07-25T00:00:00.000Z"
+    },
+    {
+      "id": "edge-array-linked",
+      "workspaceId": "workspace-eval",
+      "sourceConceptId": "arrays",
+      "targetConceptId": "linked-lists",
+      "relationshipType": "contrasts",
+      "strength": 0.88,
+      "confidence": 0.93,
+      "sourceChunkIds": [
+        "chunk-comparison"
+      ],
+      "createdAt": "2026-07-25T00:00:00.000Z"
+    },
+    {
+      "id": "edge-linked-ref",
+      "workspaceId": "workspace-eval",
+      "sourceConceptId": "node-reference",
+      "targetConceptId": "linked-lists",
+      "relationshipType": "prerequisite",
+      "strength": 0.9,
+      "confidence": 0.96,
+      "sourceChunkIds": [
+        "chunk-reference"
+      ],
+      "createdAt": "2026-07-25T00:00:00.000Z"
+    },
+    {
+      "id": "edge-locality-cache",
+      "workspaceId": "workspace-eval",
+      "sourceConceptId": "locality",
+      "targetConceptId": "cache",
+      "relationshipType": "prerequisite",
+      "strength": 0.94,
+      "confidence": 0.97,
+      "sourceChunkIds": [
+        "chunk-locality"
+      ],
+      "createdAt": "2026-07-25T00:00:00.000Z"
+    },
+    {
+      "id": "edge-temporal-locality",
+      "workspaceId": "workspace-eval",
+      "sourceConceptId": "temporal-locality",
+      "targetConceptId": "locality",
+      "relationshipType": "related",
+      "strength": 0.9,
+      "confidence": 0.96,
+      "sourceChunkIds": [
+        "chunk-temporal"
+      ],
+      "createdAt": "2026-07-25T00:00:00.000Z"
+    },
+    {
+      "id": "edge-spatial-locality",
+      "workspaceId": "workspace-eval",
+      "sourceConceptId": "spatial-locality",
+      "targetConceptId": "locality",
+      "relationshipType": "related",
+      "strength": 0.9,
+      "confidence": 0.95,
+      "sourceChunkIds": [
+        "chunk-spatial"
+      ],
+      "createdAt": "2026-07-25T00:00:00.000Z"
+    },
+    {
+      "id": "edge-cache-hierarchy",
+      "workspaceId": "workspace-eval",
+      "sourceConceptId": "cache",
+      "targetConceptId": "memory-hierarchy",
+      "relationshipType": "related",
+      "strength": 0.88,
+      "confidence": 0.94,
+      "sourceChunkIds": [
+        "chunk-hierarchy"
+      ],
+      "createdAt": "2026-07-25T00:00:00.000Z"
+    },
+    {
+      "id": "edge-low-confidence",
+      "workspaceId": "workspace-eval",
+      "sourceConceptId": "arrays",
+      "targetConceptId": "cache",
+      "relationshipType": "related",
+      "strength": 0.3,
+      "confidence": 0.4,
+      "sourceChunkIds": [
+        "chunk-low-confidence"
+      ],
+      "createdAt": "2026-07-25T00:00:00.000Z"
+    }
   ]
 }
