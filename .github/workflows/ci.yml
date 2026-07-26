@@ -75,6 +75,9 @@ jobs:
       - name: Run Rebuild B dataset quality gate
         run: npm run eval:rebuild-b
 
+      - name: Run integration quality gate
+        run: npm run eval:integration
+
       - name: Audit runtime dependencies
         run: npm audit --audit-level=critical --omit=dev
 

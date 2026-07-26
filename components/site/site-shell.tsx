@@ -6,7 +6,7 @@ export function SiteShell({ children, className = '', style }: { children: React
   return (
     <div className="site-root" style={style}>
       <SiteHeader />
-      <main className={`site-main ${className}`.trim()}>{children}</main>
+      <main id="main-content" tabIndex={-1} className={`site-main ${className}`.trim()}>{children}</main>
       <SiteFooter />
     </div>
   );

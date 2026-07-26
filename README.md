@@ -367,6 +367,17 @@ The generated report is written to `eval/reports/rebuild-b-quality-gate.json`. E
 The public interface uses a custom tokenized design system built on pale cream surfaces, charcoal typography, compact editorial spacing, and accessible Radix primitives for interactive controls. The `/docs/*` section documents architecture, source processing, hybrid retrieval, graph projection, workflow orchestration, teach-back, mastery, tutoring, evaluation, observability, security, and current implementation status.
 
 
+## Integration quality gate
+
+The rebuild includes route-level loading and recovery boundaries, keyboard skip navigation, reduced-motion handling, and a static integration gate. Run it with:
+
+```bash
+npm run eval:integration
+```
+
+The gate verifies public-route isolation, required product surfaces, workspace recovery states, the website icon, and licensing files.
+
+
 ## License
 
 Copyright 2026 Dhruv Gupta. Licensed under the [Apache License 2.0](LICENSE). Redistribution and derivative works must preserve the copyright, license, and required notices. See [NOTICE](NOTICE) for project attribution.
