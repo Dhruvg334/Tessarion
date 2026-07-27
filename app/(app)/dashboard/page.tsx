@@ -1,22 +1,21 @@
 import Link from 'next/link';
-import { Info } from 'lucide-react';
+import { ArrowRight, BookOpen, GitFork, MessageSquareText, RotateCcw } from 'lucide-react';
 import { redirect } from 'next/navigation';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { CreateWorkspaceForm } from '@/components/workspace/create-workspace-form';
+
+import { CreateWorkspaceDialog } from '@/components/dashboard/create-workspace-dialog';
 import { SystemReadinessCard } from '@/components/system/system-readiness-card';
 import { getSystemReadiness } from '@/lib/system/readiness';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 import type { Workspace } from '@/types/database';
-import { InfoDialog } from '@/components/ui/info-dialog';
 
 export const metadata = { title: 'Dashboard | Tessarion' };
 
 const workspaceDestinations = [
   ['Study board', 'study'],
   ['Sources', 'sources'],
-  ['Knowledge graph', 'graph'],
+  ['Graph', 'graph'],
   ['Teach-back', 'teach-back'],
   ['Reviews', 'review'],
-  ['Activity', 'activity'],
 ] as const;
 
 export default async function DashboardPage() {
@@ -29,80 +28,69 @@ export default async function DashboardPage() {
     .select('*')
     .eq('user_id', user.id)
     .is('archived_at', null)
-    .order('created_at', { ascending: false });
+    .order('updated_at', { ascending: false });
 
   const workspaces = (data ?? []) as Workspace[];
   const readiness = getSystemReadiness();
+  const firstWorkspace = workspaces[0];
 
   return (
-    <div className="app-page dashboard-page">
+    <div className="app-page dashboard-page dashboard-page-compact">
       <div className="container-wide">
-        <header className="dashboard-hero dashboard-hero-refined">
+        <header className="dashboard-command-header">
           <div>
-            <p className="eyebrow">Learning workspace</p>
-            <h1>Continue where understanding broke down.</h1>
-            <p>Open a notebook, add evidence, inspect its concept structure, or return to the next recommended learning action.</p>
+            <p className="eyebrow">Your learning workspace</p>
+            <h1>Continue learning.</h1>
+            <p>Open a notebook or begin with one focused source.</p>
           </div>
-          <Link className="btn" href="#create-notebook">Create notebook</Link>
+          <div className="dashboard-command-actions">
+            {firstWorkspace ? <Link className="btn btn-secondary" href={`/workspace/${firstWorkspace.id}?panel=study`}>Resume latest <ArrowRight size={16} /></Link> : null}
+            <CreateWorkspaceDialog />
+          </div>
         </header>
 
-        {error ? <div className="notice" role="alert">Tessarion could not load your notebooks. Refresh the page or verify the Supabase connection.</div> : null}
+        {error ? <div className="notice" role="alert">Your notebooks could not be loaded. Refresh the page or check the Supabase connection.</div> : null}
 
-        <div className="dashboard-overview-strip" aria-label="Dashboard summary">
-          <div><strong>{workspaces.length}</strong><span>active notebooks</span></div>
-          <div><strong>{readiness.overall === 'ready' ? 'Ready' : 'Limited'}</strong><span>system state</span></div>
-          <div><strong>7</strong><span>learning surfaces</span></div>
-        </div>
-
-        <section className="dashboard-explainer-row" aria-label="Dashboard guidance">
-          {[
-            ['Notebooks', 'Each notebook isolates its sources, concepts, explanations, reviews, and traces.'],
-            ['System state', 'Ready means the configured services can support the complete learning loop. Limited means deterministic features remain available while one or more external services are absent.'],
-            ['Next action', 'Tessarion chooses the next step from source evidence, diagnosis, mastery signals, and review state.'],
-          ].map(([title, copy]) => (
-            <InfoDialog key={title} trigger={<button type="button" className="dashboard-info-chip"><Info size={15} /><span>{title}</span></button>} title={title} description="How to read this dashboard">
-              <p>{copy}</p>
-            </InfoDialog>
-          ))}
+        <section className="dashboard-quick-strip" aria-label="Dashboard summary and shortcuts">
+          <div className="dashboard-stat"><strong>{workspaces.length}</strong><span>active notebooks</span></div>
+          <Link href={firstWorkspace ? `/workspace/${firstWorkspace.id}?panel=sources` : '#notebooks'}><BookOpen size={17} /><span>Sources</span></Link>
+          <Link href={firstWorkspace ? `/workspace/${firstWorkspace.id}?panel=graph` : '#notebooks'}><GitFork size={17} /><span>Knowledge graph</span></Link>
+          <Link href={firstWorkspace ? `/workspace/${firstWorkspace.id}?panel=teach-back` : '#notebooks'}><MessageSquareText size={17} /><span>Teach-back</span></Link>
+          <Link href={firstWorkspace ? `/workspace/${firstWorkspace.id}?panel=review` : '#notebooks'}><RotateCcw size={17} /><span>Reviews</span></Link>
         </section>
 
-        <section className="dashboard-refined-layout">
-          <main className="dashboard-workspaces">
-            <div className="dashboard-section-heading">
-              <div><p className="eyebrow">Your notebooks</p><h2>Current subjects</h2></div>
-              <p>Sources, concepts, explanations, reviews, and traces stay isolated inside each notebook.</p>
+        <section id="notebooks" className="dashboard-notebook-section">
+          <div className="dashboard-section-heading dashboard-section-heading-compact">
+            <div><p className="eyebrow">Notebooks</p><h2>Your subjects</h2></div>
+            <span>{readiness.overall === 'ready' ? 'System ready' : 'Local fallbacks active'}</span>
+          </div>
+
+          {workspaces.length === 0 ? (
+            <div className="dashboard-empty dashboard-empty-compact">
+              <div><h3>No notebooks yet</h3><p>Create one notebook, add a short source, and let Tessarion build the evidence base.</p></div>
+              <CreateWorkspaceDialog />
             </div>
+          ) : (
+            <div className="workspace-card-grid workspace-card-grid-compact">
+              {workspaces.map((workspace, index) => (
+                <article className="workspace-card-refined workspace-card-compact" key={workspace.id}>
+                  <div className="workspace-card-top"><span>{String(index + 1).padStart(2, '0')}</span><p>Notebook</p></div>
+                  <div className="workspace-card-copy"><h3>{workspace.name}</h3><p>{workspace.description || 'No description yet.'}</p></div>
+                  <nav className="workspace-card-links" aria-label={`${workspace.name} sections`}>
+                    {workspaceDestinations.map(([label, panel]) => <Link key={panel} href={`/workspace/${workspace.id}?panel=${panel}`}>{label}</Link>)}
+                  </nav>
+                  <Link className="workspace-card-primary" href={`/workspace/${workspace.id}?panel=study`}>Open notebook <ArrowRight size={16} /></Link>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
 
-            {workspaces.length === 0 ? (
-              <div className="dashboard-empty">
-                <h3>Create your first notebook</h3>
-                <p>Start with one subject and one short source passage. The system will build the evidence base before asking you to explain anything.</p>
-              </div>
-            ) : (
-              <div className="workspace-card-grid">
-                {workspaces.map((workspace, index) => (
-                  <article className="workspace-card-refined" key={workspace.id}>
-                    <div className="workspace-card-top"><span>{String(index + 1).padStart(2, '0')}</span><p>Notebook</p></div>
-                    <div><h3>{workspace.name}</h3><p>{workspace.description || 'No description yet.'}</p></div>
-                    <nav className="workspace-card-links" aria-label={`${workspace.name} sections`}>
-                      {workspaceDestinations.map(([label, panel]) => <Link key={panel} href={`/workspace/${workspace.id}?panel=${panel}`}>{label}</Link>)}
-                    </nav>
-                    <Link className="btn workspace-card-open" href={`/workspace/${workspace.id}?panel=study`}>Open notebook</Link>
-                  </article>
-                ))}
-              </div>
-            )}
-          </main>
-
-          <aside className="dashboard-side-rail">
-            <div id="create-notebook" className="dashboard-create-card"><CreateWorkspaceForm /></div>
+        <section className="dashboard-system-drawer" aria-label="System readiness">
+          <details>
+            <summary>System readiness and provider status</summary>
             <SystemReadinessCard readiness={readiness} compact />
-            <section className="dashboard-route-guide">
-              <p className="eyebrow">How to use the system</p>
-              <ol><li>Add source material.</li><li>Inspect extracted concepts.</li><li>Teach one concept back.</li><li>Follow the evidence-backed next action.</li></ol>
-              <Link href="/demo/notebook">See the public example</Link>
-            </section>
-          </aside>
+          </details>
         </section>
       </div>
     </div>

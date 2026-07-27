@@ -367,3 +367,15 @@ Planned product additions include Google sign-in, Gemini/Groq provider selection
 ## License
 
 Apache License 2.0. See [`LICENSE`](LICENSE) and [`NOTICE`](NOTICE).
+
+### Auth-aware application shell
+
+Tessarion uses cookie-based Supabase SSR authentication across both public and protected routes. The Next.js proxy refreshes the session before server rendering, while the shared header resolves the current account from the refreshed cookie. Signed-in learners therefore retain their session while moving between public documentation, the demo, the dashboard, and notebook routes.
+
+The public header changes automatically after authentication:
+
+- **Start learning** becomes **Dashboard**.
+- A profile menu exposes account identity, profile settings, and sign-out.
+- `/profile` is protected by the same server-side session boundary as `/dashboard` and `/workspace/*`.
+
+The dashboard keeps notebook actions above the fold, uses modal notebook creation, and defers detailed provider status to a collapsible readiness section.

@@ -1,15 +1,15 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
-const protectedPrefixes = ['/dashboard', '/workspace'];
+const protectedPrefixes = ['/dashboard', '/workspace', '/profile'];
 
 export async function proxy(request: NextRequest) {
   const isProtectedRoute = protectedPrefixes.some((prefix) => request.nextUrl.pathname.startsWith(prefix));
-  if (!isProtectedRoute) return NextResponse.next();
-
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
   if (!url || !anonKey) {
+    if (!isProtectedRoute) return NextResponse.next();
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('next', `${request.nextUrl.pathname}${request.nextUrl.search}`);
     loginUrl.searchParams.set('reason', 'supabase_unavailable');
@@ -22,19 +22,26 @@ export async function proxy(request: NextRequest) {
       getAll: () => request.cookies.getAll(),
       setAll(cookiesToSet) {
         cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-        response = NextResponse.next({ request });
+        response = NextResponse.next({ request: { headers: request.headers } });
         cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
       },
     },
   });
 
+  let authenticated = false;
   try {
     const { data: { user } } = await supabase.auth.getUser();
-    if (user) return response;
+    authenticated = Boolean(user);
   } catch {
-    // Authentication infrastructure failures become one bounded redirect rather
-    // than a refresh loop in the browser.
+    authenticated = false;
   }
+
+  if (authenticated) {
+    response.headers.set('Cache-Control', 'private, no-store');
+    return response;
+  }
+
+  if (!isProtectedRoute) return response;
 
   const loginUrl = new URL('/login', request.url);
   loginUrl.searchParams.set('next', `${request.nextUrl.pathname}${request.nextUrl.search}`);
@@ -42,5 +49,7 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/workspace/:path*'],
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|map|woff|woff2)$).*)',
+  ],
 };
