@@ -32,12 +32,14 @@ export function KnowledgeReport() {
             <section className="knowledge-report-graph knowledge-report-graph-upgraded" aria-label="Example evidence-linked concept graph">
               <div className="report-graph-heading"><GitBranch size={16} /><div><strong>Concept structure</strong><span>Evidence-bearing relationships</span></div></div>
               <div className="report-graph-canvas">
-                <svg className="report-graph-links" viewBox="0 0 620 360" role="img" aria-label="Locality explains cache. Cache contrasts with main memory and produces cache miss outcomes.">
+                <svg viewBox="0 0 620 360" role="img" aria-label="Locality explains cache. Cache contrasts with main memory and produces cache miss outcomes.">
                   <defs><marker id="report-arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" /></marker></defs>
                   <path d="M150 88 C230 80 280 120 320 170" markerEnd="url(#report-arrow)" />
                   <path d="M320 190 C420 165 475 120 510 82" markerEnd="url(#report-arrow)" />
                   <path d="M330 205 C420 230 470 270 505 300" markerEnd="url(#report-arrow)" />
-                  <text x="225" y="92">explains</text><text x="420" y="135">produces</text><text x="418" y="258">contrasts with</text>
+                  <g className="report-edge-label"><rect x="202" y="74" width="64" height="22" rx="8" /><text x="234" y="89">explains</text></g>
+                  <g className="report-edge-label"><rect x="392" y="118" width="70" height="22" rx="8" /><text x="427" y="133">produces</text></g>
+                  <g className="report-edge-label"><rect x="382" y="241" width="98" height="22" rx="8" /><text x="431" y="256">contrasts with</text></g>
                 </svg>
                 {graphNodes.map((node) => <div key={node.label} className={`report-graph-node ${node.className}`}><strong>{node.label}</strong><span>{node.detail}</span></div>)}
               </div>

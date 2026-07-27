@@ -1,44 +1,61 @@
-# Production signup email
+# Production authentication and email
 
-Tessarion uses Supabase Auth for account creation. Supabase's built-in email sender is intended for initial testing. It can send only to authorised team addresses and applies a project-wide email limit. Production registration requires custom SMTP.
+Tessarion uses Supabase Auth directly from the browser through `@supabase/ssr`. Login and signup requests no longer pass through a shared Vercel API route, so Supabase can apply client/IP limits to the actual browser rather than to a shared serverless egress address.
 
-## Production setup
+## Why the first signup may still be rate-limited
 
-1. Open **Supabase → Authentication → SMTP Settings**.
-2. Enable custom SMTP.
-3. Enter the host, port, username, password, sender address, and sender name from the selected email provider.
-4. Keep SMTP credentials outside the repository.
-5. Add the production Vercel URL and localhost URL under **Authentication → URL Configuration**.
-6. Test confirmation, redirect, sign-in, and resend behaviour with an inbox you control.
+Supabase has two different limits:
 
-## Temporary deployment testing
+- `over_request_rate_limit`: too many Auth requests from one client/IP. Tessarion shows a temporary cooldown for this case.
+- `over_email_send_rate_limit`: the project email quota is exhausted. Tessarion does not show a misleading one-minute countdown for this case because the built-in sender is limited project-wide and may take much longer to reset.
 
-When SMTP is not ready, email confirmation can be disabled temporarily under **Authentication → Providers → Email**. Re-enable confirmation before public registration unless password-only accounts are an intentional product decision.
+The built-in Supabase email service is intended only for initial testing. It can send only to authorised organisation addresses and currently has a very small project-wide quota. A public deployment must either configure custom SMTP or intentionally disable email confirmation.
 
-## Application behaviour
+## Option A — immediate deployment testing
 
-The signup interface:
+1. Open **Supabase → Authentication → Providers → Email**.
+2. Temporarily disable **Confirm email**.
+3. Delete incomplete test users under **Authentication → Users**.
+4. Test signup with a real inbox and a new password.
+5. Confirm that signup immediately creates a session and redirects to `/dashboard`.
 
-- validates email format before sending a request;
-- preserves the entered email after failure;
-- prevents duplicate submissions;
-- starts a cooldown after HTTP 429;
-- distinguishes invalid address, existing account, weak password, rate limit, and delivery failure;
-- does not expose raw provider errors.
+This is acceptable for controlled testing. Re-enable confirmation before public registration unless password-only accounts are an intentional product decision.
 
-After custom SMTP is configured, verify:
+## Option B — production registration
 
-1. A valid external address can sign up.
-2. Confirmation mail is delivered.
-3. Confirmation returns to the production domain.
-4. Repeated clicks do not create duplicate requests.
-5. Existing-account and invalid-address errors remain distinct.
-6. Password reset uses the same production redirect configuration.
+1. Choose an SMTP provider such as Resend, Brevo, Postmark, Mailgun or Amazon SES.
+2. Open **Supabase → Authentication → SMTP Settings**.
+3. Enter the SMTP host, port, username, password, sender address and sender name.
+4. Open **Authentication → Rate Limits** and review the email-send quota after SMTP is active.
+5. Keep credentials outside the repository.
+6. Add the production domain and localhost under **Authentication → URL Configuration**.
+7. Disable link tracking in the SMTP provider when it rewrites confirmation links.
 
-## Production troubleshooting
+## Redirect configuration
 
-Supabase rejects reserved example and test domains, including addresses such as `name@test.com` and `name@example.com`, with the stable Auth code `email_address_invalid`. Test signup with a real inbox.
+Use the exact production domain:
 
-Tessarion branches on Supabase Auth error codes rather than provider message text. Vercel function logs record only a request ID, error code, HTTP status, and error class; credentials and submitted passwords are never logged.
+```text
+Site URL: https://YOUR-VERCEL-DOMAIN
+Redirect URLs:
+https://YOUR-VERCEL-DOMAIN/**
+http://localhost:3000/**
+```
 
-When email confirmation is enabled, the confirmation link returns through `/auth/callback`, exchanges the PKCE code for a session, and continues to the dashboard. `TESSARION_APP_URL` must match the deployed production origin.
+Tessarion sends confirmation links to:
+
+```text
+/auth/callback?next=/dashboard
+```
+
+The callback exchanges the Supabase PKCE code for a session and redirects to the requested safe path.
+
+## Verification
+
+1. Sign up using a real inbox.
+2. Confirm the email when confirmation is enabled.
+3. Confirm the callback returns to the production domain.
+4. Verify `/dashboard` loads.
+5. Log out and sign in again.
+6. Check Supabase **Auth Logs** for the stable error code if any step fails.
+7. Confirm repeated button clicks do not create duplicate requests.

@@ -37,7 +37,7 @@ export function DocsDiagram({ spec }: { spec: DocsDiagramSpec }) {
           { selector: 'node[group = "derived"]', style: { 'background-color': '#efe3bd', 'border-style': 'dashed' } },
           { selector: 'node[group = "workflow"]', style: { 'background-color': '#e3d3a6', 'border-width': '2px' } },
           { selector: 'node[group = "evidence"]', style: { 'background-color': '#fffaf0' } },
-          { selector: 'edge', style: { width: '1.4px', 'line-color': '#8f826a', 'target-arrow-color': '#8f826a', 'target-arrow-shape': 'triangle', 'curve-style': 'bezier', label: 'data(label)', color: '#655b4d', 'font-size': '9px', 'text-background-color': '#fbf7e8', 'text-background-opacity': 0.96, 'text-background-padding': '4px' } },
+          { selector: 'edge', style: { width: '1.4px', 'line-color': '#8f826a', 'target-arrow-color': '#8f826a', 'target-arrow-shape': 'triangle', 'curve-style': 'bezier', label: 'data(label)', color: '#655b4d', 'font-size': '9px', 'font-weight': 'bold', 'text-rotation': 'autorotate', 'text-margin-y': '-9px', 'text-background-color': '#fbf7e8', 'text-background-opacity': 1, 'text-background-padding': '4px', 'text-background-shape': 'roundrectangle', 'text-border-color': '#d8cfb3', 'text-border-width': '1px', 'text-border-opacity': 1 } },
         ],
         minZoom: 0.45,
         maxZoom: 2.3,

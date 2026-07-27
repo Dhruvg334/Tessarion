@@ -9,6 +9,11 @@ import { demoNotebook } from '@/lib/demo/notebook';
 export function DemoKnowledgeGraph({ selectedId, onSelect }: { selectedId: string; onSelect: (id: string) => void }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const instanceRef = useRef<Core | null>(null);
+  const onSelectRef = useRef(onSelect);
+
+  useEffect(() => {
+    onSelectRef.current = onSelect;
+  }, [onSelect]);
 
   useEffect(() => {
     let disposed = false;
@@ -24,32 +29,50 @@ export function DemoKnowledgeGraph({ selectedId, onSelect }: { selectedId: strin
           ...demoNotebook.concepts.map((concept) => ({ data: { id: concept.id, label: concept.label, level: concept.level } })),
           ...demoNotebook.edges.map(([source, target, relation], index) => ({ data: { id: `demo-edge-${index}`, source, target, label: relation } })),
         ],
-        layout: { name: 'breadthfirst', directed: true, padding: 48, spacingFactor: 1.35 },
+        layout: { name: 'breadthfirst', directed: true, padding: 56, spacingFactor: 1.65 },
         style: [
-          { selector: 'node', style: { label: 'data(label)', color: '#292824', 'font-size': '10px', 'font-weight': 'bold', 'text-wrap': 'wrap', 'text-max-width': '100px', 'text-valign': 'center', 'text-halign': 'center', shape: 'round-rectangle', width: '118px', height: '44px', 'background-color': '#fffaf0', 'border-color': '#8c7b68', 'border-width': '1px' } },
+          {
+            selector: 'node',
+            style: {
+              label: 'data(label)', color: '#292824', 'font-size': '10px', 'font-weight': 'bold',
+              'text-wrap': 'wrap', 'text-max-width': '100px', 'text-valign': 'center', 'text-halign': 'center',
+              shape: 'round-rectangle', width: '118px', height: '44px', 'background-color': '#fffaf0',
+              'border-color': '#8c7b68', 'border-width': '1px',
+            },
+          },
           { selector: 'node:selected', style: { 'background-color': '#e7d7ad', 'border-color': '#40362c', 'border-width': '3px' } },
-          { selector: 'edge', style: { width: '1px', 'line-color': '#9a8a72', 'target-arrow-color': '#9a8a72', 'target-arrow-shape': 'triangle', 'curve-style': 'bezier', label: 'data(label)', color: '#5b5044', 'font-size': '8px', 'text-background-color': '#fbf7e8', 'text-background-opacity': 0.94, 'text-background-padding': '3px' } },
+          {
+            selector: 'edge',
+            style: {
+              width: '1px', 'line-color': '#9a8a72', 'target-arrow-color': '#9a8a72',
+              'target-arrow-shape': 'triangle', 'curve-style': 'bezier', label: 'data(label)', color: '#4f453b',
+              'font-size': '8px', 'font-weight': 'bold', 'text-rotation': 'autorotate', 'text-margin-y': '-9px',
+              'text-background-color': '#fbf7e8', 'text-background-opacity': 1, 'text-background-padding': '4px',
+              'text-background-shape': 'roundrectangle', 'text-border-color': '#d8cfb3', 'text-border-width': '1px',
+              'text-border-opacity': 1,
+            },
+          },
         ],
         minZoom: 0.35,
         maxZoom: 2.5,
         boxSelectionEnabled: false,
       });
 
-      instance.on('tap', 'node', (event) => onSelect(event.target.id()));
+      instance.on('tap', 'node', (event) => onSelectRef.current(event.target.id()));
       instanceRef.current = instance;
-      instance.$id(selectedId).select();
       instance.fit(undefined, 44);
     }
 
     void mountGraph();
     return () => { disposed = true; instanceRef.current?.destroy(); instanceRef.current = null; };
-  }, [onSelect]);
+  }, []);
 
   useEffect(() => {
     const instance = instanceRef.current;
     if (!instance) return;
     instance.nodes().unselect();
     const selected = instance.$id(selectedId);
+    if (selected.empty()) return;
     selected.select();
     instance.animate({ center: { eles: selected }, zoom: Math.max(instance.zoom(), 0.8) }, { duration: 260 });
   }, [selectedId]);
