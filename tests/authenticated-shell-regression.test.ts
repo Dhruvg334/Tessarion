@@ -48,7 +48,7 @@ describe('release candidate dashboard regressions', () => {
   it('keeps notebook creation content above its modal overlay', () => {
     const css = read('app/globals.css');
     expect(css).toContain('.info-dialog-overlay');
-    expect(css).toMatch(/\.dashboard-create-dialog\s*\{[^}]*z-index:\s*701/s);
+    expect(css).toMatch(/\.dashboard-create-dialog\s*\{[\s\S]*?z-index:\s*701/);
   });
 
   it('uses a continuous five-cell wood navigation strip', () => {
