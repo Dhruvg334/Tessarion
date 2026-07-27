@@ -43,3 +43,25 @@ describe('authenticated shell regressions', () => {
     expect(dashboard).not.toContain('dashboard-side-rail');
   });
 });
+
+describe('release candidate dashboard regressions', () => {
+  it('keeps notebook creation content above its modal overlay', () => {
+    const css = read('app/globals.css');
+    expect(css).toContain('.info-dialog-overlay');
+    expect(css).toMatch(/\.dashboard-create-dialog\s*\{[^}]*z-index:\s*701/s);
+  });
+
+  it('uses a continuous five-cell wood navigation strip', () => {
+    const css = read('app/globals.css');
+    expect(css).toContain('grid-template-columns: repeat(5, minmax(145px, 1fr))');
+    expect(css).toContain('.dashboard-quick-strip > *');
+    expect(css).toContain('background: var(--wood-deep)');
+  });
+
+  it('keeps the landing report graph linear and free of SVG label collisions', () => {
+    const report = read('components/site/public/knowledge-report.tsx');
+    expect(report).toContain('report-graph-flow');
+    expect(report).toContain('Two evidence-bearing relationships');
+    expect(report).not.toContain('report-graph-links');
+  });
+});

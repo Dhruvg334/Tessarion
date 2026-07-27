@@ -1,159 +1,135 @@
-# Tessarion deployment guide
+# Tessarion production deployment
 
 ## Production topology
 
-| Component | Deployment target | Responsibility |
+| Component | Target | Responsibility |
 |---|---|---|
-| Next.js application | Vercel | Public site, authenticated workspace, API routes, MCP endpoint, health routes, Inngest serve endpoint |
-| Canonical database, auth, storage | Supabase hosted project | Users, workspaces, sources, concepts, learning records, workflow checkpoints, RLS |
-| Durable jobs | Inngest Cloud | Document processing, retries, scheduled and asynchronous work |
-| Dense and sparse retrieval | Qdrant Cloud | Rebuildable vector and sparse indexes, always filtered by workspace |
-| Graph projection | Neo4j AuraDB | Rebuildable concept traversal projection |
-| Trace inspection | Phoenix Cloud or Phoenix on Render | OTLP-compatible workflow, retrieval and tool traces |
+| Next.js application | Vercel | Public site, authenticated workspace, API routes, Inngest endpoint, health routes |
+| Canonical data and authentication | Supabase | Users, profiles, notebooks, sources, concepts, learning records, checkpoints, RLS |
+| Durable jobs | Inngest Cloud | Background processing, retries, schedules, and execution history |
+| Retrieval projection | Qdrant Cloud | Workspace-filtered dense and sparse indexes |
+| Graph projection | Neo4j AuraDB | Bounded concept traversal derived from canonical records |
+| Trace inspection | Arize AX | Authenticated OTLP traces for workflows, tools, retrieval, and failures |
 
-No service other than Supabase owns canonical learner data. Qdrant, Neo4j and Phoenix may be rebuilt or removed without invalidating the transactional records.
+Supabase is the only canonical owner. Qdrant, Neo4j, Inngest run history, and Arize traces are operational or derived state.
 
-## 1. Supabase
+## Deployment order
 
-1. Create a hosted Supabase project.
-2. Apply every file under `supabase/migrations/` in timestamp order using the Supabase CLI.
-3. Configure the site URL and redirect URLs for the Vercel production and preview domains.
-4. Copy the project URL, publishable/anon key and service-role key into Vercel.
-5. Confirm RLS is enabled before importing any learner data.
+1. Create the hosted Supabase project.
+2. Push all timestamped migrations with `supabase db push`.
+3. Configure Supabase Auth URLs and production SMTP or disable confirmation for controlled testing.
+4. Deploy the Git repository to Vercel using Node.js 24, `npm ci`, and `npm run build`.
+5. Create and bootstrap Qdrant Cloud.
+6. Create and bootstrap Neo4j AuraDB.
+7. Install the Inngest Vercel integration and sync `/api/inngest` on the stable production domain.
+8. Configure Arize AX credentials and send the first validation trace.
+9. Run the production validation guide.
 
-Recommended deployment command from a trusted workstation or CI environment:
+## Environment variables
 
-```cmd
-supabase link --project-ref <project-ref>
-supabase db push
-```
-
-Do not expose the service-role key to the browser.
-
-## 2. Qdrant Cloud
-
-Create a Qdrant Cloud cluster and set:
+### Required application variables
 
 ```text
-QDRANT_URL=https://<cluster-endpoint>
-QDRANT_API_KEY=<server-only-key>
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY
+SUPABASE_SERVICE_ROLE_KEY
+NEXT_PUBLIC_SITE_URL
+TESSARION_APP_URL
+GOOGLE_GENERATIVE_AI_API_KEY
+```
+
+### Qdrant
+
+```text
+QDRANT_URL
+QDRANT_API_KEY
 QDRANT_COLLECTION=tessarion_workspace_chunks_v1
-QDRANT_DENSE_VECTOR_SIZE=<embedding-dimension>
+QDRANT_DENSE_VECTOR_SIZE=768
 ```
 
-The application creates the collection through the existing Qdrant adapter. The collection is derived state. Reindex from canonical source chunks after changing embedding dimensions or models.
+### Neo4j AuraDB
 
-## 3. Neo4j AuraDB
-
-Create an AuraDB instance and set:
+The current adapter uses the HTTPS Query API. Convert the downloaded Aura URI from `neo4j+s://host` to `https://host`.
 
 ```text
-NEO4J_URI=https://<query-api-host>
+NEO4J_URI=https://<aura-host>
 NEO4J_USERNAME=neo4j
-NEO4J_PASSWORD=<database-password>
+NEO4J_PASSWORD=<instance-password>
 NEO4J_DATABASE=neo4j
 ```
 
-Tessarion currently uses Neo4j's HTTP Query API. Neo4j is a derived projection; Postgres remains authoritative for concept IDs and canonical relationships.
-
-## 4. Inngest Cloud
-
-The deployed application serves functions at:
+### Inngest
 
 ```text
-https://<vercel-domain>/api/inngest
+INNGEST_EVENT_KEY
+INNGEST_SIGNING_KEY
+INNGEST_SERVE_ORIGIN=https://<stable-production-domain>
 ```
 
-Create an Inngest application, sync this URL and configure:
+The serve origin excludes `/api/inngest`. Sync the complete endpoint separately:
 
 ```text
-INNGEST_EVENT_KEY=<event-key>
-INNGEST_SIGNING_KEY=<signing-key>
+https://<stable-production-domain>/api/inngest
 ```
 
-The first deployed function is intentionally limited. Expand it only with idempotent, checkpointed steps and bounded retries.
+### Arize AX
 
-## 5. Phoenix tracing
-
-For the fastest hosted deployment, use Phoenix Cloud and configure its OTLP endpoint. For self-hosting, deploy the `arizephoenix/phoenix` image to a Render web service:
-
-- Runtime: Existing Docker image
-- Image: `docker.io/arizephoenix/phoenix:latest`
-- Region: Singapore when it matches the rest of the stack
-- Health check: `/healthz`
-- Container port: `6006`
-- Persistent disk mount: `/mnt/data`
-
-Then configure:
+Arize AX creates the tracing project automatically when the first accepted trace includes `openinference.project.name=tessarion`.
 
 ```text
-PHOENIX_URL=https://<phoenix-service>
-PHOENIX_COLLECTOR_ENDPOINT=https://<phoenix-service>/v1/traces
-OTEL_SERVICE_NAME=tessarion
-```
-
-Pin the Phoenix image to a tested version or digest before a production release.
-
-## 6. Vercel
-
-Import the GitHub repository into Vercel.
-
-- Framework: Next.js
-- Node.js: 24.x
-- Install command: `npm ci`
-- Build command: `npm run build`
-- Health endpoint: `/api/health`
-
-Set all production variables from `.env.example`. Mark server credentials as sensitive. The following routes are deployed with the Next.js application:
-
-```text
-/api/inngest
-/api/mcp
-/api/health
-/api/health/infrastructure
-```
-
-`/api/mcp` remains disabled until `MCP_SERVER_TOKEN` is configured. The infrastructure health route can be protected with `INFRASTRUCTURE_HEALTH_TOKEN`.
-
-## 7. Render responsibilities
-
-Tessarion does not currently require a separate application worker on Render. Inngest's HTTP handler is served from Vercel. Use Render only for Phoenix self-hosting at this stage.
-
-Move heavy indexing or graph-synchronization workers to a Render background worker later only when execution time, memory, or connection requirements exceed Vercel function limits. That worker should consume Inngest events and use the same canonical service contracts.
-
-## 8. Release order
-
-1. Deploy Supabase and apply migrations.
-2. Create Qdrant and Neo4j services.
-3. Deploy Phoenix or configure Phoenix Cloud.
-4. Configure Vercel environment variables.
-5. Deploy the Vercel project.
-6. Sync `/api/inngest` with Inngest Cloud.
-7. Call `/api/health`.
-8. Call the protected `/api/health/infrastructure` route.
-9. Complete one source-to-teach-back flow using a non-production test workspace.
-10. Verify traces and then remove the test records.
-
-## 9. Rollback
-
-- Vercel: redeploy the previous successful build.
-- Supabase: use forward corrective migrations; do not delete applied production migrations.
-- Qdrant: recreate the collection and reindex from Postgres.
-- Neo4j: remove and rebuild the affected workspace projection.
-- Phoenix: rollback to the previously tested image digest.
-
-## Arize AX tracing
-
-Arize AX projects are created automatically when the first accepted trace arrives with an `openinference.project.name` resource attribute. Tessarion uses `ARIZE_PROJECT_NAME=tessarion`; there is no separate project-creation step in the AX interface.
-
-Configure these server-only values locally and in Vercel Production:
-
-```text
-ARIZE_SPACE_ID=<space-id>
-ARIZE_API_KEY=<api-key>
+ARIZE_SPACE_ID
+ARIZE_API_KEY
 ARIZE_PROJECT_NAME=tessarion
 ARIZE_OTLP_ENDPOINT=https://otlp.arize.com/v1/traces
 OTEL_SERVICE_NAME=tessarion
 ```
 
-For EU or Canada spaces, use the regional OTLP endpoint documented by Arize. The exporter sends `arize-space-id` and `arize-api-key` headers and includes both `service.name` and `openinference.project.name` resource attributes. Trace-export failures are isolated from the learner workflow.
+Use the regional OTLP endpoint when the Arize space is outside the US region.
+
+## Infrastructure bootstrap and validation
+
+The scripts automatically load `.env.local` under Node.js 24:
+
+```cmd
+npm run infra:bootstrap
+npm run infra:validate
+```
+
+A healthy configured environment reports Supabase, Qdrant, Neo4j, and Arize as healthy. Missing optional infrastructure must degrade safely rather than crash canonical learner flows.
+
+## Vercel routes
+
+```text
+/api/health
+/api/health/infrastructure
+/api/inngest
+/api/mcp
+```
+
+`/api/mcp` remains disabled until `MCP_SERVER_TOKEN` is configured. The detailed infrastructure route may be protected with `INFRASTRUCTURE_HEALTH_TOKEN`; this token is optional and does not affect product operation.
+
+## Release checks
+
+Run locally:
+
+```cmd
+npm ci
+npm run lint
+npm run typecheck
+npm run test:run
+npm run eval:release-v1
+npm run deploy:check
+npm run build
+npm run infra:validate
+```
+
+Then complete [`PRODUCTION-VALIDATION.md`](PRODUCTION-VALIDATION.md) against the deployed application.
+
+## Rollback
+
+- **Vercel:** promote the previous healthy deployment.
+- **Supabase:** use forward corrective migrations; do not edit migration history manually.
+- **Qdrant:** recreate the collection and reindex from canonical source chunks.
+- **Neo4j:** delete and rebuild the affected workspace projection.
+- **Inngest:** disable or roll back the function deployment; preserve idempotency keys.
+- **Arize AX:** disable export without blocking the learner workflow.

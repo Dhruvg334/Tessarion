@@ -51,6 +51,7 @@ Add these only when the relevant service is deployed:
 GOOGLE_GENERATIVE_AI_API_KEY
 INNGEST_EVENT_KEY
 INNGEST_SIGNING_KEY
+INNGEST_SERVE_ORIGIN
 QDRANT_URL
 QDRANT_API_KEY
 QDRANT_COLLECTION
@@ -96,7 +97,7 @@ GET /dashboard                        → redirects to login while signed out
 
 Then verify the authenticated flow:
 
-1. Sign up or log in.
+1. Sign up or log in with a real inbox.
 2. Create a notebook.
 3. Add pasted source material.
 4. Reload and confirm persistence.
@@ -117,3 +118,8 @@ If a deployment fails:
 2. Do not roll back database migrations by editing hosted tables manually.
 3. Correct the repository migration or application issue in a new commit.
 4. Run the complete local gate and deploy again.
+
+
+## 9. Final validation
+
+Complete [`PRODUCTION-VALIDATION.md`](PRODUCTION-VALIDATION.md) before tagging the first release.

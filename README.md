@@ -333,15 +333,28 @@ npm run build
 
 ## Deployment
 
-1. Push Supabase migrations.
-2. Deploy the Next.js repository to Vercel.
-3. Configure Qdrant Cloud and bootstrap the retrieval collection.
-4. Configure Neo4j AuraDB and create projection indexes.
-5. Sync the deployed `/api/inngest` endpoint with Inngest Cloud.
-6. Configure an OTLP collector when trace export is required.
-7. Run the production learner flow and infrastructure health checks.
+Production uses a hosted, layered topology:
 
-Detailed instructions: [`docs/deployment/DEPLOYMENT.md`](docs/deployment/DEPLOYMENT.md)
+1. Supabase for canonical authentication and learner data.
+2. Vercel for the Next.js application and API routes.
+3. Qdrant Cloud for rebuildable dense and sparse retrieval indexes.
+4. Neo4j AuraDB for the rebuildable concept-graph projection.
+5. Inngest Cloud for durable background execution and retries.
+6. Arize AX for authenticated OTLP workflow traces.
+
+The local infrastructure commands load `.env.local` automatically:
+
+```cmd
+npm run infra:bootstrap
+npm run infra:validate
+```
+
+Detailed instructions:
+
+- [Production topology and deployment order](docs/deployment/DEPLOYMENT.md)
+- [Vercel configuration](docs/deployment/VERCEL.md)
+- [Production end-to-end validation](docs/deployment/PRODUCTION-VALIDATION.md)
+- [Authentication email delivery](docs/deployment/AUTH-EMAIL.md)
 
 ---
 
@@ -355,30 +368,44 @@ Detailed instructions: [`docs/deployment/DEPLOYMENT.md`](docs/deployment/DEPLOYM
 - [Memory model](docs/rebuild/06-memory-and-learner-model.md)
 - [Evaluation](docs/rebuild/08-evaluation-and-improvement.md)
 - [Security](docs/public-security-model.md)
+- [Observability](docs/public-observability-model.md)
 - [Deployment](docs/deployment/DEPLOYMENT.md)
 
 ---
 
 ## Current status
 
-The product, learning workflows, deterministic evaluations, public demo, authenticated workspace, Supabase schema, and Vercel deployment path are implemented. Qdrant, Neo4j, Inngest, and trace collection become active when production credentials are configured.
+The first production release path is implemented across the full stack:
 
-Planned product additions include Google sign-in, Gemini/Groq provider selection, flashcards, Anki export, context books, approved online references, and a complete Agentic AI demo course.
+| Capability | Production path |
+|---|---|
+| Authentication and canonical records | Supabase |
+| Public site and learner workspace | Vercel |
+| Retrieval projection | Qdrant Cloud |
+| Concept-graph projection | Neo4j AuraDB |
+| Durable background jobs | Inngest Cloud |
+| Workflow tracing | Arize AX |
+| Regression and release evaluation | Vitest and versioned evaluation runners |
+
+The application remains usable through bounded local fallbacks when an optional derived service is unavailable. Supabase/Postgres remains the only canonical owner of learner records.
+
+The next product version can focus on new learner-facing capabilities, UI refinement, and performance work without changing these ownership boundaries.
+
+---
+
+## Auth-aware application shell
+
+Tessarion uses cookie-based Supabase SSR authentication across public and protected routes. The Next.js proxy refreshes the session before server rendering, while the shared header resolves the current account from the refreshed cookie.
+
+After authentication:
+
+- **Start learning** becomes **Dashboard**.
+- The profile menu exposes account identity, profile settings, and sign-out.
+- `/profile`, `/dashboard`, and `/workspace/*` use the same server-side session boundary.
+- Session-aware responses are not shared through public caches.
 
 ---
 
 ## License
 
 Apache License 2.0. See [`LICENSE`](LICENSE) and [`NOTICE`](NOTICE).
-
-### Auth-aware application shell
-
-Tessarion uses cookie-based Supabase SSR authentication across both public and protected routes. The Next.js proxy refreshes the session before server rendering, while the shared header resolves the current account from the refreshed cookie. Signed-in learners therefore retain their session while moving between public documentation, the demo, the dashboard, and notebook routes.
-
-The public header changes automatically after authentication:
-
-- **Start learning** becomes **Dashboard**.
-- A profile menu exposes account identity, profile settings, and sign-out.
-- `/profile` is protected by the same server-side session boundary as `/dashboard` and `/workspace/*`.
-
-The dashboard keeps notebook actions above the fold, uses modal notebook creation, and defers detailed provider status to a collapsible readiness section.
