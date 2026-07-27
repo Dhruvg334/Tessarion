@@ -141,3 +141,19 @@ Move heavy indexing or graph-synchronization workers to a Render background work
 - Qdrant: recreate the collection and reindex from Postgres.
 - Neo4j: remove and rebuild the affected workspace projection.
 - Phoenix: rollback to the previously tested image digest.
+
+## Arize AX tracing
+
+Arize AX projects are created automatically when the first accepted trace arrives with an `openinference.project.name` resource attribute. Tessarion uses `ARIZE_PROJECT_NAME=tessarion`; there is no separate project-creation step in the AX interface.
+
+Configure these server-only values locally and in Vercel Production:
+
+```text
+ARIZE_SPACE_ID=<space-id>
+ARIZE_API_KEY=<api-key>
+ARIZE_PROJECT_NAME=tessarion
+ARIZE_OTLP_ENDPOINT=https://otlp.arize.com/v1/traces
+OTEL_SERVICE_NAME=tessarion
+```
+
+For EU or Canada spaces, use the regional OTLP endpoint documented by Arize. The exporter sends `arize-space-id` and `arize-api-key` headers and includes both `service.name` and `openinference.project.name` resource attributes. Trace-export failures are isolated from the learner workflow.

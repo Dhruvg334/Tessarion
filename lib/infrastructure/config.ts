@@ -13,8 +13,10 @@ const infrastructureSchema = z.object({
   NEO4J_USERNAME: z.string().min(1).default('neo4j'),
   NEO4J_PASSWORD: optionalSecret,
   NEO4J_DATABASE: z.string().min(1).default('neo4j'),
-  PHOENIX_URL: optionalUrl,
-  PHOENIX_COLLECTOR_ENDPOINT: optionalUrl,
+  ARIZE_SPACE_ID: optionalSecret,
+  ARIZE_API_KEY: optionalSecret,
+  ARIZE_PROJECT_NAME: z.string().min(1).default('tessarion'),
+  ARIZE_OTLP_ENDPOINT: optionalUrl.default('https://otlp.arize.com/v1/traces'),
   OTEL_SERVICE_NAME: z.string().min(1).default('tessarion'),
   MCP_SERVER_TOKEN: optionalStrongSecret,
   INFRASTRUCTURE_HEALTH_TOKEN: optionalStrongSecret,
@@ -23,7 +25,7 @@ const infrastructureSchema = z.object({
 export type InfrastructureConfig = {
   qdrant?: { url: string; apiKey?: string; collectionName: string; denseVectorSize: number };
   neo4j?: { url: string; username: string; password: string; database: string };
-  phoenix?: { url?: string; collectorEndpoint?: string; serviceName: string };
+  arize?: { spaceId: string; apiKey: string; projectName: string; endpoint: string; serviceName: string };
   mcpServerToken?: string;
   infrastructureHealthToken?: string;
 };
@@ -43,9 +45,11 @@ export function getInfrastructureConfig(env: NodeJS.ProcessEnv = process.env): I
       password: parsed.NEO4J_PASSWORD,
       database: parsed.NEO4J_DATABASE,
     } : undefined,
-    phoenix: parsed.PHOENIX_URL || parsed.PHOENIX_COLLECTOR_ENDPOINT ? {
-      url: parsed.PHOENIX_URL,
-      collectorEndpoint: parsed.PHOENIX_COLLECTOR_ENDPOINT,
+    arize: parsed.ARIZE_SPACE_ID && parsed.ARIZE_API_KEY ? {
+      spaceId: parsed.ARIZE_SPACE_ID,
+      apiKey: parsed.ARIZE_API_KEY,
+      projectName: parsed.ARIZE_PROJECT_NAME,
+      endpoint: parsed.ARIZE_OTLP_ENDPOINT,
       serviceName: parsed.OTEL_SERVICE_NAME,
     } : undefined,
     mcpServerToken: parsed.MCP_SERVER_TOKEN,

@@ -1,8 +1,10 @@
 import { getClientEnv } from '@/lib/config/env';
 import { Neo4jHttpQueryClient } from '@/lib/graph/neo4j/client';
+import { OtlpHttpTraceExporter } from '@/lib/observability/exporters/otlp-http';
+import { createTraceSpan } from '@/lib/observability/trace-model';
 import { getInfrastructureConfig } from './config';
 
-export type InfrastructureComponent = 'supabase' | 'qdrant' | 'neo4j' | 'phoenix';
+export type InfrastructureComponent = 'supabase' | 'qdrant' | 'neo4j' | 'arize';
 export type InfrastructureStatus = 'healthy' | 'degraded' | 'not_configured';
 
 export interface InfrastructureHealthItem {
@@ -75,13 +77,42 @@ export async function checkInfrastructureHealth(): Promise<InfrastructureHealthR
     components.push({ component: 'neo4j', status: 'not_configured', safeMessage: 'Neo4j is not configured; canonical Postgres graph data remains available.' });
   }
 
-  if (infra.phoenix?.url) {
-    components.push(await timedCheck('phoenix', async () => {
-      const response = await fetchWithTimeout(`${infra.phoenix!.url!.replace(/\/$/, '')}/healthz`);
-      if (!response.ok) throw new Error('unhealthy');
+  if (infra.arize) {
+    components.push(await timedCheck('arize', async () => {
+      const exporter = new OtlpHttpTraceExporter({
+        endpoint: infra.arize!.endpoint,
+        headers: {
+          'arize-space-id': infra.arize!.spaceId,
+          'arize-api-key': infra.arize!.apiKey,
+        },
+        serviceName: infra.arize!.serviceName,
+        projectName: infra.arize!.projectName,
+        timeoutMs: 4_000,
+      });
+      const healthSpan = createTraceSpan({
+        traceId: crypto.randomUUID(),
+        parentSpanId: null,
+        kind: 'validation',
+        name: 'infrastructure.health',
+        workspaceId: crypto.randomUUID(),
+        userId: crypto.randomUUID(),
+        requestId: crypto.randomUUID(),
+        workflowName: 'infrastructure-health',
+        workflowVersion: '1.0.0',
+        nodeName: 'arize',
+        promptId: null,
+        promptVersion: null,
+        promptHash: null,
+        providerId: 'arize-ax',
+        modelId: null,
+        toolName: null,
+        attributes: { 'openinference.span.kind': 'CHAIN', 'tessarion.healthcheck': true },
+        safeErrorCode: null,
+      });
+      await exporter.export([{ ...healthSpan, status: 'ok', endedAt: new Date().toISOString(), durationMs: 0 }]);
     }));
   } else {
-    components.push({ component: 'phoenix', status: 'not_configured', safeMessage: 'Phoenix is not configured; in-memory trace handling remains available.' });
+    components.push({ component: 'arize', status: 'not_configured', safeMessage: 'Arize AX is not configured; database-backed trace history remains available.' });
   }
 
   return {

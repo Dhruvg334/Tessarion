@@ -8,6 +8,7 @@ export interface OtlpHttpTraceExporterOptions {
   timeoutMs?: number;
   fetchImpl?: typeof fetch;
   serviceName?: string;
+  projectName?: string;
 }
 
 interface OtlpAttribute {
@@ -30,7 +31,7 @@ export class OtlpHttpTraceExporter implements TraceExporter {
       const response = await this.fetchImpl(this.options.endpoint, {
         method: 'POST',
         headers: { 'content-type': 'application/json', ...(this.options.headers ?? {}) },
-        body: JSON.stringify(toOtlpPayload(valid, this.options.serviceName ?? 'tessarion')),
+        body: JSON.stringify(toOtlpPayload(valid, this.options.serviceName ?? 'tessarion', this.options.projectName ?? 'tessarion')),
         signal: controller.signal,
       });
       if (!response.ok) throw new AppError('Trace export failed', 503, 'TRACE_EXPORT_FAILED');
@@ -44,10 +45,13 @@ export class OtlpHttpTraceExporter implements TraceExporter {
   }
 }
 
-function toOtlpPayload(spans: SafeTraceSpan[], serviceName: string) {
+function toOtlpPayload(spans: SafeTraceSpan[], serviceName: string, projectName: string) {
   return {
     resourceSpans: [{
-      resource: { attributes: [{ key: 'service.name', value: { stringValue: serviceName } }] },
+      resource: { attributes: [
+        { key: 'service.name', value: { stringValue: serviceName } },
+        { key: 'openinference.project.name', value: { stringValue: projectName } },
+      ] },
       scopeSpans: [{
         scope: { name: 'tessarion.safe-trace-exporter', version: '1.0.0' },
         spans: spans.map(toOtlpSpan),

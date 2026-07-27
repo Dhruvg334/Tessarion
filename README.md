@@ -109,7 +109,7 @@ flowchart TB
     subgraph Derived[Derived infrastructure]
       Qdrant[(Qdrant hybrid index)]
       Neo4j[(Neo4j graph projection)]
-      Phoenix[(OTLP trace backend)]
+      Arize[(Arize AX trace backend)]
     end
 
     Public --> API
@@ -125,7 +125,7 @@ flowchart TB
     Tools --> Neo4j
     Postgres --> Qdrant
     Postgres --> Neo4j
-    Traces --> Phoenix
+    Traces --> Arize
 ```
 
 ### Ownership
@@ -265,7 +265,7 @@ The frozen release suite is a regression floor, not a claim of complete benchmar
 | Retrieval | Deterministic local adapters and Qdrant |
 | Graph | Postgres canonical relationships and Neo4j projection |
 | Testing | Vitest and metric-producing evaluation runners |
-| Deployment | Vercel, Supabase, Qdrant Cloud, Neo4j AuraDB, optional Phoenix |
+| Deployment | Vercel, Supabase, Qdrant Cloud, Neo4j AuraDB, Arize AX |
 
 ---
 
@@ -311,7 +311,10 @@ NEO4J_USERNAME=
 NEO4J_PASSWORD=
 NEO4J_DATABASE=neo4j
 
-PHOENIX_COLLECTOR_ENDPOINT=
+ARIZE_SPACE_ID=
+ARIZE_API_KEY=
+ARIZE_PROJECT_NAME=tessarion
+ARIZE_OTLP_ENDPOINT=https://otlp.arize.com/v1/traces
 OTEL_SERVICE_NAME=tessarion
 ```
 

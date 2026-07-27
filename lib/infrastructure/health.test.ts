@@ -13,7 +13,8 @@ describe('infrastructure health', () => {
     vi.stubEnv('QDRANT_URL', '');
     vi.stubEnv('NEO4J_URI', '');
     vi.stubEnv('NEO4J_PASSWORD', '');
-    vi.stubEnv('PHOENIX_URL', '');
+    vi.stubEnv('ARIZE_SPACE_ID', '');
+    vi.stubEnv('ARIZE_API_KEY', '');
     const fetchSpy = vi.spyOn(globalThis, 'fetch');
     const report = await checkInfrastructureHealth();
     expect(report.components.every((item) => item.status === 'not_configured')).toBe(true);

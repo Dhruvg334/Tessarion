@@ -195,7 +195,7 @@ export const docsPages: DocsPage[] = [
       },
       {
         heading: 'Deployment topology',
-        paragraphs: ['The Next.js product runs on Vercel. Supabase hosts authentication and canonical data. Qdrant Cloud and Neo4j AuraDB host derived indexes. Inngest coordinates durable background work. Phoenix or another OTLP collector receives safe traces.'],
+        paragraphs: ['The Next.js product runs on Vercel. Supabase hosts authentication and canonical data. Qdrant Cloud and Neo4j AuraDB host derived indexes. Inngest coordinates durable background work. Arize AX receives safe OpenTelemetry traces grouped under the Tessarion project.'],
       },
     ],
   },

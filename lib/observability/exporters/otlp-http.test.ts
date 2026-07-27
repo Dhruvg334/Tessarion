@@ -14,12 +14,25 @@ function span() {
 describe('OtlpHttpTraceExporter', () => {
   it('exports validated safe spans', async () => {
     const fetchImpl = vi.fn().mockResolvedValue({ ok: true });
-    const exporter = new OtlpHttpTraceExporter({ endpoint: 'http://localhost/v1/traces', fetchImpl: fetchImpl as never });
+    const exporter = new OtlpHttpTraceExporter({
+      endpoint: 'http://localhost/v1/traces',
+      headers: { 'arize-space-id': 'space', 'arize-api-key': 'secret' },
+      serviceName: 'tessarion',
+      projectName: 'tessarion',
+      fetchImpl: fetchImpl as never,
+    });
     await expect(exporter.export([span()])).resolves.toEqual({ accepted: 1, rejected: 0 });
     expect(fetchImpl).toHaveBeenCalledOnce();
     const request = fetchImpl.mock.calls[0]?.[1] as RequestInit;
     const payload = JSON.parse(String(request.body));
-    expect(payload.resourceSpans[0].resource.attributes[0].value.stringValue).toBe('tessarion');
+    expect(payload.resourceSpans[0].resource.attributes).toEqual(expect.arrayContaining([
+      { key: 'service.name', value: { stringValue: 'tessarion' } },
+      { key: 'openinference.project.name', value: { stringValue: 'tessarion' } },
+    ]));
+    expect(request.headers).toMatchObject({
+      'arize-space-id': 'space',
+      'arize-api-key': 'secret',
+    });
     expect(payload.resourceSpans[0].scopeSpans[0].spans[0].traceId).toHaveLength(32);
     expect(payload.resourceSpans[0].scopeSpans[0].spans[0].spanId).toHaveLength(16);
   });
