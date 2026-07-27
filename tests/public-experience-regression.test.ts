@@ -62,4 +62,30 @@ describe('public experience regressions', () => {
     expect(script).toContain('async function main()');
     expect(script).toContain('main().catch');
   });
+
+  it('keeps the landing report icon bounded and removes the learning-loop section', () => {
+    const page = read('app/(marketing)/page.tsx');
+    const report = read('components/site/public/knowledge-report.tsx');
+    const styles = read('app/globals.css');
+    expect(page).not.toContain('landing-process-section');
+    expect(report).toContain('report-graph-links');
+    expect(styles).toContain('.knowledge-report-graph .report-graph-links');
+  });
+
+  it('uses stable auth error codes and ships the confirmation callback', () => {
+    const signup = read('app/api/auth/signup/route.ts');
+    const login = read('app/api/auth/login/route.ts');
+    const callback = read('app/auth/callback/route.ts');
+    expect(signup).toContain('error.code');
+    expect(login).toContain('normalizeLoginError');
+    expect(callback).toContain('exchangeCodeForSession');
+  });
+
+  it('ships structured tutor, review and trace demo panels', () => {
+    const demo = read('components/demo/demo-notebook.tsx');
+    expect(demo).toContain('demo-tutor-context');
+    expect(demo).toContain('demo-review-timeline');
+    expect(demo).toContain('demo-trace-summary');
+  });
+
 });

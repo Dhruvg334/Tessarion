@@ -26,13 +26,12 @@ export function DemoKnowledgeGraph({ selectedId, onSelect }: { selectedId: strin
         ],
         layout: { name: 'breadthfirst', directed: true, padding: 48, spacingFactor: 1.35 },
         style: [
-          { selector: 'node', style: { label: 'data(label)', color: '#292824', 'font-size': '10px', 'font-weight': 650, 'text-wrap': 'wrap', 'text-max-width': '100px', 'text-valign': 'center', 'text-halign': 'center', shape: 'round-rectangle', width: '118px', height: '44px', 'background-color': '#fffaf0', 'border-color': '#8c7b68', 'border-width': '1px' } },
+          { selector: 'node', style: { label: 'data(label)', color: '#292824', 'font-size': '10px', 'font-weight': 'bold', 'text-wrap': 'wrap', 'text-max-width': '100px', 'text-valign': 'center', 'text-halign': 'center', shape: 'round-rectangle', width: '118px', height: '44px', 'background-color': '#fffaf0', 'border-color': '#8c7b68', 'border-width': '1px' } },
           { selector: 'node:selected', style: { 'background-color': '#e7d7ad', 'border-color': '#40362c', 'border-width': '3px' } },
           { selector: 'edge', style: { width: '1px', 'line-color': '#9a8a72', 'target-arrow-color': '#9a8a72', 'target-arrow-shape': 'triangle', 'curve-style': 'bezier', label: 'data(label)', color: '#5b5044', 'font-size': '8px', 'text-background-color': '#fbf7e8', 'text-background-opacity': 0.94, 'text-background-padding': '3px' } },
         ],
         minZoom: 0.35,
         maxZoom: 2.5,
-        wheelSensitivity: 0.18,
         boxSelectionEnabled: false,
       });
 

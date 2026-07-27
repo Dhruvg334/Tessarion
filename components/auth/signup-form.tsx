@@ -9,7 +9,9 @@ import { hasSupabaseClientEnv } from '@/lib/config/env';
 import { TesseractIcon } from '@/components/ui/tesseract-icon';
 import { PasswordInput } from '@/components/ui/password-input';
 
-type SignupPayload = { error?: string; kind?: string; retryAfterSeconds?: number; confirmationRequired?: boolean };
+type SignupPayload = { error?: string; kind?: string; retryAfterSeconds?: number; confirmationRequired?: boolean; requestId?: string };
+
+const blockedTestDomains = new Set(['test.com', 'example.com', 'example.org', 'example.net']);
 
 export function SignupForm() {
   const [email, setEmail] = useState('');
@@ -21,7 +23,9 @@ export function SignupForm() {
   const router = useRouter();
 
   const normalizedEmail = email.trim().toLowerCase();
-  const emailValid = useMemo(() => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(normalizedEmail), [normalizedEmail]);
+  const emailDomain = normalizedEmail.split('@')[1] ?? '';
+  const usesBlockedTestDomain = blockedTestDomains.has(emailDomain) || emailDomain.endsWith('.test') || emailDomain.endsWith('.example');
+  const emailValid = useMemo(() => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(normalizedEmail) && !usesBlockedTestDomain, [normalizedEmail, usesBlockedTestDomain]);
   const passwordValid = password.length >= 8;
   const formValid = emailValid && passwordValid && cooldown === 0 && !loading && hasSupabaseClientEnv();
 
@@ -34,7 +38,7 @@ export function SignupForm() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!formValid) {
-      setError(!emailValid ? 'Enter a complete email address, including the domain.' : 'Use a password with at least eight characters.');
+      setError(usesBlockedTestDomain ? 'Use a real email inbox. Test and example domains are not accepted.' : !emailValid ? 'Enter a complete email address, including the domain.' : 'Use a password with at least eight characters.');
       return;
     }
 
@@ -88,7 +92,7 @@ export function SignupForm() {
             <label>
               <span className="eyebrow auth-field-label">Email</span>
               <input type="email" inputMode="email" autoComplete="email" className="input" value={email} onChange={(event) => { setEmail(event.target.value); setError(''); }} aria-invalid={email.length > 0 && !emailValid} required />
-              <small className={email.length > 0 && emailValid ? 'field-help is-valid' : 'field-help'}>{email.length > 0 && emailValid ? <><Check size={13} /> Email format looks complete</> : 'Use an address such as name@example.com.'}</small>
+              <small className={email.length > 0 && emailValid ? 'field-help is-valid' : 'field-help'}>{email.length > 0 && emailValid ? <><Check size={13} /> Email format looks complete</> : usesBlockedTestDomain ? 'Use a real inbox; test.com and example domains are rejected.' : 'Use an address you can receive email at.'}</small>
             </label>
             <label>
               <span className="eyebrow auth-field-label">Password</span>

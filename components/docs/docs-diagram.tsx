@@ -33,7 +33,7 @@ export function DocsDiagram({ spec }: { spec: DocsDiagramSpec }) {
         ],
         layout: { name: 'breadthfirst', directed: true, padding: 52, spacingFactor: 1.45 },
         style: [
-          { selector: 'node', style: { 'background-color': '#fbf4dc', 'border-color': '#8b816b', 'border-width': '1px', color: '#2b2924', label: 'data(label)', 'font-family': 'system-ui, sans-serif', 'font-size': '12px', 'font-weight': 650, 'text-wrap': 'wrap', 'text-max-width': '126px', 'text-valign': 'center', 'text-halign': 'center', shape: 'round-rectangle', width: '150px', height: '56px' } },
+          { selector: 'node', style: { 'background-color': '#fbf4dc', 'border-color': '#8b816b', 'border-width': '1px', color: '#2b2924', label: 'data(label)', 'font-family': 'system-ui, sans-serif', 'font-size': '12px', 'font-weight': 'bold', 'text-wrap': 'wrap', 'text-max-width': '126px', 'text-valign': 'center', 'text-halign': 'center', shape: 'round-rectangle', width: '150px', height: '56px' } },
           { selector: 'node[group = "derived"]', style: { 'background-color': '#efe3bd', 'border-style': 'dashed' } },
           { selector: 'node[group = "workflow"]', style: { 'background-color': '#e3d3a6', 'border-width': '2px' } },
           { selector: 'node[group = "evidence"]', style: { 'background-color': '#fffaf0' } },
@@ -41,7 +41,6 @@ export function DocsDiagram({ spec }: { spec: DocsDiagramSpec }) {
         ],
         minZoom: 0.45,
         maxZoom: 2.3,
-        wheelSensitivity: 0.18,
         userPanningEnabled: true,
         userZoomingEnabled: true,
         boxSelectionEnabled: false,

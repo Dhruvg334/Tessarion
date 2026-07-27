@@ -72,21 +72,6 @@ export default function MarketingPage() {
         </div>
       </Reveal>
 
-      <Reveal className="landing-process-section">
-        <div className="container landing-process-grid">
-          <div>
-            <p className="eyebrow">Learning loop</p>
-            <h2>Study material becomes evidence. Explanation becomes the test.</h2>
-          </div>
-          <ol>
-            <li><span>01</span><div><strong>Add source material</strong><p>Documents are chunked, indexed, and kept inside one notebook.</p></div></li>
-            <li><span>02</span><div><strong>Build the concept model</strong><p>Concepts and evidence-bearing relationships provide diagnosis context.</p></div></li>
-            <li><span>03</span><div><strong>Teach it back</strong><p>The learner reconstructs the idea without copying the source.</p></div></li>
-            <li><span>04</span><div><strong>Repair or review</strong><p>Tutoring, another attempt, or scheduled review follows the evidence.</p></div></li>
-          </ol>
-        </div>
-      </Reveal>
-
       <section className="landing-simple-cta">
         <div className="container landing-simple-cta-inner">
           <h2>Start with one source and one concept.</h2>

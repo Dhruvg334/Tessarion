@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { AnimatePresence, LazyMotion, domAnimation, m, useReducedMotion } from 'framer-motion';
-import { ArrowRight, BookOpen, GitFork, History, Route, Sparkles } from 'lucide-react';
+import { ArrowRight, BookOpen, CircleCheck, Clock3, FileSearch, GitFork, History, Route, ShieldCheck, Sparkles, Waypoints } from 'lucide-react';
 import { demoNotebook } from '@/lib/demo/notebook';
 import { InfoDialog } from '@/components/ui/info-dialog';
 import { DemoKnowledgeGraph } from '@/components/demo/demo-knowledge-graph';
@@ -68,12 +68,51 @@ export function DemoNotebook() {
             )}
 
             {panel === 'tutor' && (
-              <section className="demo-tutor-panel"><div className="demo-panel-heading"><div><p className="eyebrow">Socratic recovery</p><h2>One question at a time</h2></div><span>{tutorStep} / {demoNotebook.tutor.length}</span></div><div className="demo-tutor-thread">{demoNotebook.tutor.slice(0,tutorStep).map((turn,index) => <article key={`${turn.role}-${index}`} className={`demo-turn is-${turn.role}`}><span>{turn.role}</span><p>{turn.text}</p></article>)}</div><div className="demo-tutor-controls"><button type="button" className="btn btn-secondary" disabled={tutorStep <= 1} onClick={() => setTutorStep((value) => Math.max(1,value-1))}>Previous</button><button type="button" className="btn" disabled={tutorStep >= demoNotebook.tutor.length} onClick={() => setTutorStep((value) => Math.min(demoNotebook.tutor.length,value+1))}>Next turn</button>{tutorStep >= demoNotebook.tutor.length ? <button type="button" className="btn" onClick={() => setPanel('review')}>Continue to review</button> : null}</div></section>
+              <section className="demo-tutor-panel demo-tutor-panel-upgraded">
+                <div className="demo-panel-heading">
+                  <div><p className="eyebrow">Socratic recovery</p><h2>Repair the misconception without giving away the answer</h2></div>
+                  <span>{tutorStep} of {demoNotebook.tutor.length} turns revealed</span>
+                </div>
+                <div className="demo-tutor-layout">
+                  <aside className="demo-tutor-context">
+                    <div><span>Focus</span><strong>ISA, prediction, and volatility</strong></div>
+                    <div><span>Policy</span><strong>One bounded question at a time</strong></div>
+                    <div><span>Mastery impact</span><strong>No automatic upgrade</strong></div>
+                    <div className="demo-tutor-progress"><span>Conversation progress</span><progress max={demoNotebook.tutor.length} value={tutorStep} /></div>
+                    <InfoDialog trigger={<button type="button" className="text-button">Why this route?</button>} title="Tutor route"><p>The selected response contains source-contradicted claims, so the deterministic route chooses guided correction before another teach-back attempt.</p></InfoDialog>
+                  </aside>
+                  <div className="demo-tutor-main">
+                    <div className="demo-tutor-thread">{demoNotebook.tutor.slice(0,tutorStep).map((turn,index) => <article key={`${turn.role}-${index}`} className={`demo-turn is-${turn.role}`}><span>{turn.role}</span><p>{turn.text}</p></article>)}</div>
+                    <div className="demo-tutor-controls"><button type="button" className="btn btn-secondary" disabled={tutorStep <= 1} onClick={() => setTutorStep((value) => Math.max(1,value-1))}>Previous</button><button type="button" className="btn" disabled={tutorStep >= demoNotebook.tutor.length} onClick={() => setTutorStep((value) => Math.min(demoNotebook.tutor.length,value+1))}>Reveal next turn</button>{tutorStep >= demoNotebook.tutor.length ? <button type="button" className="btn" onClick={() => setPanel('review')}>Continue to review</button> : null}</div>
+                  </div>
+                </div>
+              </section>
             )}
 
-            {panel === 'review' && <section className="demo-reading-panel"><p className="eyebrow">Review decision</p><h2>{scenario.nextAction}</h2><p>{scenario.review}</p><div className="demo-review-reason"><strong>Why this route?</strong><p>{gapCount ? `${gapCount} evidence-linked ${gapLabel} remain.` : 'No material gap remains, so a lighter review is appropriate.'}</p></div><button type="button" className="btn" onClick={() => setPanel('trace')}>Inspect workflow trace</button></section>}
+            {panel === 'review' && (
+              <section className="demo-review-panel">
+                <div className="demo-panel-heading"><div><p className="eyebrow">Review decision</p><h2>{scenario.nextAction}</h2></div><span>{scenario.state}</span></div>
+                <div className="demo-review-layout">
+                  <article className="demo-review-primary"><div className="demo-review-icon"><Clock3 size={19}/></div><p className="eyebrow">Recommended timing</p><h3>{scenario.review}</h3><p>{gapCount ? `${gapCount} evidence-linked ${gapLabel} remain and must be addressed before the interval can widen.` : 'No material gap remains, so the concept can move to a lighter reinforcement schedule.'}</p></article>
+                  <div className="demo-review-evidence">
+                    <article><ShieldCheck size={18}/><div><span>Grounding state</span><strong>{scenario.confidence}</strong></div></article>
+                    <article><Waypoints size={18}/><div><span>Selected route</span><strong>{scenario.nextAction}</strong></div></article>
+                    <article><History size={18}/><div><span>Mastery rule</span><strong>New teach-back required</strong></div></article>
+                  </div>
+                </div>
+                <div className="demo-review-timeline"><div className="is-complete"><CircleCheck size={15}/><span>Diagnosis recorded</span></div><div className={scenario.id === 'grounded' ? 'is-muted' : 'is-current'}><Sparkles size={15}/><span>Guided recovery</span></div><div><BookOpen size={15}/><span>Retry teach-back</span></div><div><Clock3 size={15}/><span>Scheduled review</span></div></div>
+                <button type="button" className="btn" onClick={() => setPanel('trace')}>Inspect workflow trace</button>
+              </section>
+            )}
 
-            {panel === 'trace' && <section className="demo-trace-panel"><div className="demo-panel-heading"><div><p className="eyebrow">Execution trace</p><h2>How the route was produced</h2></div><span>{demoNotebook.trace.length} recorded steps</span></div><ol>{demoNotebook.trace.map(([step,detail,status],index) => <li key={step}><span>{String(index+1).padStart(2,'0')}</span><div><strong>{step}</strong><p>{detail}</p></div><em>{status}</em></li>)}</ol></section>}
+            {panel === 'trace' && (
+              <section className="demo-trace-panel demo-trace-panel-upgraded">
+                <div className="demo-panel-heading"><div><p className="eyebrow">Execution trace</p><h2>How the route was produced</h2></div><span>{demoNotebook.trace.length} recorded steps</span></div>
+                <div className="demo-trace-summary"><article><FileSearch size={18}/><div><span>Evidence candidates</span><strong>12 retrieved</strong></div></article><article><GitFork size={18}/><div><span>Graph context</span><strong>3 bounded paths</strong></div></article><article><ShieldCheck size={18}/><div><span>Validation</span><strong>Grounding passed</strong></div></article><article><Route size={18}/><div><span>Final route</span><strong>Socratic tutoring</strong></div></article></div>
+                <ol>{demoNotebook.trace.map(([step,detail,status],index) => <li key={step}><span>{String(index+1).padStart(2,'0')}</span><div><strong>{step}</strong><p>{detail}</p></div><em><CircleCheck size={13}/>{status}</em></li>)}</ol>
+                <div className="demo-trace-footer"><span>No account data was written.</span><InfoDialog trigger={<button type="button" className="text-button">What is hidden?</button>} title="Safe trace boundary"><p>The public trace shows workflow stages, bounded evidence counts, and routing outcomes. It does not expose credentials, private learner data, raw provider responses, or hidden reasoning.</p></InfoDialog></div>
+              </section>
+            )}
           </m.div>
         </AnimatePresence>
       </LazyMotion>

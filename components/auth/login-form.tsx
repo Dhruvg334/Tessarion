@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { Clock3 } from 'lucide-react';
 
 import { hasSupabaseClientEnv } from '@/lib/config/env';
 import { TesseractIcon } from '@/components/ui/tesseract-icon';
@@ -17,12 +18,26 @@ export function LoginForm() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
   const router = useRouter();
   const searchParams = useSearchParams();
   const nextPath = safeNextPath(searchParams.get('next'));
 
+  useEffect(() => {
+    const reason = searchParams.get('reason');
+    if (reason === 'confirmation_failed') setError('The confirmation link could not be completed. Request a new link or try signing in again.');
+    if (reason === 'missing_confirmation_code') setError('The confirmation link is incomplete. Request a new confirmation email.');
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = window.setInterval(() => setCooldown((value) => Math.max(value - 1, 0)), 1000);
+    return () => window.clearInterval(timer);
+  }, [cooldown]);
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (loading || cooldown > 0) return;
     setLoading(true);
     setError('');
 
@@ -38,10 +53,11 @@ export function LoginForm() {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ email: email.trim(), password }),
       });
-      const payload = await response.json().catch(() => ({ error: 'Authentication returned an unreadable response.' })) as { error?: string };
+      const payload = await response.json().catch(() => ({ error: 'Authentication returned an unreadable response.' })) as { error?: string; retryAfterSeconds?: number };
 
       if (!response.ok) {
         setError(payload.error ?? 'Authentication failed.');
+        if (response.status === 429) setCooldown(payload.retryAfterSeconds ?? 60);
         return;
       }
 
@@ -71,7 +87,7 @@ export function LoginForm() {
           <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '0.9rem' }}>
             <label><span className="eyebrow" style={{ display: 'block', marginBottom: '0.35rem' }}>Email</span><input type="email" autoComplete="email" className="input" value={email} onChange={(event) => setEmail(event.target.value)} required /></label>
             <label><span className="eyebrow" style={{ display: 'block', marginBottom: '0.35rem' }}>Password</span><PasswordInput autoComplete="current-password" className="input" value={password} onChange={(event) => setPassword(event.target.value)} required /></label>
-            <button className="btn" disabled={loading} type="submit">{loading ? 'Signing in…' : 'Sign in'}</button>
+            <button className="btn" disabled={loading || cooldown > 0} type="submit">{cooldown > 0 ? <><Clock3 size={15} /> Try again in {cooldown}s</> : loading ? 'Signing in…' : 'Sign in'}</button>
           </form>
           <p className="muted" style={{ margin: '1.2rem 0 0', textAlign: 'center' }}>No account? <Link href="/signup" style={{ fontWeight: 750 }}>Create one</Link></p>
         </div>

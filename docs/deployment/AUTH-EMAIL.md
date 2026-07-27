@@ -34,3 +34,11 @@ After custom SMTP is configured, verify:
 4. Repeated clicks do not create duplicate requests.
 5. Existing-account and invalid-address errors remain distinct.
 6. Password reset uses the same production redirect configuration.
+
+## Production troubleshooting
+
+Supabase rejects reserved example and test domains, including addresses such as `name@test.com` and `name@example.com`, with the stable Auth code `email_address_invalid`. Test signup with a real inbox.
+
+Tessarion branches on Supabase Auth error codes rather than provider message text. Vercel function logs record only a request ID, error code, HTTP status, and error class; credentials and submitted passwords are never logged.
+
+When email confirmation is enabled, the confirmation link returns through `/auth/callback`, exchanges the PKCE code for a session, and continues to the dashboard. `TESSARION_APP_URL` must match the deployed production origin.

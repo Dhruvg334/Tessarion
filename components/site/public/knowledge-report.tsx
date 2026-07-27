@@ -32,7 +32,7 @@ export function KnowledgeReport() {
             <section className="knowledge-report-graph knowledge-report-graph-upgraded" aria-label="Example evidence-linked concept graph">
               <div className="report-graph-heading"><GitBranch size={16} /><div><strong>Concept structure</strong><span>Evidence-bearing relationships</span></div></div>
               <div className="report-graph-canvas">
-                <svg viewBox="0 0 620 360" role="img" aria-label="Locality explains cache. Cache contrasts with main memory and produces cache miss outcomes.">
+                <svg className="report-graph-links" viewBox="0 0 620 360" role="img" aria-label="Locality explains cache. Cache contrasts with main memory and produces cache miss outcomes.">
                   <defs><marker id="report-arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" /></marker></defs>
                   <path d="M150 88 C230 80 280 120 320 170" markerEnd="url(#report-arrow)" />
                   <path d="M320 190 C420 165 475 120 510 82" markerEnd="url(#report-arrow)" />
