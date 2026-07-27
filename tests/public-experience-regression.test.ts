@@ -57,6 +57,19 @@ describe('public experience regressions', () => {
     expect(content).toContain('Gemini and Groq');
   });
 
+  it('keeps Cytoscape edge dimensions numeric for TypeScript compatibility', () => {
+    for (const path of [
+      'components/demo/demo-knowledge-graph.tsx',
+      'components/docs/docs-diagram.tsx',
+    ]) {
+      const source = read(path);
+      expect(source).not.toMatch(/'text-margin-[xy]':\s*'[-\d.]+px'/);
+      expect(source).not.toMatch(/'text-background-padding':\s*'[\d.]+px'/);
+      expect(source).not.toMatch(/'text-border-width':\s*'[\d.]+px'/);
+      expect(source).not.toMatch(/selector:\s*'edge'[\s\S]{0,500}?width:\s*'[\d.]+px'/);
+    }
+  });
+
   it('uses a real interactive graph in the expanded demo', () => {
     const graph = read('components/demo/demo-knowledge-graph.tsx');
     const data = read('lib/demo/notebook.ts');

@@ -44,11 +44,11 @@ export function DemoKnowledgeGraph({ selectedId, onSelect }: { selectedId: strin
           {
             selector: 'edge',
             style: {
-              width: '1px', 'line-color': '#9a8a72', 'target-arrow-color': '#9a8a72',
+              width: 1, 'line-color': '#9a8a72', 'target-arrow-color': '#9a8a72',
               'target-arrow-shape': 'triangle', 'curve-style': 'bezier', label: 'data(label)', color: '#4f453b',
-              'font-size': '8px', 'font-weight': 'bold', 'text-rotation': 'autorotate', 'text-margin-y': '-9px',
-              'text-background-color': '#fbf7e8', 'text-background-opacity': 1, 'text-background-padding': '4px',
-              'text-background-shape': 'roundrectangle', 'text-border-color': '#d8cfb3', 'text-border-width': '1px',
+              'font-size': '8px', 'font-weight': 'bold', 'text-rotation': 'autorotate', 'text-margin-y': -9,
+              'text-background-color': '#fbf7e8', 'text-background-opacity': 1, 'text-background-padding': 4,
+              'text-background-shape': 'roundrectangle', 'text-border-color': '#d8cfb3', 'text-border-width': 1,
               'text-border-opacity': 1,
             },
           },
