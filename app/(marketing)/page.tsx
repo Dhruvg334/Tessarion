@@ -6,10 +6,10 @@ import { KnowledgeReport } from '@/components/site/public/knowledge-report';
 import { SiteShell } from '@/components/site/site-shell';
 
 const advantages = [
-  ['Evidence you can inspect', 'Source-linked findings replace unexplained confidence.', ShieldCheck],
-  ['Weak prerequisites become visible', 'Graph paths show what a learner may need before the active concept.', Layers3],
-  ['Recovery matches the failure', 'A shallow answer, omission, and misconception lead to different routes.', Compass],
-  ['Progress stays grounded', 'New mastery evidence comes from another explanation, not from finishing a chat.', CheckCircle2],
+  ['Inspectable evidence', 'Every diagnosis points to source chunks or concept evidence.', ShieldCheck],
+  ['Visible prerequisites', 'Graph paths show which missing concept affects the current explanation.', Layers3],
+  ['Targeted recovery', 'Omissions, shallow answers, and misconceptions lead to different actions.', Compass],
+  ['Grounded progress', 'Mastery changes after a new explanation, not after completing a chat.', CheckCircle2],
 ] as const;
 
 export default function MarketingPage() {
@@ -17,11 +17,11 @@ export default function MarketingPage() {
     <SiteShell>
       <section className="hero hero-rebuilt hero-clean" aria-labelledby="hero-title">
         <div className="hero-inner">
-          <p className="hero-kicker">Open-source learning intelligence</p>
+          <p className="hero-kicker">Evidence-linked learning</p>
           <h1 id="hero-title" className="hero-wordmark">Tessarion</h1>
           <div className="hero-actions">
-            <Link href="/signup" className="btn btn-on-hero">Open a workspace</Link>
-            <Link href="/demo/notebook" className="btn btn-ghost-on-hero">Try the public demo <ArrowRight size={16} /></Link>
+            <Link href="/signup" className="btn btn-on-hero">Create a notebook</Link>
+            <Link href="/demo/notebook" className="btn btn-ghost-on-hero">Explore the live demo <ArrowRight size={16} /></Link>
           </div>
         </div>
       </section>
@@ -29,9 +29,14 @@ export default function MarketingPage() {
       <Reveal className="landing-report-showcase">
         <div className="container-wide landing-showcase-grid">
           <div className="landing-showcase-copy">
-            <p className="eyebrow">A report, not a mystery score</p>
-            <h2>See the concept structure, evidence, gap, and next action in one place.</h2>
-            <p>Tessarion turns a learner explanation into an inspectable decision. The interface keeps source evidence, graph context, diagnosis, and routing connected.</p>
+            <p className="eyebrow">From explanation to action</p>
+            <h2>A single report connects the source, graph, diagnosis, and next step.</h2>
+            <p>Instead of returning a score, Tessarion shows what the learner said, what the source supports, which concept relationship matters, and what to do next.</p>
+            <ul className="landing-clarity-list">
+              <li>Source evidence remains visible.</li>
+              <li>Concept dependencies explain why a gap matters.</li>
+              <li>The next action follows the diagnosed failure.</li>
+            </ul>
             <Link href="/docs/learning-system" className="text-link">Read the learning-system guide →</Link>
           </div>
           <KnowledgeReport />
@@ -41,9 +46,9 @@ export default function MarketingPage() {
       <Reveal className="landing-feature-section">
         <div className="container-wide">
           <div className="landing-section-heading-centered">
-            <p className="eyebrow">Explore the system</p>
-            <h2>Six capabilities. One evidence-linked learning loop.</h2>
-            <p>Select a capability to see the mechanism and the learner advantage.</p>
+            <p className="eyebrow">Core capabilities</p>
+            <h2>Explore the parts that make the learning loop work.</h2>
+            <p>Select a capability to see its mechanism, boundary, and learner benefit.</p>
           </div>
           <FeatureExplorer />
         </div>
@@ -52,8 +57,8 @@ export default function MarketingPage() {
       <Reveal className="landing-advantages-section">
         <div className="container-wide">
           <div className="landing-section-heading-centered">
-            <p className="eyebrow">Why the architecture matters</p>
-            <h2>Technical boundaries become practical learning advantages.</h2>
+            <p className="eyebrow">What the learner gains</p>
+            <h2>Each technical boundary produces a clear learning advantage.</h2>
           </div>
           <div className="advantage-grid">
             {advantages.map(([title, copy, Icon], index) => (
@@ -70,22 +75,22 @@ export default function MarketingPage() {
       <Reveal className="landing-process-section">
         <div className="container landing-process-grid">
           <div>
-            <p className="eyebrow">The working loop</p>
-            <h2>Material becomes a concept model. Explanation becomes evidence.</h2>
+            <p className="eyebrow">Learning loop</p>
+            <h2>Study material becomes evidence. Explanation becomes the test.</h2>
           </div>
           <ol>
-            <li><span>01</span><div><strong>Add source material</strong><p>Documents are chunked, indexed, and kept inside the notebook boundary.</p></div></li>
-            <li><span>02</span><div><strong>Build the concept structure</strong><p>Concepts and evidence-bearing relationships form the context for diagnosis.</p></div></li>
-            <li><span>03</span><div><strong>Teach it back</strong><p>The learner explains without copying the source.</p></div></li>
-            <li><span>04</span><div><strong>Repair and review</strong><p>Tutoring, another attempt, or scheduled review follows the detected gap.</p></div></li>
+            <li><span>01</span><div><strong>Add source material</strong><p>Documents are chunked, indexed, and kept inside one notebook.</p></div></li>
+            <li><span>02</span><div><strong>Build the concept model</strong><p>Concepts and evidence-bearing relationships provide diagnosis context.</p></div></li>
+            <li><span>03</span><div><strong>Teach it back</strong><p>The learner reconstructs the idea without copying the source.</p></div></li>
+            <li><span>04</span><div><strong>Repair or review</strong><p>Tutoring, another attempt, or scheduled review follows the evidence.</p></div></li>
           </ol>
         </div>
       </Reveal>
 
-      <section className="landing-final-cta">
-        <div className="container landing-final-cta-inner">
-          <div><p className="eyebrow">Start with one concept</p><h2>Build a notebook around material you are actually studying.</h2></div>
-          <div><Link href="/signup" className="btn btn-on-wood">Create an account</Link><Link href="/docs" className="btn btn-wood-outline">Read documentation</Link></div>
+      <section className="landing-simple-cta">
+        <div className="container landing-simple-cta-inner">
+          <h2>Start with one source and one concept.</h2>
+          <Link href="/signup" className="btn">Create your notebook</Link>
         </div>
       </section>
     </SiteShell>

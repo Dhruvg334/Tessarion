@@ -5,6 +5,7 @@ const footerLinks = [
   { href: '/docs', label: 'Documentation' },
   { href: '/about', label: 'About' },
   { href: '/about/learning-methods', label: 'Learning methods' },
+  { href: '/docs/current-status', label: 'Current status' },
   { href: '/demo', label: 'Demo' },
 ] as const;
 
@@ -27,7 +28,7 @@ export function SiteFooter() {
         </nav>
 
         <div className="site-footer-meta">
-          <span>Open-source learning intelligence</span>
+          <span>Apache-2.0 licensed</span>
           <span>© {new Date().getFullYear()} Dhruv Gupta</span>
         </div>
       </div>

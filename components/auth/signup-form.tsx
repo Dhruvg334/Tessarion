@@ -7,6 +7,7 @@ import { Check, Clock3 } from 'lucide-react';
 
 import { hasSupabaseClientEnv } from '@/lib/config/env';
 import { TesseractIcon } from '@/components/ui/tesseract-icon';
+import { PasswordInput } from '@/components/ui/password-input';
 
 type SignupPayload = { error?: string; kind?: string; retryAfterSeconds?: number; confirmationRequired?: boolean };
 
@@ -91,7 +92,7 @@ export function SignupForm() {
             </label>
             <label>
               <span className="eyebrow auth-field-label">Password</span>
-              <input type="password" autoComplete="new-password" minLength={8} className="input" value={password} onChange={(event) => { setPassword(event.target.value); setError(''); }} aria-invalid={password.length > 0 && !passwordValid} required />
+              <PasswordInput autoComplete="new-password" minLength={8} className="input" value={password} onChange={(event) => { setPassword(event.target.value); setError(''); }} aria-invalid={password.length > 0 && !passwordValid} required />
               <small className={passwordValid ? 'field-help is-valid' : 'field-help'}>{passwordValid ? <><Check size={13} /> Minimum length met</> : 'Use at least eight characters.'}</small>
             </label>
             <button className="btn" disabled={!formValid} type="submit">

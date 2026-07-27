@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ArrowRight, CircleCheck, TriangleAlert } from 'lucide-react';
 
 import { DocsShell } from '@/components/docs/docs-shell';
 import { docsPages } from '@/lib/docs/content';
@@ -11,9 +12,19 @@ export default function DocsIndexPage() {
       <article className="docs-article docs-index">
         <header>
           <p className="eyebrow">System documentation</p>
-          <h1>Five substantial guides to the complete Tessarion system.</h1>
-          <p className="lead">The documentation is consolidated around the questions that matter: what the product does, how the system is built, how learning decisions are made, how quality is measured, and what is ready for deployment.</p>
+          <h1>Tessarion from source ingestion to learning decisions.</h1>
+          <p className="lead">These guides cover the product, architecture, agentic workflows, learning system, evaluation, security, and current status.</p>
         </header>
+
+        <section className="docs-status-panel" aria-labelledby="docs-status-title">
+          <div><p className="eyebrow">Current status</p><h2 id="docs-status-title">The complete learning loop is available; external services remain configurable.</h2></div>
+          <div className="docs-status-points">
+            <span><CircleCheck size={16} /> Product, learning workflows, evaluation, and deployment boundaries</span>
+            <span><TriangleAlert size={16} /> Qdrant, Neo4j, background jobs, and trace collection need production credentials</span>
+          </div>
+          <Link href="/docs/current-status" className="text-link">Read status, limitations, and planned capabilities <ArrowRight size={15} /></Link>
+        </section>
+
         <div className="docs-index-list">
           {docsPages.map((page, index) => (
             <Link className="docs-index-card" href={`/docs/${page.slug}`} key={page.slug}>

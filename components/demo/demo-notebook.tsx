@@ -5,6 +5,7 @@ import { AnimatePresence, LazyMotion, domAnimation, m, useReducedMotion } from '
 import { ArrowRight, BookOpen, GitFork, History, Route, Sparkles } from 'lucide-react';
 import { demoNotebook } from '@/lib/demo/notebook';
 import { InfoDialog } from '@/components/ui/info-dialog';
+import { DemoKnowledgeGraph } from '@/components/demo/demo-knowledge-graph';
 
 type DemoPanel = 'overview' | 'source' | 'graph' | 'teach-back' | 'tutor' | 'review' | 'trace';
 const panels: Array<{ id: DemoPanel; label: string }> = [
@@ -52,8 +53,13 @@ export function DemoNotebook() {
             {panel === 'source' && <section className="demo-reading-panel"><p className="eyebrow">Ground truth</p><h2>{demoNotebook.source.title}</h2><p>{demoNotebook.source.body}</p><InfoDialog trigger={<button className="text-button" type="button">How evidence is used</button>} title="Evidence boundary"><p>Every scenario in this demo is evaluated against this source. Claims absent from the source are marked unsupported rather than silently accepted.</p></InfoDialog></section>}
 
             {panel === 'graph' && (
-              <section className="demo-graph-panel"><div className="demo-panel-heading"><div><p className="eyebrow">Derived projection</p><h2>Evidence-linked concept structure</h2></div><span>Select a concept</span></div>
-                <div className="demo-graph-interactive"><div className="demo-concept-list">{demoNotebook.concepts.map((item) => <button key={item.id} type="button" className={item.id === concept.id ? 'is-active' : ''} onClick={() => setConceptId(item.id)}><small>{item.level}</small><strong>{item.label}</strong></button>)}</div><aside className="demo-concept-inspector"><p className="eyebrow">Selected concept</p><h3>{concept.label}</h3><p>{concept.evidence}</p><h4>Connected relationships</h4><ul>{demoNotebook.edges.filter(([from,to]) => from === concept.id || to === concept.id).map(([from,to,relation]) => <li key={`${from}-${to}-${relation}`}>{from} <span>{relation}</span> {to}</li>)}</ul><button type="button" className="btn btn-secondary" onClick={() => setPanel('teach-back')}>Teach this concept</button></aside></div>
+              <section className="demo-graph-panel">
+                <div className="demo-panel-heading"><div><p className="eyebrow">Derived projection</p><h2>Computer architecture concept graph</h2></div><span>{demoNotebook.concepts.length} concepts · {demoNotebook.edges.length} relationships</span></div>
+                <div className="demo-graph-interactive demo-graph-interactive-framework">
+                  <DemoKnowledgeGraph selectedId={concept.id} onSelect={setConceptId} />
+                  <aside className="demo-concept-inspector"><p className="eyebrow">Selected concept</p><h3>{concept.label}</h3><p>{concept.evidence}</p><h4>Connected relationships</h4><ul>{demoNotebook.edges.filter(([from,to]) => from === concept.id || to === concept.id).map(([from,to,relation]) => <li key={`${from}-${to}-${relation}`}><span>{demoNotebook.concepts.find((item) => item.id === from)?.label ?? from}</span> {relation} <span>{demoNotebook.concepts.find((item) => item.id === to)?.label ?? to}</span></li>)}</ul><button type="button" className="btn btn-secondary" onClick={() => setPanel('teach-back')}>Teach this concept</button></aside>
+                </div>
+                <div className="demo-concept-directory" aria-label="Demo concept directory">{demoNotebook.concepts.map((item) => <button key={item.id} type="button" className={item.id === concept.id ? 'is-active' : ''} onClick={() => setConceptId(item.id)}><small>{item.level}</small><strong>{item.label}</strong></button>)}</div>
               </section>
             )}
 

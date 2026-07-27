@@ -3,7 +3,7 @@
 import type { ReactNode } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
-import { AnimatePresence, LazyMotion, domAnimation, m, useReducedMotion } from 'framer-motion';
+import { LazyMotion, domAnimation, m, useReducedMotion } from 'framer-motion';
 
 export function InfoDialog({ trigger, title, description, children }: {
   trigger: ReactNode;
@@ -16,16 +16,16 @@ export function InfoDialog({ trigger, title, description, children }: {
   return (
     <Dialog.Root>
       <Dialog.Trigger asChild>{trigger}</Dialog.Trigger>
-      <AnimatePresence>
-        <Dialog.Portal>
-          <Dialog.Overlay className="info-dialog-overlay" />
+      <Dialog.Portal>
+        <Dialog.Overlay className="info-dialog-overlay" />
+        <div className="info-dialog-positioner">
           <LazyMotion features={domAnimation} strict>
             <Dialog.Content asChild>
               <m.section
                 className="info-dialog-content"
-                initial={reduced ? false : { opacity: 0, scale: 0.98, y: 10 }}
+                initial={reduced ? false : { opacity: 0, scale: 0.97, y: 12 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ duration: 0.22 }}
+                transition={{ duration: 0.2 }}
               >
                 <div className="info-dialog-heading">
                   <div>
@@ -38,8 +38,8 @@ export function InfoDialog({ trigger, title, description, children }: {
               </m.section>
             </Dialog.Content>
           </LazyMotion>
-        </Dialog.Portal>
-      </AnimatePresence>
+        </div>
+      </Dialog.Portal>
     </Dialog.Root>
   );
 }

@@ -1,38 +1,38 @@
 <div align="center">
 
-<img src="public/tessarion-mark.svg" alt="Tessarion mark" width="64" />
+<img src="public/tessarion-mark.svg" alt="Tessarion mark" width="68" />
 
 # Tessarion
 
-### Evidence-linked learning through teach-back, concept graphs, retrieval, and guided recovery
+### Evidence-linked learning through teach-back, retrieval, concept graphs, and guided recovery
 
-Tessarion turns study material into a traceable learning workspace. Learners explain concepts in their own words; the system compares those explanations with source evidence, identifies gaps, updates mastery records, schedules review, and guides recovery through bounded Socratic workflows.
-
-[Public Demo](#public-demo) · [Documentation](#documentation) · [Architecture](#architecture) · [Evaluation](#evaluation) · [Local Setup](#local-setup)
+[Live Demo](#public-demo) · [Architecture](#architecture) · [Agentic System](#agentic-system) · [Evaluation](#evaluation) · [Documentation](#documentation) · [Deployment](#deployment)
 
 </div>
 
 ---
 
-## Why Tessarion exists
+## Product
 
-Most study tools optimise for reading, highlighting, or answering questions. Tessarion is built around a stricter test:
+Tessarion turns study material into a traceable learning workspace. A learner explains a concept in their own words. The system retrieves source evidence, inspects concept dependencies, identifies gaps, records mastery evidence, and routes the learner to another attempt, Socratic tutoring, or review.
 
-> Can the learner explain a concept accurately, connect it to its prerequisites, and support that explanation with evidence?
+The product is built around one question:
 
-The product does not infer understanding from clicks, streaks, or polished prose. It records source-linked evidence, diagnosed gaps, explicit uncertainty, mastery signals, review decisions, and workflow traces.
+> Can the learner reconstruct the idea, connect it to the right concepts, and support the explanation with evidence?
 
-### Product principles
+Tessarion does not infer understanding from clicks, time-on-page, streaks, or polished wording.
 
-- **Evidence before confidence** — important learning decisions point to source material or explicitly report insufficient evidence.
-- **Deterministic rules where possible** — mastery transitions, review scheduling, validation, graph bounds, and authorisation remain tested services.
-- **Bounded workflows** — diagnosis and tutoring routes have explicit states, limits, fallbacks, and terminal outcomes.
-- **Canonical ownership** — Supabase/Postgres remains the source of truth; vector and graph systems are rebuildable projections.
-- **Inspectable decisions** — evidence, workflow stages, tool activity, and safe operational traces remain reviewable.
+### Core boundaries
+
+- **Evidence before confidence** — important learning decisions point to source chunks or concept evidence.
+- **Deterministic rules where possible** — scoring, validation, authorization, review scheduling, graph bounds, and persistence remain tested services.
+- **Stateful workflows where needed** — diagnosis and tutoring use explicit states, tools, checkpoints, retries, and terminal outcomes.
+- **One canonical store** — Supabase/Postgres owns learner records; vector and graph systems are rebuildable projections.
+- **Inspectable decisions** — evidence references, workflow steps, tool activity, and safe traces remain visible.
 
 ---
 
-## Learning flow
+## Learning loop
 
 ```mermaid
 flowchart LR
@@ -42,56 +42,43 @@ flowchart LR
     D --> E[Teach it back]
     E --> F[Retrieve source and graph context]
     F --> G[Detect gaps and validate grounding]
-    G --> H[Update mastery evidence]
-    H --> I[Schedule review or start tutoring]
+    G --> H[Record mastery evidence]
+    H --> I[Teach again, tutor, or review]
     I --> D
 ```
 
-| Stage | What Tessarion does |
+| Stage | System responsibility |
 |---|---|
-| Source ingestion | Stores learner material and creates bounded evidence chunks. |
-| Concept intelligence | Extracts concepts and evidence-backed relationships. |
-| Teach-back | Captures the learner's explanation without rewarding verbosity alone. |
-| Diagnosis | Detects missing concepts, unsupported claims, prerequisite confusion, and direct misconceptions. |
-| Socratic tutoring | Asks one targeted question at a time and returns the learner to teach-back. |
-| Mastery and review | Updates learner state from recorded evidence rather than opaque scores. |
+| Source ingestion | Store learner material and create bounded source chunks. |
+| Concept intelligence | Extract concepts and evidence-bearing relationships. |
+| Teach-back | Capture the learner explanation without rewarding verbosity. |
+| Diagnosis | Separate omissions, shallow explanations, unsupported claims, and misconceptions. |
+| Tutoring | Ask one targeted question at a time and return the learner to teach-back. |
+| Mastery and review | Record evidence and schedule review without presenting false precision. |
 
 ---
 
 ## Product surfaces
 
-### Public experience
+### Public
 
-- centred Tessarion hero with custom concept-network artwork;
-- evidence-linked diagnosis preview;
+- product landing page with an evidence-linked diagnosis report;
 - interactive capability explorer;
-- consolidated technical documentation with controllable Cytoscape diagrams;
-- learning-methods guide covering teach-back, retrieval practice, elaboration, Socratic questioning, spacing, and metacognition;
-- guided video page and deterministic public notebook.
+- technical documentation with Cytoscape diagrams;
+- learning-method guide;
+- video walkthrough;
+- deterministic public notebook covering computer architecture and memory systems.
 
 ### Authenticated workspace
 
-- notebook dashboard and workspace navigation shell;
+- notebook dashboard;
 - source ingestion and processing state;
-- concept graph explorer and evidence inspector;
+- concept graph and evidence inspector;
 - teach-back composer and diagnosis report;
-- bounded Socratic tutoring sessions;
-- priority-based review queue;
-- activity timeline and safe trace view;
-- system-readiness reporting for configured and fallback components.
-
-### Engineering foundations
-
-- versioned prompt contracts;
-- typed internal tool registry and protected MCP route;
-- deterministic diagnosis, concept-intelligence, and tutoring workflow cores;
-- checkpointed runtime with in-memory and Supabase persistence;
-- dense/sparse hybrid retrieval with weighted reciprocal-rank fusion;
-- Qdrant REST and indexing adapters;
-- bounded graph projection and Neo4j query adapter;
-- retry-aware tool execution;
-- operational events, redaction, and OTLP-compatible trace export;
-- integration, accessibility, performance, and release-quality gates.
+- Socratic tutoring sessions;
+- evidence-based review queue;
+- activity and trace timeline;
+- system-readiness panel.
 
 ---
 
@@ -99,19 +86,19 @@ flowchart LR
 
 ```mermaid
 flowchart TB
-    subgraph Presentation[Presentation]
-      Public[Public site and documentation]
-      Demo[Deterministic public demo]
-      Workspace[Authenticated learning workspace]
-      Routes[Next.js route handlers]
+    subgraph Product[Next.js product]
+      Public[Public site and docs]
+      Demo[Deterministic demo]
+      Workspace[Authenticated workspace]
+      API[Route handlers]
     end
 
-    subgraph Application[Application and workflow layer]
+    subgraph Runtime[Application and workflow runtime]
       Services[Domain services]
-      Workflows[Bounded learning workflows]
+      Workflows[Checkpointed workflows]
       Tools[Typed tool registry]
       Jobs[Inngest jobs]
-      Traces[Operational events and traces]
+      Traces[Operational events and spans]
     end
 
     subgraph Canonical[Canonical state]
@@ -125,10 +112,10 @@ flowchart TB
       Phoenix[(OTLP trace backend)]
     end
 
-    Public --> Routes
+    Public --> API
     Demo --> Workflows
-    Workspace --> Routes
-    Routes --> Services
+    Workspace --> API
+    API --> Services
     Services --> Workflows
     Workflows --> Tools
     Workflows --> Traces
@@ -141,116 +128,110 @@ flowchart TB
     Traces --> Phoenix
 ```
 
-### Responsibility boundaries
+### Ownership
 
-| Layer | Responsibility |
-|---|---|
-| Next.js 16 | Public pages, documentation, authenticated workspace, route handlers, loading and recovery states |
-| Supabase | Authentication, Postgres, Storage, row-level security, canonical learner records |
-| Domain services | Validation, authorisation, persistence, mastery calculations, review scheduling |
-| Workflow runtime | Diagnosis, concept intelligence, tutoring, checkpoints, interruption, and resume |
-| Typed tools | Schema validation, workspace scoping, timeouts, retries, and safe errors |
-| Qdrant | Derived dense and sparse retrieval index |
-| Neo4j | Derived concept traversal projection |
-| Inngest | Retryable background processing and scheduled work |
-| Operational tracing | Safe activity history, evidence references, workflow diagnostics, and OTLP export |
-
-### Data ownership
-
-| Data | Canonical owner | Derived copy |
+| Data | Canonical owner | Derived system |
 |---|---|---|
 | Users, workspaces, documents, source chunks | Supabase/Postgres | — |
-| Concepts and canonical relationships | Supabase/Postgres | Neo4j projection |
+| Concepts and canonical relationships | Supabase/Postgres | Neo4j |
 | Dense and sparse vectors | Source chunks in Postgres | Qdrant |
-| Explanations, gaps, mastery, reviews | Supabase/Postgres | Optional retrieval summaries |
-| Workflow checkpoints | Supabase/Postgres | Trace visualisation |
-| Operational events | Supabase/Postgres | OTLP-compatible trace backend |
+| Explanations, gaps, mastery, reviews | Supabase/Postgres | Optional semantic index |
+| Workflow checkpoints | Supabase/Postgres | Trace timeline |
+| Operational events | Supabase/Postgres | OTLP collector |
 
-Qdrant, Neo4j, and external trace storage remain rebuildable. They never become competing canonical stores.
+A failure in Qdrant, Neo4j, or trace storage can reduce a feature, but it cannot overwrite canonical learner data.
 
 ---
 
-## Retrieval and graph reasoning
+## Agentic system
+
+Tessarion uses a stateful workflow only when the task requires conditional routing, tool use, interruption, resume, or multi-step validation. Ordinary model calls are not labelled as agents.
+
+### Workflow families
+
+```mermaid
+flowchart LR
+    A[Typed state] --> B{Conditional route}
+    B --> C[Authorized tool]
+    C --> D[Validation]
+    D --> E[Deterministic service]
+    E --> F[Persist bounded result]
+    F --> A
+    A --> G[(Checkpoint)]
+    B --> H[Safe trace]
+```
+
+- **Concept Intelligence** — source loading, candidate extraction, entity resolution, relationship validation, and projection preparation.
+- **Learning Diagnosis** — evidence retrieval, graph context, gap classification, grounding, mastery, review, and next-action selection.
+- **Socratic Tutor** — active-gap selection, one-question policy, learner interruption, response evaluation, completion, and return to teach-back.
+
+### Tool contract
+
+Every tool defines:
+
+- Zod input and output schemas;
+- user and workspace scope;
+- read or write classification;
+- timeout and retry policy;
+- idempotency policy;
+- safe errors and audit events;
+- MCP exposure policy.
+
+### Memory
+
+| Memory | Storage |
+|---|---|
+| Active workflow state | Checkpoint store |
+| Teach-back and tutor sessions | Postgres |
+| Learner mastery and review state | Postgres |
+| Semantic retrieval memory | Qdrant projection |
+| Concept dependencies | Neo4j projection |
+| Operational history | Events and trace spans |
+
+Hidden reasoning is not stored. Tessarion stores structured decisions, evidence IDs, tool results, validation outcomes, and safe summaries.
+
+---
+
+## Hybrid retrieval and graph reasoning
 
 ```mermaid
 flowchart LR
     Q[Query] --> D[Dense retrieval]
     Q --> S[Sparse retrieval]
-    D --> F[Weighted RRF fusion]
+    D --> F[Weighted rank fusion]
     S --> F
-    F --> G[Bounded graph support]
-    G --> R[Deterministic reranking]
-    R --> E[Evidence sufficiency check]
+    F --> G[Bounded graph expansion]
+    G --> R[Deterministic rerank]
+    R --> E[Evidence sufficiency]
     E --> C[Citation-ready context]
 ```
 
-The retrieval pipeline enforces:
-
-- mandatory workspace isolation;
-- optional document filters;
-- bounded candidate counts;
-- deterministic local operation for CI and fallback use;
-- explicit insufficient-evidence results;
-- source identifiers preserved through ranking and diagnosis.
-
----
-
-## Workflow model
-
-### Learning diagnosis
-
-```mermaid
-flowchart LR
-    A[Validate explanation] --> B[Validate evidence]
-    B --> C[Detect gaps]
-    C --> D[Generate grounded feedback]
-    D --> E[Calculate mastery]
-    E --> F[Calculate review]
-    F --> G[Select next action]
-```
-
-### Socratic tutoring
-
-```mermaid
-stateDiagram-v2
-    [*] --> LoadMemory
-    LoadMemory --> SelectMove
-    SelectMove --> ValidateQuestion
-    ValidateQuestion --> WaitForLearner
-    WaitForLearner --> SelectMove: resume with learner response
-    SelectMove --> Complete: recovery complete or turn limit reached
-    ValidateQuestion --> Failed: policy violation
-    Complete --> [*]
-```
-
-The tutor asks at most one question per turn and does not silently mark mastery. Completion returns the learner to another teach-back attempt.
+The retrieval pipeline enforces workspace isolation, bounded candidate counts, preserved source IDs, explicit insufficiency, and deterministic local evaluation.
 
 ---
 
 ## Public demo
 
-The public notebook at `/demo/notebook` demonstrates the product model without requiring an account or external provider key.
+The public notebook at `/demo/notebook` requires no account and writes no user data.
 
-**Topic:** Computer Memory Hierarchy
+**Topic:** Computer Architecture and Memory Systems
 
 It includes:
 
-- one compact source document;
-- fourteen concepts and evidence-backed relationships;
+- a focused source covering CPU execution, pipelining, hazards, memory hierarchy, buses, interrupts, and DMA;
+- 29 concepts and evidence-linked relationships;
 - six teach-back scenarios;
-- grounded, partial, shallow, prerequisite, unsupported, and misconception outcomes;
-- dynamic diagnosis and comparison;
-- a bounded tutoring sequence;
+- dynamic diagnosis comparison;
+- an interactive Cytoscape graph;
+- an eight-turn tutoring sequence;
 - review reasoning;
-- a nine-step execution trace.
-
-The demo is deterministic and does not write user data.
+- a nine-step workflow trace.
 
 ---
 
 ## Evaluation
 
-Tessarion uses versioned datasets and metric-producing runners. External providers are not required for the core regression suite.
+Tessarion uses versioned datasets and metric-producing runners. External providers are not required for the deterministic regression suite.
 
 | Command | Coverage |
 |---|---|
@@ -260,15 +241,15 @@ Tessarion uses versioned datasets and metric-producing runners. External provide
 | `npm run eval:mastery` | Mastery-state and recommendation accuracy |
 | `npm run eval:review` | Scheduling, idempotency, stale override, traceability |
 | `npm run eval:tutoring` | Move selection, one-question policy, grounding, completion |
-| `npm run eval:diagnosis` | Route, mastery, next-action, gap-set, repeatability |
+| `npm run eval:diagnosis` | Route, mastery, next action, gap set, repeatability |
 | `npm run eval:retrieval-v2` | Hybrid retrieval quality and workspace isolation |
 | `npm run eval:graph-v2` | Graph recall, evidence recall, depth and workspace bounds |
-| `npm run eval:resilience-v2` | Retries, write safety, checkpointing, resume, loop bounds |
+| `npm run eval:resilience-v2` | Retries, write safety, checkpoints, resume, loop bounds |
 | `npm run eval:release-v1` | Frozen release dataset floor |
-| `npm run eval:integration` | Required routes, shell boundaries, accessibility, licensing |
-| `npm run eval:performance` | Panel-scoped queries, public-route isolation, bounded network behaviour |
+| `npm run eval:integration` | Routes, shell boundaries, accessibility, licensing |
+| `npm run eval:performance` | Panel-scoped queries and bounded network behaviour |
 
-The frozen release gate is a regression floor, not a claim of benchmark completeness.
+The frozen release suite is a regression floor, not a claim of complete benchmark coverage.
 
 ---
 
@@ -276,16 +257,15 @@ The frozen release gate is a regression floor, not a claim of benchmark complete
 
 | Area | Stack |
 |---|---|
-| Web application | Next.js 16, React 19, TypeScript |
+| Web | Next.js 16, React 19, TypeScript |
+| UI | Radix Primitives, Motion, Cytoscape.js, Lucide |
 | Validation | Zod |
 | Canonical data | Supabase Auth, Postgres, Storage, RLS |
 | Background work | Inngest |
-| Retrieval | Local deterministic adapters, Qdrant contracts |
-| Graph | Cytoscape.js visualisation, Neo4j projection contracts |
-| UI | Radix primitives, Motion, Lucide icons |
-| State | TanStack Query, Zustand |
-| Testing | Vitest and deterministic evaluation runners |
-| Deployment | Vercel, Supabase, optional Qdrant Cloud, Neo4j AuraDB, Phoenix |
+| Retrieval | Deterministic local adapters and Qdrant |
+| Graph | Postgres canonical relationships and Neo4j projection |
+| Testing | Vitest and metric-producing evaluation runners |
+| Deployment | Vercel, Supabase, Qdrant Cloud, Neo4j AuraDB, optional Phoenix |
 
 ---
 
@@ -309,27 +289,39 @@ supabase db reset
 npm run dev
 ```
 
-Use `supabase status` to obtain the local URL and public key, then copy the matching values into `.env.local`.
-
-### Required variables
+### Required environment variables
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 GOOGLE_GENERATIVE_AI_API_KEY=
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
-TESSARION_APP_URL=http://localhost:3000
 ```
 
-Optional infrastructure variables are documented in [`.env.example`](.env.example) and [`docs/deployment/DEPLOYMENT.md`](docs/deployment/DEPLOYMENT.md).
+### Optional infrastructure
 
-### Validation
+```env
+QDRANT_URL=
+QDRANT_API_KEY=
+QDRANT_COLLECTION=tessarion_workspace_chunks_v1
+QDRANT_DENSE_VECTOR_SIZE=768
+
+NEO4J_URI=
+NEO4J_USERNAME=
+NEO4J_PASSWORD=
+NEO4J_DATABASE=neo4j
+
+PHOENIX_COLLECTOR_ENDPOINT=
+OTEL_SERVICE_NAME=tessarion
+```
+
+### Quality gate
 
 ```cmd
 npm run lint
 npm run typecheck
 npm run test:run
+npm run eval:release-v1
 npm run deploy:check
 npm run build
 ```
@@ -338,68 +330,40 @@ npm run build
 
 ## Deployment
 
-```mermaid
-flowchart LR
-    Browser --> Vercel[Vercel · Next.js]
-    Vercel --> Supabase[Supabase · canonical data]
-    Vercel --> Inngest[Inngest · durable jobs]
-    Vercel --> Qdrant[Qdrant · hybrid retrieval]
-    Vercel --> Neo4j[Neo4j · graph projection]
-    Vercel --> Phoenix[Phoenix · trace inspection]
-```
+1. Push Supabase migrations.
+2. Deploy the Next.js repository to Vercel.
+3. Configure Qdrant Cloud and bootstrap the retrieval collection.
+4. Configure Neo4j AuraDB and create projection indexes.
+5. Sync the deployed `/api/inngest` endpoint with Inngest Cloud.
+6. Configure an OTLP collector when trace export is required.
+7. Run the production learner flow and infrastructure health checks.
 
-Deployment references:
-
-- [`docs/deployment/VERCEL.md`](docs/deployment/VERCEL.md) — Vercel configuration and environment variables;
-- [`docs/deployment/DEPLOYMENT.md`](docs/deployment/DEPLOYMENT.md) — complete infrastructure sequence;
-- [`docs/deployment/AUTH-EMAIL.md`](docs/deployment/AUTH-EMAIL.md) — production email and SMTP setup.
-
-Run before deployment:
-
-```cmd
-npm run deploy:check
-npm run build
-```
-
----
-
-## Security and reliability
-
-- Authenticated routes derive identity from the server-side session.
-- Row-level security protects canonical learner data.
-- Service-role access remains server-only.
-- Workspace identifiers are mandatory in retrieval and graph operations.
-- Input lengths, turn counts, candidate counts, retries, and metadata sizes are bounded.
-- Provider and database errors are normalised before reaching clients.
-- Operational metadata is redacted before persistence or export.
-- Traces store structured decisions and evidence identifiers, not hidden reasoning.
-- Public pages and the demo do not depend on authenticated Supabase requests.
-- Critical runtime dependency advisories block CI; complete dependency findings remain visible.
+Detailed instructions: [`docs/deployment/DEPLOYMENT.md`](docs/deployment/DEPLOYMENT.md)
 
 ---
 
 ## Documentation
 
-- [`docs/rebuild/`](docs/rebuild/) — architecture and migration contracts;
-- [`docs/rebuild/implementation/`](docs/rebuild/implementation/) — implementation records;
-- [`docs/public-rag-foundation.md`](docs/public-rag-foundation.md) — retrieval model;
-- [`docs/public-concept-graph-foundation.md`](docs/public-concept-graph-foundation.md) — graph model;
-- [`docs/public-mastery-model.md`](docs/public-mastery-model.md) — mastery evidence model;
-- [`docs/public-review-scheduling.md`](docs/public-review-scheduling.md) — review policy;
-- [`docs/public-socratic-tutoring.md`](docs/public-socratic-tutoring.md) — tutoring policy;
-- [`docs/public-security-model.md`](docs/public-security-model.md) — security boundaries;
-- [`docs/public-observability-model.md`](docs/public-observability-model.md) — event and trace policy.
+- [Product overview](docs/rebuild/00-rebuild-charter.md)
+- [Architecture](docs/rebuild/02-target-architecture.md)
+- [Agent orchestration](docs/rebuild/03-agent-orchestration.md)
+- [Tools and MCP](docs/rebuild/04-tool-and-mcp-contracts.md)
+- [Hybrid retrieval and graph reasoning](docs/rebuild/05-hybrid-rag-and-graph-retrieval.md)
+- [Memory model](docs/rebuild/06-memory-and-learner-model.md)
+- [Evaluation](docs/rebuild/08-evaluation-and-improvement.md)
+- [Security](docs/public-security-model.md)
+- [Deployment](docs/deployment/DEPLOYMENT.md)
+
+---
+
+## Current status
+
+The product, learning workflows, deterministic evaluations, public demo, authenticated workspace, Supabase schema, and Vercel deployment path are implemented. Qdrant, Neo4j, Inngest, and trace collection become active when production credentials are configured.
+
+Planned product additions include Google sign-in, Gemini/Groq provider selection, flashcards, Anki export, context books, approved online references, and a complete Agentic AI demo course.
 
 ---
 
 ## License
 
-Copyright 2026 Dhruv Gupta.
-
-Licensed under the [Apache License 2.0](LICENSE). Redistribution and derivative works must preserve the applicable copyright, licence, and attribution notices. See [NOTICE](NOTICE).
-
-<div align="center">
-
-**Tessarion is built as an inspectable learning system, not a black-box answer generator.**
-
-</div>
+Apache License 2.0. See [`LICENSE`](LICENSE) and [`NOTICE`](NOTICE).

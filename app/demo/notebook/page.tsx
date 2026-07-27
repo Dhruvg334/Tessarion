@@ -12,7 +12,7 @@ export default function PublicDemoNotebookPage() {
     <SiteShell>
       <main className="demo-public-page">
         <div className="container-wide">
-          <div className="demo-public-breadcrumb"><Link href="/demo">Demo</Link><span>/</span><span>Computer Memory Hierarchy</span></div>
+          <div className="demo-public-breadcrumb"><Link href="/demo">Demo</Link><span>/</span><span>Computer Architecture and Memory Systems</span></div>
           <DemoNotebook />
         </div>
       </main>

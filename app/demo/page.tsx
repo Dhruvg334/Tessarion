@@ -6,7 +6,7 @@ import { SiteShell } from '@/components/site/site-shell';
 export const metadata = { title: 'Demo', description: 'Watch the product walkthrough and explore the public demo notebook.' };
 
 const steps = [
-  ['Inspect the source', 'Start with the compact memory-hierarchy source. Every concept and finding points back to it.'],
+  ['Inspect the source', 'Start with the computer-architecture source. Every concept and finding points back to it.'],
   ['Explore the graph', 'Select concepts, read evidence, and inspect prerequisites, contrasts, and dependencies.'],
   ['Switch explanations', 'Compare strong, shallow, partial, unsupported, prerequisite-gap, and misconception cases.'],
   ['Read the diagnosis', 'See coverage, gaps, evidence conflicts, mastery evidence, and the selected route.'],
@@ -25,7 +25,7 @@ export default function DemoPage() {
           <div className="demo-video-frame">
             <iframe src="https://www.youtube-nocookie.com/embed/JSnYRxWMMus?rel=0" title="Tessarion temporary product demonstration" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen loading="lazy" />
           </div>
-          <div className="demo-video-caption"><PlayCircle size={18} /><p>This temporary video will be replaced with the final Tessarion walkthrough. The interactive notebook below is the authoritative demo of the current product behaviour.</p></div>
+          <div className="demo-video-caption"><PlayCircle size={18} /><p>This temporary video will be replaced with the final Tessarion walkthrough. The interactive notebook below shows the current product behaviour.</p></div>
         </Reveal>
 
         <Reveal className="container demo-guide-section">

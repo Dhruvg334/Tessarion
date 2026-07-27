@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import { hasSupabaseClientEnv } from '@/lib/config/env';
 import { TesseractIcon } from '@/components/ui/tesseract-icon';
+import { PasswordInput } from '@/components/ui/password-input';
 
 function safeNextPath(value: string | null): string {
   return value && value.startsWith('/') && !value.startsWith('//') ? value : '/dashboard';
@@ -20,7 +21,7 @@ export function LoginForm() {
   const searchParams = useSearchParams();
   const nextPath = safeNextPath(searchParams.get('next'));
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
     setError('');
@@ -69,7 +70,7 @@ export function LoginForm() {
           {error && <p className="notice" role="alert" style={{ marginBottom: '1rem' }}>{error}</p>}
           <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '0.9rem' }}>
             <label><span className="eyebrow" style={{ display: 'block', marginBottom: '0.35rem' }}>Email</span><input type="email" autoComplete="email" className="input" value={email} onChange={(event) => setEmail(event.target.value)} required /></label>
-            <label><span className="eyebrow" style={{ display: 'block', marginBottom: '0.35rem' }}>Password</span><input type="password" autoComplete="current-password" className="input" value={password} onChange={(event) => setPassword(event.target.value)} required /></label>
+            <label><span className="eyebrow" style={{ display: 'block', marginBottom: '0.35rem' }}>Password</span><PasswordInput autoComplete="current-password" className="input" value={password} onChange={(event) => setPassword(event.target.value)} required /></label>
             <button className="btn" disabled={loading} type="submit">{loading ? 'Signing in…' : 'Sign in'}</button>
           </form>
           <p className="muted" style={{ margin: '1.2rem 0 0', textAlign: 'center' }}>No account? <Link href="/signup" style={{ fontWeight: 750 }}>Create one</Link></p>

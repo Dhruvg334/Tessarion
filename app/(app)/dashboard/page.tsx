@@ -1,10 +1,12 @@
 import Link from 'next/link';
+import { Info } from 'lucide-react';
 import { redirect } from 'next/navigation';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { CreateWorkspaceForm } from '@/components/workspace/create-workspace-form';
 import { SystemReadinessCard } from '@/components/system/system-readiness-card';
 import { getSystemReadiness } from '@/lib/system/readiness';
 import type { Workspace } from '@/types/database';
+import { InfoDialog } from '@/components/ui/info-dialog';
 
 export const metadata = { title: 'Dashboard | Tessarion' };
 
@@ -49,8 +51,20 @@ export default async function DashboardPage() {
         <div className="dashboard-overview-strip" aria-label="Dashboard summary">
           <div><strong>{workspaces.length}</strong><span>active notebooks</span></div>
           <div><strong>{readiness.overall === 'ready' ? 'Ready' : 'Limited'}</strong><span>system state</span></div>
-          <div><strong>6</strong><span>learning surfaces</span></div>
+          <div><strong>7</strong><span>learning surfaces</span></div>
         </div>
+
+        <section className="dashboard-explainer-row" aria-label="Dashboard guidance">
+          {[
+            ['Notebooks', 'Each notebook isolates its sources, concepts, explanations, reviews, and traces.'],
+            ['System state', 'Ready means the configured services can support the complete learning loop. Limited means deterministic features remain available while one or more external services are absent.'],
+            ['Next action', 'Tessarion chooses the next step from source evidence, diagnosis, mastery signals, and review state.'],
+          ].map(([title, copy]) => (
+            <InfoDialog key={title} trigger={<button type="button" className="dashboard-info-chip"><Info size={15} /><span>{title}</span></button>} title={title} description="How to read this dashboard">
+              <p>{copy}</p>
+            </InfoDialog>
+          ))}
+        </section>
 
         <section className="dashboard-refined-layout">
           <main className="dashboard-workspaces">
