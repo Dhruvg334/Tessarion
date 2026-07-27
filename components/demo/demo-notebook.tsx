@@ -75,7 +75,7 @@ export function DemoNotebook() {
                 </div>
                 <div className="demo-tutor-layout">
                   <aside className="demo-tutor-context">
-                    <div><span>Focus</span><strong>ISA, prediction, and volatility</strong></div>
+                    <div><span>Focus</span><strong>cache speed, locality, and volatility</strong></div>
                     <div><span>Policy</span><strong>One bounded question at a time</strong></div>
                     <div><span>Mastery impact</span><strong>No automatic upgrade</strong></div>
                     <div className="demo-tutor-progress"><span>Conversation progress</span><progress max={demoNotebook.tutor.length} value={tutorStep} /></div>

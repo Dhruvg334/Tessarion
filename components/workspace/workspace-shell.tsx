@@ -13,10 +13,12 @@ export function WorkspaceShell({
   context?: ReactNode;
 }) {
   return (
-    <div className={`workspace-shell${context ? ' has-context' : ''}`}>
+    <section className={`workspace-shell workspace-notebook-shell${context ? ' has-context' : ''}`}>
       <WorkspaceRail workspaceId={workspaceId} workspaceName={workspaceName} />
-      <div className="workspace-shell-main">{children}</div>
-      {context ? <aside className="workspace-context-rail" aria-label="Notebook context">{context}</aside> : null}
-    </div>
+      <div className="workspace-shell-content">
+        <div className="workspace-shell-main">{children}</div>
+        {context ? <aside className="workspace-context-rail" aria-label="Notebook context">{context}</aside> : null}
+      </div>
+    </section>
   );
 }

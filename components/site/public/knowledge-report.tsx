@@ -6,7 +6,6 @@ import { ArrowUpRight, BookOpenCheck, CircleAlert, CircleCheck, GitBranch, Route
 const graphNodes = [
   { label: 'Locality', detail: 'principle', className: 'node-locality' },
   { label: 'Cache', detail: 'selected concept', className: 'node-cache' },
-  { label: 'Cache miss', detail: 'outcome', className: 'node-miss' },
   { label: 'Main memory', detail: 'contrast', className: 'node-memory' },
 ] as const;
 
@@ -31,15 +30,13 @@ export function KnowledgeReport() {
           <div className="knowledge-report-grid knowledge-report-grid-upgraded">
             <section className="knowledge-report-graph knowledge-report-graph-upgraded" aria-label="Example evidence-linked concept graph">
               <div className="report-graph-heading"><GitBranch size={16} /><div><strong>Concept structure</strong><span>Evidence-bearing relationships</span></div></div>
-              <div className="report-graph-canvas">
-                <svg viewBox="0 0 620 360" role="img" aria-label="Locality explains cache. Cache contrasts with main memory and produces cache miss outcomes.">
+              <div className="report-graph-canvas report-graph-canvas-simplified">
+                <svg className="report-graph-links" viewBox="0 0 620 320" role="img" aria-label="Locality explains cache. Cache contrasts with main memory.">
                   <defs><marker id="report-arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" /></marker></defs>
-                  <path d="M150 88 C230 80 280 120 320 170" markerEnd="url(#report-arrow)" />
-                  <path d="M320 190 C420 165 475 120 510 82" markerEnd="url(#report-arrow)" />
-                  <path d="M330 205 C420 230 470 270 505 300" markerEnd="url(#report-arrow)" />
-                  <g className="report-edge-label"><rect x="202" y="74" width="64" height="22" rx="8" /><text x="234" y="89">explains</text></g>
-                  <g className="report-edge-label"><rect x="392" y="118" width="70" height="22" rx="8" /><text x="427" y="133">produces</text></g>
-                  <g className="report-edge-label"><rect x="382" y="241" width="98" height="22" rx="8" /><text x="431" y="256">contrasts with</text></g>
+                  <path d="M165 86 C230 94 276 125 315 158" markerEnd="url(#report-arrow)" />
+                  <path d="M355 185 C425 214 470 240 514 267" markerEnd="url(#report-arrow)" />
+                  <g className="report-edge-label"><rect x="220" y="96" width="66" height="22" rx="8" /><text x="253" y="111">explains</text></g>
+                  <g className="report-edge-label"><rect x="403" y="218" width="100" height="22" rx="8" /><text x="453" y="233">contrasts with</text></g>
                 </svg>
                 {graphNodes.map((node) => <div key={node.label} className={`report-graph-node ${node.className}`}><strong>{node.label}</strong><span>{node.detail}</span></div>)}
               </div>
@@ -50,8 +47,8 @@ export function KnowledgeReport() {
               <div className="report-diagnosis-heading"><p className="eyebrow">Teach-back diagnosis</p><span>Grounded</span></div>
               <h3>Misconception detected</h3>
               <blockquote>“Cache is slower because it is smaller.”</blockquote>
-              <div className="report-finding is-conflict"><CircleAlert size={15} /><span><strong>Contradicted claim</strong>The source states that cache is faster and closer to the processor.</span></div>
-              <div className="report-finding"><CircleCheck size={15} /><span><strong>Covered correctly</strong>The learner separated cache from main memory.</span></div>
+              <div className="report-finding is-conflict"><CircleAlert size={15} /><span><strong>Contradicted claim</strong><em>The source states that cache is faster and closer to the processor.</em></span></div>
+              <div className="report-finding"><CircleCheck size={15} /><span><strong>Covered correctly</strong><em>The learner separated cache from main memory.</em></span></div>
               <div className="report-route-card"><Route size={17} /><div><span>Selected route</span><strong>Socratic tutoring</strong><small>Repair speed, proximity, and memory hierarchy.</small></div><ArrowUpRight size={16} /></div>
               <footer className="report-audit-line"><span>Evidence: 2 references</span><span>Graph path: 1 hop</span><span>Persistence: validated</span></footer>
             </section>
