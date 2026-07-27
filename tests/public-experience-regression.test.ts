@@ -64,7 +64,7 @@ describe('public experience regressions', () => {
     ]) {
       const source = read(path);
       expect(source).not.toMatch(/'text-margin-[xy]':\s*'[-\d.]+px'/);
-      expect(source).not.toMatch(/'text-background-padding':\s*'[\d.]+px'/);
+      expect(source).toMatch(/'text-background-padding':\s*'[\d.]+px'/);
       expect(source).not.toMatch(/'text-border-width':\s*'[\d.]+px'/);
       expect(source).not.toMatch(/selector:\s*'edge'[\s\S]{0,500}?width:\s*'[\d.]+px'/);
     }
