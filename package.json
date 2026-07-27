@@ -33,8 +33,8 @@
     "infra:down": "docker compose down",
     "infra:status": "docker compose ps",
     "infra:logs": "docker compose logs --tail=100",
-    "infra:validate": "tsx scripts/validate-infrastructure.ts",
-    "infra:bootstrap": "tsx scripts/bootstrap-infrastructure.ts",
+    "infra:bootstrap": "node --env-file-if-exists=.env.local --import tsx scripts/bootstrap-infrastructure.ts",
+    "infra:validate": "node --env-file-if-exists=.env.local --import tsx scripts/validate-infrastructure.ts",
     "deploy:check": "node scripts/validate-vercel-readiness.mjs"
   },
   "dependencies": {
