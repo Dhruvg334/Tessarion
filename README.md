@@ -22,6 +22,8 @@ The product is built around one question:
 
 Tessarion does not infer understanding from clicks, time-on-page, streaks, or polished wording.
 
+**Release status:** the complete product workflow is implemented and deployed across Supabase, Qdrant, Neo4j, Inngest, and Arize AX. The remaining release activity is demo capture and presentation packaging, not product functionality.
+
 ### Core boundaries
 
 - **Evidence before confidence** — important learning decisions point to source chunks or concept evidence.

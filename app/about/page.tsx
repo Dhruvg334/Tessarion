@@ -12,7 +12,7 @@ function GitHubMark() {
   );
 }
 
-export const metadata = { title: 'About', description: 'Why Tessarion exists, how it is built, and what comes next.' };
+export const metadata = { title: 'About', description: 'Why Tessarion exists, how it is built, and where it can extend.' };
 
 export default function AboutPage() {
   return (
@@ -40,11 +40,11 @@ export default function AboutPage() {
             </div>
           </Reveal>
           <Reveal className="about-compact-section">
-            <div className="about-section-label"><span>03</span><p>Future scope</p></div>
+            <div className="about-section-label"><span>03</span><p>Extension paths</p></div>
             <div className="about-reading-column">
               <h2>More learning formats, providers, and reviewed evidence.</h2>
-              <p>Planned work includes social sign-in, provider choice, flashcards, Anki export, structured context books, external references, and a complete Agentic AI demo course.</p>
-              <div className="about-actions"><Link href="/docs/current-status" className="btn btn-secondary">Current status</Link><Link href="/demo/notebook" className="btn">Open the demo</Link></div>
+              <p>Optional extensions include social sign-in, provider choice, flashcards, Anki export, structured context books, external references, and additional guided courses.</p>
+              <div className="about-actions"><Link href="/docs/current-status" className="btn btn-secondary">Production status</Link><Link href="/demo/notebook" className="btn">Open the demo</Link></div>
             </div>
           </Reveal>
         </div>

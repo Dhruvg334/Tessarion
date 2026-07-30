@@ -1,7 +1,7 @@
 'use client';
 
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { ChevronDown, LayoutDashboard, LogOut, Settings, UserRound } from 'lucide-react';
+import { ChevronDown, LayoutDashboard, LogOut, UserRound } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -47,8 +47,7 @@ export function ProfileMenu({ email, displayName }: ProfileMenuProps) {
           </div>
           <DropdownMenu.Separator className="profile-menu-separator" />
           <DropdownMenu.Item asChild><Link href="/dashboard" className="profile-menu-item"><LayoutDashboard size={16} />Dashboard</Link></DropdownMenu.Item>
-          <DropdownMenu.Item asChild><Link href="/profile" className="profile-menu-item"><UserRound size={16} />Profile</Link></DropdownMenu.Item>
-          <DropdownMenu.Item asChild><Link href="/profile#settings" className="profile-menu-item"><Settings size={16} />Settings</Link></DropdownMenu.Item>
+          <DropdownMenu.Item asChild><Link href="/profile" className="profile-menu-item"><UserRound size={16} />Account settings</Link></DropdownMenu.Item>
           <DropdownMenu.Separator className="profile-menu-separator" />
           <DropdownMenu.Item asChild>
             <button type="button" className="profile-menu-item profile-menu-logout" onClick={handleLogout} disabled={loggingOut}>

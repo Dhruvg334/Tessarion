@@ -14,7 +14,7 @@ export type DocsPage = {
   title: string;
   summary: string;
   group: 'System' | 'Learning' | 'Quality' | 'Status';
-  status: 'Implemented' | 'Foundation implemented' | 'Deployment-ready' | 'Planned';
+  status: 'Implemented' | 'Deployment-ready';
   sections: DocsSection[];
 };
 
@@ -204,7 +204,7 @@ export const docsPages: DocsPage[] = [
     title: 'Agentic system',
     summary: 'How Tessarion implements stateful orchestration, typed tools, memory, interruption, and controlled improvement.',
     group: 'System',
-    status: 'Foundation implemented',
+    status: 'Implemented',
     sections: [
       {
         heading: 'What counts as an agentic workflow',
@@ -245,7 +245,7 @@ export const docsPages: DocsPage[] = [
     title: 'Retrieval, diagnosis, tutoring, and review',
     summary: 'How evidence is selected and converted into a diagnosis, tutoring route, mastery update, and review decision.',
     group: 'Learning',
-    status: 'Foundation implemented',
+    status: 'Implemented',
     sections: [
       {
         heading: 'Hybrid retrieval',
@@ -348,8 +348,8 @@ export const docsPages: DocsPage[] = [
   },
   {
     slug: 'current-status',
-    title: 'Current status and planned capabilities',
-    summary: 'What is available now, what Tessarion is not, known limitations, and the next product capabilities.',
+    title: 'Production status and extension paths',
+    summary: 'The completed product surface, operating boundaries, and optional extension paths.',
     group: 'Status',
     status: 'Implemented',
     sections: [
@@ -376,13 +376,13 @@ export const docsPages: DocsPage[] = [
         heading: 'Known limitations',
         bullets: [
           'Diagnosis quality depends on the quality and scope of the source material.',
-          'External retrieval, graph, background-job, and tracing services require configured production credentials.',
+          'Production credentials are environment-specific and remain outside the repository.',
           'Evaluation coverage must continue growing across subjects and failure types.',
           'Long-running indexing may require a dedicated worker as workloads grow.',
         ],
       },
       {
-        heading: 'Planned capabilities',
+        heading: 'Optional extensions',
         bullets: [
           'Google sign-in.',
           'User-selectable generation providers, beginning with Gemini and Groq.',

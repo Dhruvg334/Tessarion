@@ -58,10 +58,27 @@ describe('release candidate dashboard regressions', () => {
     expect(css).toContain('background: var(--wood-deep)');
   });
 
-  it('keeps the landing report graph linear and free of SVG label collisions', () => {
+  it('uses a bounded animated report switcher instead of an overflowing graph', () => {
     const report = read('components/site/public/knowledge-report.tsx');
-    expect(report).toContain('report-graph-flow');
-    expect(report).toContain('Two evidence-bearing relationships');
+    expect(report).toContain('knowledge-report-view-controls');
+    expect(report).toContain('AnimatePresence');
+    expect(report).toContain('Concept path');
+    expect(report).not.toContain('report-graph-flow');
     expect(report).not.toContain('report-graph-links');
+  });
+
+  it('fills the notebook navigation and exposes one account-settings destination', () => {
+    const css = read('app/globals.css');
+    const menu = read('components/site/profile-menu.tsx');
+    expect(css).toContain('grid-template-columns: repeat(7, minmax(0, 1fr))');
+    expect(menu).toContain('Account settings');
+    expect(menu).not.toContain('href="/profile#settings"');
+  });
+
+  it('describes Tessarion as a completed production product', () => {
+    const docs = read('app/docs/page.tsx');
+    expect(docs).toContain('production-ready across the complete learning loop');
+    expect(docs).not.toContain('external services remain configurable');
+    expect(docs).not.toContain('need production credentials');
   });
 });

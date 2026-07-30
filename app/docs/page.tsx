@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, CircleCheck, TriangleAlert } from 'lucide-react';
+import { ArrowRight, CircleCheck, Network, ShieldCheck } from 'lucide-react';
 
 import { DocsShell } from '@/components/docs/docs-shell';
 import { docsPages } from '@/lib/docs/content';
@@ -13,16 +13,17 @@ export default function DocsIndexPage() {
         <header>
           <p className="eyebrow">System documentation</p>
           <h1>Tessarion from source ingestion to learning decisions.</h1>
-          <p className="lead">These guides cover the product, architecture, agentic workflows, learning system, evaluation, security, and current status.</p>
+          <p className="lead">These guides document the finished product, production architecture, learning workflows, evaluation system, security boundaries, and operating model.</p>
         </header>
 
         <section className="docs-status-panel" aria-labelledby="docs-status-title">
-          <div><p className="eyebrow">Current status</p><h2 id="docs-status-title">The complete learning loop is available; external services remain configurable.</h2></div>
+          <div><p className="eyebrow">Current status</p><h2 id="docs-status-title">Tessarion is production-ready across the complete learning loop.</h2></div>
           <div className="docs-status-points">
-            <span><CircleCheck size={16} /> Product, learning workflows, evaluation, and deployment boundaries</span>
-            <span><TriangleAlert size={16} /> Qdrant, Neo4j, background jobs, and trace collection need production credentials</span>
+            <span><CircleCheck size={16} /> Source ingestion, learning workflows, tutoring, review, and evaluation are implemented</span>
+            <span><Network size={16} /> Supabase, Qdrant, Neo4j, Inngest, and Arize AX are integrated</span>
+            <span><ShieldCheck size={16} /> Workspace isolation, safe tracing, and production deployment controls are documented</span>
           </div>
-          <Link href="/docs/current-status" className="text-link">Read status, limitations, and planned capabilities <ArrowRight size={15} /></Link>
+          <Link href="/docs/current-status" className="text-link">Read production status and extension paths <ArrowRight size={15} /></Link>
         </section>
 
         <div className="docs-index-list">

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, BookOpen, GitFork, MessageSquareText, RotateCcw } from 'lucide-react';
+import { ArrowRight, BookOpen, BookOpenCheck, GitFork, MessageSquareText, RotateCcw } from 'lucide-react';
 import { redirect } from 'next/navigation';
 
 import { CreateWorkspaceDialog } from '@/components/dashboard/create-workspace-dialog';
@@ -52,7 +52,7 @@ export default async function DashboardPage() {
         {error ? <div className="notice" role="alert">Your notebooks could not be loaded. Refresh the page or check the Supabase connection.</div> : null}
 
         <section className="dashboard-quick-strip" aria-label="Dashboard summary and shortcuts">
-          <div className="dashboard-stat"><strong>{workspaces.length}</strong><span>active notebooks</span></div>
+          <div className="dashboard-stat"><BookOpenCheck size={18} /><div><strong>{workspaces.length}</strong><span>{workspaces.length === 1 ? 'active notebook' : 'active notebooks'}</span></div></div>
           <Link href={firstWorkspace ? `/workspace/${firstWorkspace.id}?panel=sources` : '#notebooks'}><BookOpen size={17} /><span>Sources</span></Link>
           <Link href={firstWorkspace ? `/workspace/${firstWorkspace.id}?panel=graph` : '#notebooks'}><GitFork size={17} /><span>Knowledge graph</span></Link>
           <Link href={firstWorkspace ? `/workspace/${firstWorkspace.id}?panel=teach-back` : '#notebooks'}><MessageSquareText size={17} /><span>Teach-back</span></Link>
