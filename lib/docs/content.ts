@@ -14,7 +14,7 @@ export type DocsPage = {
   title: string;
   summary: string;
   group: 'System' | 'Learning' | 'Quality' | 'Status';
-  status: 'Implemented' | 'Deployment-ready';
+  status: 'Implemented' | 'Production';
   sections: DocsSection[];
 };
 
@@ -176,7 +176,7 @@ export const docsPages: DocsPage[] = [
     title: 'Architecture and infrastructure',
     summary: 'How the product, domain services, persistence, retrieval, graph projection, and traces fit together.',
     group: 'System',
-    status: 'Deployment-ready',
+    status: 'Production',
     sections: [
       {
         heading: 'Responsibility map',
@@ -322,7 +322,7 @@ export const docsPages: DocsPage[] = [
     title: 'Security and privacy',
     summary: 'Authentication, RLS, tool permissions, resource limits, and data exposure boundaries.',
     group: 'Quality',
-    status: 'Deployment-ready',
+    status: 'Production',
     sections: [
       {
         heading: 'Security controls',
@@ -348,8 +348,8 @@ export const docsPages: DocsPage[] = [
   },
   {
     slug: 'current-status',
-    title: 'Production status and extension paths',
-    summary: 'The completed product surface, operating boundaries, and optional extension paths.',
+    title: 'Production status and operating boundaries',
+    summary: 'The deployed product surface, operating boundaries, and extension policy.',
     group: 'Status',
     status: 'Implemented',
     sections: [
@@ -382,14 +382,14 @@ export const docsPages: DocsPage[] = [
         ],
       },
       {
-        heading: 'Optional extensions',
+        heading: 'Extension policy',
         bullets: [
-          'Google sign-in.',
-          'User-selectable generation providers, beginning with Gemini and Groq.',
-          'Flashcards inside the notebook and Anki export.',
-          'Structured context books assembled from approved source material.',
-          'Online references that can be reviewed and attached to a study source.',
-          'A complete Agentic AI demo course showing tools, memory, workflows, evaluation, and traces.',
+          'Additional sign-in providers can be added without changing canonical authorization boundaries.',
+          'Additional generation providers must satisfy the same prompt, schema, evaluation, and tracing contracts.',
+          'New learning formats must remain evidence-linked and preserve learner-state ownership in Postgres.',
+          'New source formats must preserve provenance, workspace isolation, and deletion cascades.',
+          'External references require explicit learner review before becoming source evidence.',
+          'Product extensions are admitted only after deterministic regression and production-observability checks pass.',
         ],
       },
     ],

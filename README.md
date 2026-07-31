@@ -6,13 +6,16 @@
 
 ### Evidence-linked learning through teach-back, retrieval, concept graphs, and guided recovery
 
-[Live Demo](#public-demo) · [Architecture](#architecture) · [Agentic System](#agentic-system) · [Evaluation](#evaluation) · [Documentation](#documentation) · [Deployment](#deployment)
+[Live Product](https://tessarion.vercel.app) · [Public Demo](#public-demo) · [Architecture](#architecture) · [Agentic System](#agentic-system) · [Evaluation](#evaluation) · [Documentation](#documentation) · [Deployment](#deployment)
 
 </div>
 
 ---
 
 ## Product
+
+**Version:** `1.0.0`  
+**Production:** [tessarion.vercel.app](https://tessarion.vercel.app)
 
 Tessarion turns study material into a traceable learning workspace. A learner explains a concept in their own words. The system retrieves source evidence, inspects concept dependencies, identifies gaps, records mastery evidence, and routes the learner to another attempt, Socratic tutoring, or review.
 
@@ -22,7 +25,7 @@ The product is built around one question:
 
 Tessarion does not infer understanding from clicks, time-on-page, streaks, or polished wording.
 
-**Release status:** the complete product workflow is implemented and deployed across Supabase, Qdrant, Neo4j, Inngest, and Arize AX. The remaining release activity is demo capture and presentation packaging, not product functionality.
+**Release status:** Tessarion v1.0.0 is deployed at [tessarion.vercel.app](https://tessarion.vercel.app). The complete learning workflow and production integrations are active across Supabase, Qdrant, Neo4j, Inngest, and Arize AX.
 
 ### Core boundaries
 
@@ -68,7 +71,6 @@ flowchart LR
 - interactive capability explorer;
 - technical documentation with Cytoscape diagrams;
 - learning-method guide;
-- video walkthrough;
 - deterministic public notebook covering computer architecture and memory systems.
 
 ### Authenticated workspace
@@ -405,6 +407,18 @@ After authentication:
 - The profile menu exposes account identity, profile settings, and sign-out.
 - `/profile`, `/dashboard`, and `/workspace/*` use the same server-side session boundary.
 - Session-aware responses are not shared through public caches.
+
+---
+
+## Release
+
+Tessarion v1.0.0 is the first production release. It includes the complete authenticated learning workflow, deterministic public demo, production infrastructure integrations, evaluation gates, security boundaries, and operational documentation.
+
+Release records:
+
+- [`CHANGELOG.md`](CHANGELOG.md)
+- [`SECURITY.md`](SECURITY.md)
+- [`docs/deployment/RELEASE-CHECKLIST.md`](docs/deployment/RELEASE-CHECKLIST.md)
 
 ---
 

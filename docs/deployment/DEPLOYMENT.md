@@ -123,7 +123,7 @@ npm run build
 npm run infra:validate
 ```
 
-Then complete [`PRODUCTION-VALIDATION.md`](PRODUCTION-VALIDATION.md) against the deployed application.
+Then complete [`PRODUCTION-VALIDATION.md`](PRODUCTION-VALIDATION.md) against the deployed application and close [`RELEASE-CHECKLIST.md`](RELEASE-CHECKLIST.md) before tagging the release.
 
 ## Rollback
 

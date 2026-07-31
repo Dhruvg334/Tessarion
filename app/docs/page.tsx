@@ -23,7 +23,7 @@ export default function DocsIndexPage() {
             <span><Network size={16} /> Supabase, Qdrant, Neo4j, Inngest, and Arize AX are integrated</span>
             <span><ShieldCheck size={16} /> Workspace isolation, safe tracing, and production deployment controls are documented</span>
           </div>
-          <Link href="/docs/current-status" className="text-link">Read production status and extension paths <ArrowRight size={15} /></Link>
+          <Link href="/docs/current-status" className="text-link">Read production status and operating boundaries <ArrowRight size={15} /></Link>
         </section>
 
         <div className="docs-index-list">

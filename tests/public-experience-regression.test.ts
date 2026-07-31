@@ -45,8 +45,12 @@ describe('public experience regressions', () => {
     expect(read('components/auth/signup-form.tsx')).toContain('PasswordInput');
   });
 
-  it('includes the video walkthrough and learning-method page', () => {
-    expect(read('app/demo/page.tsx')).toContain('youtube-nocookie.com');
+  it('keeps the demo focused on the interactive notebook without unrelated media', () => {
+    const demo = read('app/demo/page.tsx');
+    expect(demo).toContain('Interactive product demo');
+    expect(demo).toContain('Open demo notebook');
+    expect(demo).not.toContain('youtube-nocookie.com');
+    expect(demo).not.toContain('temporary');
     expect(read('app/about/learning-methods/page.tsx')).toContain('Feynman-style explanation');
   });
 
@@ -54,7 +58,8 @@ describe('public experience regressions', () => {
     const content = read('lib/docs/content.ts');
     expect(content).toContain("slug: 'agentic-system'");
     expect(content).toContain("slug: 'current-status'");
-    expect(content).toContain('Gemini and Groq');
+    expect(content).toContain('Extension policy');
+    expect(content).toContain('production-observability checks');
   });
 
   it('keeps Cytoscape edge dimensions numeric for TypeScript compatibility', () => {

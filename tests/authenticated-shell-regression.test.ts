@@ -75,6 +75,17 @@ describe('release candidate dashboard regressions', () => {
     expect(menu).not.toContain('href="/profile#settings"');
   });
 
+
+
+  it('publishes production release metadata and security records', () => {
+    const packageJson = read('package.json');
+    const readme = read('README.md');
+    expect(packageJson).toContain('"version": "1.0.0"');
+    expect(readme).toContain('Tessarion v1.0.0');
+    expect(read('CHANGELOG.md')).toContain('## [1.0.0]');
+    expect(read('SECURITY.md')).toContain('Reporting a vulnerability');
+  });
+
   it('describes Tessarion as a completed production product', () => {
     const docs = read('app/docs/page.tsx');
     expect(docs).toContain('production-ready across the complete learning loop');
