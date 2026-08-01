@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, PlayCircle } from 'lucide-react';
 import { Reveal } from '@/components/motion/reveal';
 import { SiteShell } from '@/components/site/site-shell';
 
@@ -36,7 +36,10 @@ export default function AboutPage() {
             <div className="about-reading-column">
               <h2>An open-source learning system built by Dhruv Gupta.</h2>
               <p>The project brings retrieval, graph reasoning, workflow orchestration, evaluation, and product design into one evidence-linked learning loop.</p>
-              <Link href="https://github.com/Dhruvg334/Tessarion" className="text-link about-repo-link" target="_blank" rel="noreferrer"><GitHubMark /> View the GitHub repository</Link>
+              <div className="about-project-links">
+                <Link href="https://github.com/Dhruvg334/Tessarion" className="text-link about-repo-link" target="_blank" rel="noreferrer"><GitHubMark /> View the GitHub repository</Link>
+                <Link href="https://youtu.be/wEGKEA1_CVE" className="text-link about-repo-link" target="_blank" rel="noreferrer"><PlayCircle size={16} /> Watch the product demo</Link>
+              </div>
             </div>
           </Reveal>
           <Reveal className="about-compact-section">

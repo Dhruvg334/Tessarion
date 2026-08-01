@@ -1912,3 +1912,10 @@ img, svg { display: block; max-width: 100%; }
   .knowledge-report-view-controls { width: 100%; }
   .knowledge-report-view-controls button { flex: 1; }
 }
+
+.about-project-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem 1.2rem;
+  align-items: center;
+}

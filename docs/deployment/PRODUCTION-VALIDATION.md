@@ -137,3 +137,11 @@ Expected: access denied or workspace not found; no source, concept, activity, tu
 ## Release gate
 
 The release is ready only when signup, session persistence, notebook creation, source persistence, processing, retrieval, graph projection, teach-back, tutoring, review, activity, tracing, isolation, logout, and the public demo all pass without console errors or raw provider/database errors in the UI.
+
+
+## Official product walkthrough
+
+- Video: https://youtu.be/wEGKEA1_CVE
+- `/demo` embeds the privacy-enhanced YouTube player.
+- `/demo/notebook` remains the public, read-only interactive product experience.
+- The video and interactive notebook must both remain accessible without authentication.

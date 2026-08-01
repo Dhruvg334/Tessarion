@@ -6,6 +6,7 @@
 - [ ] `.env.local` and provider credentials are untracked.
 - [ ] `package.json` and `package-lock.json` report version `1.0.0`.
 - [ ] README, changelog, security policy, and deployment documentation match production.
+- [ ] Official product demo is embedded from `https://youtu.be/wEGKEA1_CVE`.
 - [ ] No unrelated or temporary media is embedded.
 
 ## Automated gates
@@ -53,6 +54,7 @@ Required result:
 - [ ] Arize AX receives the production trace.
 - [ ] A second account cannot access the first account’s notebook.
 - [ ] Logout removes access to protected routes.
+- [ ] Official video demo loads on `/demo`.
 - [ ] Public demo remains available without authentication and writes no account data.
 
 ## Release

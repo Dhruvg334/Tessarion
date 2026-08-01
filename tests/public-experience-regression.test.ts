@@ -45,11 +45,15 @@ describe('public experience regressions', () => {
     expect(read('components/auth/signup-form.tsx')).toContain('PasswordInput');
   });
 
-  it('keeps the demo focused on the interactive notebook without unrelated media', () => {
+  it('pairs the official video walkthrough with the public interactive notebook', () => {
     const demo = read('app/demo/page.tsx');
+    const about = read('app/about/page.tsx');
+    const readme = read('README.md');
     expect(demo).toContain('Interactive product demo');
     expect(demo).toContain('Open demo notebook');
-    expect(demo).not.toContain('youtube-nocookie.com');
+    expect(demo).toContain('youtube-nocookie.com/embed/wEGKEA1_CVE');
+    expect(about).toContain('https://youtu.be/wEGKEA1_CVE');
+    expect(readme).toContain('https://youtu.be/wEGKEA1_CVE');
     expect(demo).not.toContain('temporary');
     expect(read('app/about/learning-methods/page.tsx')).toContain('Feynman-style explanation');
   });

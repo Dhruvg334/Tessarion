@@ -14,6 +14,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Stateful Socratic tutoring with bounded questions, checkpoints, and return-to-teach-back flow.
 - Evidence-based mastery signals, review scheduling, activity history, and trace inspection.
 - Public deterministic demo notebook requiring no account or provider key.
+- Official product walkthrough published at https://youtu.be/wEGKEA1_CVE.
 - Supabase authentication, row-level security, profile management, and workspace isolation.
 - Qdrant hybrid retrieval, Neo4j AuraDB projection, Inngest durable jobs, and Arize AX tracing.
 - Dataset-driven evaluation suites, CI quality gates, deployment checks, and infrastructure validation.

@@ -356,7 +356,7 @@ export const docsPages: DocsPage[] = [
       {
         heading: 'Available now',
         bullets: [
-          'Public site, documentation, public demo, authentication, dashboard, and notebook workspace.',
+          'Public site, documentation, official video walkthrough, public demo, authentication, dashboard, and notebook workspace.',
           'Source ingestion, chunking, concept relationships, teach-back, mastery, review, tutoring, evidence, activity, and trace views.',
           'Typed prompts, tools, workflows, checkpoints, hybrid retrieval, graph projection, and OTLP trace export boundaries.',
           'Versioned evaluation suites, CI gates, performance checks, and deployment health routes.',

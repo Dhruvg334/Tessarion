@@ -6,7 +6,7 @@
 
 ### Evidence-linked learning through teach-back, retrieval, concept graphs, and guided recovery
 
-[Live Product](https://tessarion.vercel.app) · [Public Demo](#public-demo) · [Architecture](#architecture) · [Agentic System](#agentic-system) · [Evaluation](#evaluation) · [Documentation](#documentation) · [Deployment](#deployment)
+[Live Product](https://tessarion.vercel.app) · [Video Demo](https://youtu.be/wEGKEA1_CVE) · [Interactive Demo](#public-demo) · [Architecture](#architecture) · [Agentic System](#agentic-system) · [Evaluation](#evaluation) · [Documentation](#documentation) · [Deployment](#deployment)
 
 </div>
 
@@ -15,7 +15,8 @@
 ## Product
 
 **Version:** `1.0.0`  
-**Production:** [tessarion.vercel.app](https://tessarion.vercel.app)
+**Production:** [tessarion.vercel.app](https://tessarion.vercel.app)  
+**Video demo:** [Watch the Tessarion walkthrough](https://youtu.be/wEGKEA1_CVE)
 
 Tessarion turns study material into a traceable learning workspace. A learner explains a concept in their own words. The system retrieves source evidence, inspects concept dependencies, identifies gaps, records mastery evidence, and routes the learner to another attempt, Socratic tutoring, or review.
 
@@ -216,7 +217,9 @@ The retrieval pipeline enforces workspace isolation, bounded candidate counts, p
 
 ## Public demo
 
-The public notebook at `/demo/notebook` requires no account and writes no user data.
+[Watch the official product walkthrough](https://youtu.be/wEGKEA1_CVE), then explore the same learning flow directly in the public notebook.
+
+The public notebook at [`/demo/notebook`](https://tessarion.vercel.app/demo/notebook) requires no account and writes no user data.
 
 **Topic:** Computer Architecture and Memory Systems
 
